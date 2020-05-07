@@ -2,20 +2,21 @@ import React, { Suspense, lazy } from 'react';
 import styled from 'styled-components'
 import { Route, Switch } from 'react-router-dom'
 import { PageNotFound } from './components/PageNotFound'
+import { Timeline } from './components/Timeline';
 import { bulmaColors } from './styles/bulma.colors'
 import { UnstyledLink } from './styles/link.styled'
 // icon imports
 import {
   Menu, Bell, User, // topbar icons
   Home, CheckSquare, Bookmark, // sidebar icons
-  PlusCircle, // toolbar icons
+  PlusCircle, Play, Pause, Square, Plus, Clock, // Idle-Time page icons
 } from 'react-feather'
 
 const pageOptions = {
   sidebarWidth: "20%",
   timelineWidth: "120px",
   topbarHeight: "85px", // includes padding
-  bottombarHeight: "56px",
+  bottombarHeight: "56px", // includes 8px top/bot padding
   toolbarHeight: "40px",
 }
 
@@ -24,7 +25,7 @@ function App() {
     <StyledApp>
 
       {/* Sidebar */}
-      <div className="sidebar">
+      <StyledSidebar className="sidebar">
         <header className="sidebar-header">
           <h1 className="app-title">Idle Time</h1>
         </header>
@@ -41,13 +42,13 @@ function App() {
             </UnstyledLink>
           </nav>
         </div>
-      </div>
+      </StyledSidebar>
 
       {/* Main Section */}
       <div className="content">
 
         {/* TopBar */}
-        <StyledTopbar className="top-bar">
+        <StyledTopbar className="top-bar bar">
           <div className="topbar-left">
             <div className="menu-icon">
               <Menu size={32} />
@@ -76,25 +77,47 @@ function App() {
 
             {/* Content-Left */}
             <div className="section-left">
+
               {/* Timeline */}
               <div className="timeline">
-                timeline
+                <Timeline />
               </div>
             </div>
 
             {/* Content-Right */}
             <div className="section-right">
+
               {/* Toolbar */}
-              <div className="toolbar">
-                toolbar
+              <div className="toolbar bar">
+                <div className="bar-left">
+                  <span className="icon">
+                    <Play size={24} />
+                  </span>
+                  <span className="icon disabled">
+                    <Pause size={24} />
+                  </span>
+                  <span className="icon disabled">
+                    <Square size={24} />
+                  </span>
+                </div>
+                <div className="bar-right">
+                  <span className="icon">
+                    <Plus size={24} />
+                  </span>
+                  <span className="icon">
+                    <Clock size={24} />
+                  </span>
+                </div>
               </div>
+
               {/* Task Cards */}
               <div className="task-cards">
                 <div className="task-card">
-                  <h3 className="task-card-title">Card Title</h3>
-                  <p className="task-card-note has-gray-text">Card Note</p>
+                  <h3 className="task-card-title is-size-4">Card Title</h3>
+                  <p className="task-card-note has-gray-text is-size-6">Card Note</p>
                 </div>
               </div>
+
               {/* Add Task Button */}
               <div className="add-button-container">
                 <button className="button add-task-button is-primary is-regular">
@@ -107,9 +130,21 @@ function App() {
             </div>
 
             {/* BottomBar */}
-            <div className="bottom-bar">
-              bottom bar
-            </div>
+            <StyledBottomBar className="bottom-bar bar">
+              <div className="bar-left">
+                <p className="time-text">8:20 am</p>
+                <p className="checkbox-with-text" style={{marginLeft:8}}>
+                  <input type="checkbox"/>
+                  <span style={{marginLeft:4}}>hide</span>
+                </p>
+              </div>
+              <div className="bar-right">
+                <p className="checkbox-with-text">
+                  <span style={{marginRight:4}}>all</span>
+                  <input type="checkbox" />
+                </p>
+              </div>
+            </StyledBottomBar>
           </div>
         </main>
       </div>
@@ -129,63 +164,23 @@ function App() {
 
 export default App;
 
+
 const StyledApp = styled.div`
+  // .timeline-1 {
+  //   display: flex;
+  //   flex-direction: column;
+  //   align-items: center;
+  //   margin-top: 52px;
+  //   padding-bottom: 12px;
 
+  //   .timeline-line {
+  //     width: 2px; // or 1px, test which one looks best
+  //     // background: rgba(0,0,0,.88);
+  //     background: #363636;
+  //     height: calc(100vh - 86px - 52px - 56px - 12px - 16px);
+  //   }
+  // }
 
-  .sidebar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: ${pageOptions.sidebarWidth};
-    background: ${bulmaColors.light};
-
-    .sidebar-header {
-      padding: 16px;
-      padding-top: 20px;
-      
-      .app-title {
-        color: ${bulmaColors.warning};
-        font-family: Montserrat;
-        font-style: italic;
-        font-weight: bold;
-        // border: 2px solid #000;
-        text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
-        font-size: 64px;
-        line-height: 68px;
-        text-align: center;
-        word-spacing: 9999rem; // makes sure "Idle" and "Time" are always on separate lines
-      }
-    }
-    .sidebar-body {
-      margin-top: 12px;
-      padding: 10px 15px;
-
-      .sidebar-nav {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        text-align: center;
-
-        .nav-item {
-          height: 60px;
-          margin-top: 18px;
-          margin-bottom: 18px;
-          padding: 8px 12px;
-          color: rgba(0,0,0,.77);
-          font-weight: 300;
-          border-radius: 4px;
-          background: transparent;
-          transition: background .2s ease-in-out;
-
-          &:hover {
-            background: rgba(0,0,0,.09);
-            transition: background .2s ease-in-out;
-          }
-        }
-      }
-    }
-  }
   .content {
     margin-left: ${pageOptions.sidebarWidth};
 
@@ -214,6 +209,33 @@ const StyledApp = styled.div`
           margin-bottom: 12px;
           padding: 6px 12px;
           height: ${pageOptions.toolbarHeight};
+
+          .icon {
+            cursor: pointer;
+            padding: 8px;
+            // border-radius: 50%;
+            height: 36px;
+            width: 36px;
+            padding: 6px;
+            background-color: #fff;
+            transition: background-color .2s ease-in-out;
+
+            &:hover {
+              background-color: rgba(0,0,0,.07);
+              transition: background-color .15s ease-in-out;
+            }
+          }
+          .icon.play-icon {
+            &:hover {
+              color: ${bulmaColors.success};
+              transition: color .2s ease-in-out;
+            }
+          }
+          .icon.disabled {
+            cursor: initial;
+
+            &:hover { transition: none; color: rgba(0,0,0,.88); background-color: #fff; }
+          }
         }
         .task-cards {
           // bottombar: 56px, toolbar: 40px + 12px margin, addButton: 40px + 12px margin, topbar: 85px, containerPadding: 16px
@@ -230,16 +252,12 @@ const StyledApp = styled.div`
               font-size: 26px;
               line-height: 32px;
               font-weight: 500;
-              font-family: montserrat;
-              font-style: normal;
               color: #000;
             }
             .task-card-note {
               font-size: 20px;
               line-height: 24px;
               color: #000;
-              font-family: montserrat;
-              font-style: normal;
               font-weight: normal;
             }
           }
@@ -255,20 +273,99 @@ const StyledApp = styled.div`
           }
         }
       }
+    }
+  }
+`
 
-      .bottom-bar {
-        height: ${pageOptions.bottombarHeight};
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        border-top: 1px solid rgba(0,0,0,.09);
-        // layout
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-left: 16px;
-        padding-right: 16px;
+const StyledBottomBar = styled.div`
+  height: 56px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px solid rgba(0,0,0,.09);
+  // layout
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 16px;
+  padding-right: 16px;
+
+  p, p.time-text {
+    margin-bottom: 0;
+    display: inline-block;
+    color: rgba(0,0,0,.88);
+  }
+
+  .bar-left, .bar-right {
+    height: 56px;
+  }
+
+  .checkbox-with-text {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 2px;
+    padding-right: 2px;
+
+    input {
+      cursor: pointer;
+    }
+  }
+`
+
+const StyledSidebar = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: ${pageOptions.sidebarWidth};
+  background: ${bulmaColors.light};
+
+  .sidebar-header {
+    padding: 16px;
+    padding-top: 20px;
+    
+    .app-title {
+      color: ${bulmaColors.warning};
+      font-family: Montserrat;
+      font-style: italic;
+      font-weight: bold;
+      // border: 2px solid #000;
+      text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+      font-size: 64px;
+      line-height: 68px;
+      text-align: center;
+      word-spacing: 9999rem; // makes sure "Idle" and "Time" are always on separate lines
+    }
+  }
+  .sidebar-body {
+    margin-top: 12px;
+    padding: 10px 15px;
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+
+      .nav-item {
+        height: 60px;
+        margin-top: 18px;
+        margin-bottom: 18px;
+        padding: 8px 12px;
+        color: rgba(0,0,0,.77);
+        font-weight: 300;
+        border-radius: 4px;
+        background: transparent;
+        transition: background .2s ease-in-out;
+
+        &:hover {
+          background: rgba(0,0,0,.09);
+          transition: background-color .2s ease-in-out;
+        }
       }
     }
   }
@@ -292,7 +389,7 @@ const StyledTopbar = styled.div`
       padding-bottom: 0;
       padding-left: 16px;
       padding-right: 6px;
-      font-weight: 400;
+      font-weight: 500;
       font-size: 28px;
       color: #000;
     }
@@ -313,19 +410,19 @@ const StyledTopbar = styled.div`
     }
   }
   .icon-container {
-    background: #fff;
     cursor: pointer;
     height: 38px;
     width: 38px;
-    padding: 6px;
-    border-radius: 50%;
-    transition: background .2s ease-in-out;
     margin-left: 2px;
     margin-right: 2px;
+    padding: 6px;
+    border-radius: 50%;
+    background-color: #fff;
+    transition: background-color .2s ease-in-out;
 
     &:hover {
-      background: rgba(0,0,0,.07);
-      transition: background .2s ease-in-out;
+      background-color: rgba(0,0,0,.07);
+      transition: background-color .2s ease-in-out;
     }
   }
 
