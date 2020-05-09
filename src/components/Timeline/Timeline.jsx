@@ -31,6 +31,7 @@ const StyledTimeline = styled.div`
       // background: rgba(0,0,0,.88);
       background: #363636;
       height: calc(100vh - 86px - 52px - 56px - 12px - 16px);
+      // height: 100%;
     }
   }
 `

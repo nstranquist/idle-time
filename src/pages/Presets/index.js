@@ -1,5 +1,5 @@
 import { Presets } from './Presets'
 
 export {
-  Presets, 
+  Presets as default, 
 }

@@ -1,19 +1,18 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Timeblocking } from '../../components/Timeblocking'
+import { BottomBar } from '../../components/BottomBar'
 
 
 export const Home = () => {
   return (
     <StyledHome>
-      <div className="inner">
-        <header>
-          <h1>home</h1>
-        </header>
-      </div>
+      <Timeblocking />
+      <BottomBar />
     </StyledHome>
   )
 }
 
 const StyledHome = styled.div`
-
+  position: relative;
 `

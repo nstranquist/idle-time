@@ -1,5 +1,5 @@
 import { Tasks } from './Tasks'
 
 export {
-  Tasks, 
+  Tasks as default, 
 }
