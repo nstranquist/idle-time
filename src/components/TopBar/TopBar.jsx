@@ -4,17 +4,27 @@ import { Menu, Bell, User } from 'react-feather'
 import { bulmaColors } from '../../styles/bulma.colors'
 
 export const TopBar = ({
-  // handleCloseDrawer
+  sidebarOpen,
+  openSidebar,
+  closeSidebar,
 }) => {
   const [activeDisplay, setActiveDisplay] = useState("day")
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifMenu, setShowNotifMenu] = useState(false)
 
+  const handleToggleSidebar = () => {
+    // If open, close it. If closed, open it
+    if(sidebarOpen)
+      closeSidebar()
+    else
+      openSidebar()
+  }
+
   return (
     <StyledTopbar className="top-bar bar">
       <div className="topbar-left">
         <div className="menu-icon"
-          /*onClick={handleCloseDrawer}*/ >
+          onClick={handleToggleSidebar} >
           <Menu size={32} />
         </div>
         <h3 className="date-text">Today,</h3>
@@ -43,9 +53,9 @@ export const TopBar = ({
   )
 }
 
-// NOTE: use redux
-
 const StyledTopbar = styled.div`
+  transition: .2s ease-in-out;
+
   padding: 18px 14px;
   border-bottom: 1px solid rgba(0,0,0,.17);
   display: flex;

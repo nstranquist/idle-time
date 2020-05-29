@@ -40,41 +40,6 @@ const startingTasks = [
     title: "Card Title",
     note: "Card Note"
   },
-  {
-    id: 'b',
-    title: "Card Title",
-    note: "Card Note"
-  },
-  {
-    id: 'c',
-    title: "Card Title",
-    note: "Card Note"
-  },
-  {
-    id: 'd',
-    title: "Card Title",
-    note: "Card Note"
-  },
-  {
-    id: 'a',
-    title: "Card Title",
-    note: "Card Note"
-  },
-  {
-    id: 'b',
-    title: "Card Title",
-    note: "Card Note"
-  },
-  {
-    id: 'c',
-    title: "Card Title",
-    note: "Card Note"
-  },
-  {
-    id: 'd',
-    title: "Card Title",
-    note: "Card Note"
-  },
 ]
 
 const emptyNewTask = {
@@ -164,6 +129,11 @@ export const Timeblocking = () => {
       console.log('task with id:', id, 'was not found')
   }
 
+  const handleClockClick = (e) => {
+    // show clock timer
+    console.log('clicked clock icon for task')
+  }
+
   const handleCancel = () => {
     setFormErrors(null)
     setIsEditing(false)
@@ -218,51 +188,75 @@ export const Timeblocking = () => {
         <div className="task-cards">
           {tasks.length > 0 && tasks.map(task => (
             <div className="task-card" key={task.id}>
-              <h3
-                className="task-card-title is-size-4"
-                id={task.id}
-                contentEditable={!isEditing}
-                onFocus={(e) => handleFocus(e, "title")}
-                // onKeyDown={handleKeyDown}
-                onBlur={(e) => handleBlur(e, "title")}
-              >
-                {task.title}</h3>
-              <p
-                className="task-card-note has-gray-text is-size-6"
-                id={task.id}
-                contentEditable={!isEditing}
-                onFocus={(e) => handleFocus(e, "note")}
-                // onKeyDown={handleKeyDown}
-                onBlur={(e) => handleBlur(e, "note")}
-              >
-                {task.note}
-              </p>
+              <div className="task-left">
+                <span className="icon"
+                  onClick={handleClockClick}>
+                  <Clock size={24} />
+                </span>
+              </div>
+              <div className="task-body">
+                <h3
+                  className="task-card-title is-size-4"
+                  id={task.id}
+                  contentEditable={!isEditing}
+                  onFocus={(e) => handleFocus(e, "title")}
+                  // onKeyDown={handleKeyDown}
+                  onBlur={(e) => handleBlur(e, "title")}
+                >
+                  {task.title}
+                </h3>
+                {task.note && task.note.length > 0 && (
+                  <p
+                    className="task-card-note has-gray-text is-size-6"
+                    id={task.id}
+                    contentEditable={!isEditing}
+                    onFocus={(e) => handleFocus(e, "note")}
+                    // onKeyDown={handleKeyDown}
+                    onBlur={(e) => handleBlur(e, "note")}
+                  >
+                    {task.note}
+                  </p>
+                )}
+              </div>
+              <div className="task-right">
+
+              </div>
+              
             </div>
           ))}
 
           {formErrors && <ErrorText message={formErrors} />}
           {isEditing && (
             <div className="add-task-card task-card">
-              <h3 className="task-card-title is-size-4"
-                contentEditable
-                style={{background:"#fff",paddingLeft:8,paddingRight:8,paddingTop:3,paddingBottom:3, border:"1px solid rgba(0,0,0,.12)",borderRadius:1,minHeight:40}}
-                // onInput={(e) => {
-                //   console.log('value:', e.currentTarget.textContent)
-                //   if(isEditing)
-                //     setNewTask({ ...newTask, title: e.currentTarget.textContent })
-                // }}
-                // autoFocus
-                onKeyDown={handleKeyDown}
-              >
-                {/* <input type="text" style={{display:'inline-block',width:'100%'}}/> */}
-              </h3>
-              <p className="task-card-note has-gray-text is-size-6"
-                contentEditable
-                style={{background:"#fff",paddingLeft:8,paddingRight:8,paddingTop:3,paddingBottom:3, border:"1px solid rgba(0,0,0,.12)",borderRadius:1,minHeight:32}}
-                onInput={(e) => setNewTask({ ...newTask, note: e.currentTarget.textContent })}
-              >
-                
-              </p>
+              <div className="task-left">
+                <span className="icon">
+                  <Clock size={24} />
+                </span>
+              </div>
+              <div className="task-body">
+                <h3 className="task-card-title is-size-4"
+                  contentEditable
+                  style={{background:"#fff",paddingLeft:8,paddingRight:8,paddingTop:3,paddingBottom:3, border:"1px solid rgba(0,0,0,.12)",borderRadius:1,minHeight:40}}
+                  // onInput={(e) => {
+                  //   console.log('value:', e.currentTarget.textContent)
+                  //   if(isEditing)
+                  //     setNewTask({ ...newTask, title: e.currentTarget.textContent })
+                  // }}
+                  // autoFocus
+                  onKeyDown={handleKeyDown}
+                >
+                  {/* <input type="text" style={{display:'inline-block',width:'100%'}}/> */}
+                </h3>
+                <p className="task-card-note has-gray-text is-size-6"
+                  contentEditable
+                  style={{background:"#fff",paddingLeft:8,paddingRight:8,paddingTop:3,paddingBottom:3, border:"1px solid rgba(0,0,0,.12)",borderRadius:1,minHeight:32}}
+                  onInput={(e) => setNewTask({ ...newTask, note: e.currentTarget.textContent })}
+                >
+                  
+                </p>
+              </div>
+              <div className="task-right"></div>
+              
             </div>
           )}
         </div>
@@ -302,6 +296,10 @@ export const Timeblocking = () => {
   )
 }
 
+const StyledTaskCard = styled.div`
+
+`
+
 const StyledTimeblocking = styled.div`
   position: relative;
   height: calc(100vh - 85px - 16px);
@@ -321,7 +319,8 @@ const StyledTimeblocking = styled.div`
 
     .toolbar {
       border: 1px solid rgba(0,0,0,.17);
-      margin-bottom: 12px;
+      // margin-bottom: 12px;
+      margin-bottom: 6px;
       padding: 6px 12px;
       height: ${pageOptions.toolbarHeight};
 
@@ -355,8 +354,11 @@ const StyledTimeblocking = styled.div`
     .task-cards {
       // bottombar: 56px, toolbar: 40px + 12px margin, addButton: 40px + 12px margin, topbar: 85px, containerPadding: 16px
       // = 56px + 52px + 52px + 85px + 16px
-      max-height: calc(100vh - 56px - 104px - 85px - 16px);
+      max-height: calc(100vh - 56px - 104px - 85px - 10px);
+      padding-top: 6px;
+      // border-top: 1px solid rgba(0,0,0,.12);
       overflow-y: auto;
+      padding-right: 8px;
 
       .task-card {
         padding: 12px 20px; // NOTE: adjust the padding to make responsive
@@ -364,19 +366,55 @@ const StyledTimeblocking = styled.div`
         border: 1px solid rgba(0,0,0,.15);
         border-radius: 8px;
         margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
 
-        .task-card-title {
-          font-size: 26px;
-          line-height: 32px;
-          font-weight: 500;
-          color: #000;
+        h3 {
+          margin-bottom: 0;
         }
-        .task-card-note {
-          font-size: 20px;
-          line-height: 24px;
-          color: #000;
-          font-weight: normal;
+        p {
+          margin-top: .6666em;
         }
+
+        .task-left {
+          padding-right: 8px;
+
+          .icon {
+            cursor: pointer;
+            padding: 16px;
+            border-radius: 50%;
+            height: 44px;
+            width: 44px;
+            padding: 6px;
+            transition: background-color .2s ease-in-out;
+
+            &:hover {
+              background-color: rgba(0,0,0,.07);
+              transition: background-color .15s ease-in-out;
+            }
+          }
+        }
+        .task-body {
+          flex: 1;
+
+          .task-card-title {
+            font-size: 26px;
+            line-height: 32px;
+            font-weight: 500;
+            color: #000;
+          }
+          .task-card-note {
+            font-size: 20px;
+            line-height: 24px;
+            color: #000;
+            font-weight: normal;
+          }
+        }
+        .task-right {
+
+        }
+        
       }
     }
     .add-button-container,
