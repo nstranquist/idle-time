@@ -1,21 +1,29 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ErrorText } from '../ErrorText'
-// import styled from 'styled-components'
+import styled from 'styled-components'
 
 
-const emptyForm = {
-  date: new Date()
+const emptyClockForm = {
+  date: new Date(),
+  // hours: 0,
+  // minutes: 5,
+  // duration: "0:05",
+  // timeframe: "D",
 }
 
 export const ClockModal = ({
+  clockData = emptyClockForm,
   onSubmit
 }) => {
-  const[formData, setFormData] = useState(emptyForm)
+  const[formData, setFormData] = useState(clockData)
   const[formErrors, setFormErrors] = useState(null)
 
-  useEffect(() => {
+  const formatDate = (date) => {
+    // returns formatted date `YYYY-MM-DD`
+    let formattedDate = "2020-06-11"
 
-  }, [])
+    return formattedDate
+  }
 
   const handleChange = (e) => {
     setFormData({
@@ -34,18 +42,19 @@ export const ClockModal = ({
       setFormErrors("date is invalid")
     else {
       // submit form
-      // onSubmit(formData)
+      onSubmit(date)
       console.log('form data:', formData)
-      // resetForm()
+      resetForm()
     }
-    
-    resetForm()
   }
   
-  const resetForm = () => setFormData(emptyForm)
+  const resetForm = () => {
+    setFormData(clockData)
+    setFormErrors(null)
+  }
 
   return (
-    <div style={{position: "absolute"}}>
+    <ClockModalStyled>
       <form onSubmit={handleSubmit}>
         {formErrors && <ErrorText text={formErrors} />}
         <p className="form-item">
@@ -57,7 +66,24 @@ export const ClockModal = ({
             onChange={handleChange}
           />
         </p>
+        <div className="submit-btn-container">
+          <button type="submit" className="submit-btn">Save</button>
+        </div>
       </form>
-    </div>
+    </ClockModalStyled>
   )
 }
+
+const ClockModalStyled = styled.div`
+  position: absolute;
+  left: 0;
+  bottom: -100px;
+  height: 100px;
+  padding-left: 8;
+  padding-right: 8;
+  z-index: 1009;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.07);
+
+
+`

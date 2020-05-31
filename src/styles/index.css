@@ -67,3 +67,7 @@ i {
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* Standard */
 }
+
+.dropdown-icon {
+  position: "relative";
+}

@@ -57,7 +57,6 @@ const StyledSidebar = styled.div`
   width: ${pageOptions.sidebarWidth};
   background: ${bulmaColors.light};
   border-right: 1px solid rgba(0,0,0,.02);
-  max-width: 350px;
 
   &.closed {
     width: ${pageOptions.sidebarWidthClosed};
@@ -114,5 +113,15 @@ const StyledSidebar = styled.div`
         }
       }
     }
+  }
+
+  @media(max-width: 800px) {
+    .app-title {
+      font-size: 20px;
+    }
+  }
+  @media(min-width: 1400px) {
+    width: 350px;
+    max-width: 350px;
   }
 `

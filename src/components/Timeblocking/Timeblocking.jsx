@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { connect } from 'react-redux'
 import styled from 'styled-components'
+import moment from 'moment'
 import { Play, Pause, Square, Plus, PlusCircle, Clock, Check, X } from 'react-feather'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { Timeline } from '../Timeline'
+import { TimeBlock } from './TimeBlock'
 import { ErrorText } from '../ErrorText'
+import { ClockModal } from '../ClockModal'
+import { boxShadows } from '../../styles/shadows.style'
 
 
 const pageOptions = {
@@ -16,46 +21,67 @@ const pageOptions = {
 
 const startingTasks = [
   {
-    id: 'a',
+    id: 'a', 
     title: "Card Title",
-    note: "Card Note"
+    note: "Card Note",
+    date: new Date(),
+    duration: "3:15", // 3 hours 15 minutes
   },
   {
     id: 'b',
     title: "Card Title",
-    note: "Card Note"
+    desc: "Card Description"
   },
   {
     id: 'c',
     title: "Card Title",
-    note: "Card Note"
+    desc: "Card Description"
   },
   {
     id: 'd',
     title: "Card Title",
-    note: "Card Note"
+    desc: "Card Description"
   },
   {
-    id: 'a',
+    id: 'e',
     title: "Card Title",
-    note: "Card Note"
+    desc: "Card Description"
   },
 ]
 
 const emptyNewTask = {
   title: "",
-  note: ""
+  desc: "",
+  startTime: moment(new Date()).format('YYYY-MM-DD')
 }
 
-export const Timeblocking = () => {
+export const Timeblocking = ({
+  // tasks,
+}) => {
+  const [isAdding, setIsAdding] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [tasks, setTasks] = useState(startingTasks)
   const [newTask, setNewTask] = useState(undefined)
   const [formErrors, setFormErrors] = useState(null)
 
-  const handleEdit = () => {
+  const [timer, setTimer] = useState(undefined)
+
+  const [activeTask, setActiveTask] = useState(undefined)
+
+  // const [clockClicked, setClockClicked] = useState(false)
+  const [activeClockId, setActiveClockId] = useState(undefined)
+
+  const handleAddToggle = () => {
     setNewTask(emptyNewTask)
-    setIsEditing(true)
+    setIsAdding(true)
+  }
+
+  const handleClockClick = () => {
+    // toggle clock
+  }
+  const handleClockSubmit = (e) => {
+    // handle clock submit
+    e.preventDefault()
   }
 
   const handleKeyDown = (e) => {
@@ -64,12 +90,12 @@ export const Timeblocking = () => {
       character = String.fromCharCode(charCode);
 
     if(e.keyCode === 13)
-      handleSubmit();
+      handleAddSubmit();
     else
       setNewTask({ ...newTask, title: newTask.title + character })
   }
 
-  const handleSubmit = () => {
+  const handleAddSubmit = () => { // submits new task
 
     if(!newTask)
       setFormErrors("Task is not defined")
@@ -78,72 +104,69 @@ export const Timeblocking = () => {
     // else if()
     // else if()
     else {
-      setNewTask({
-        ...newTask,
-        id: tasks.length.toString()
-      })
+      console.log('new task:', newTask, 'id:', tasks.length.toString())
       // add task
       setTasks([
         ...tasks,
-        newTask
+        {
+          ...newTask,
+          id: tasks.length.toString()
+        }
       ])
-      setIsEditing(false)
+      setIsAdding(false)
       setNewTask(undefined)
     }
   }
 
-  const handleFocus = (e, name) => {
-    let title = "", note = "";
-
-    console.log("target id:", e.currentTarget.id, "text content:", e.currentTarget.textContent)
-    // find item by id
-    const activeItem = tasks.find(task => task.id === e.currentTarget.id)
-    if(activeItem) {
-      // setIsEditing(true)
-
-      if(name === "title")
-        title = e.currentTarget.textContent
-      else if(name === "note")
-        note = e.currentTarget.textContent
-
-      setNewTask({ title, note })
-    }
-  }
-
-  // Save textContent of contentEditable after it loses focus
-  const handleBlur = (e, name) => {
-    const text = e.currentTarget.textContent;
-    const id = e.currentTarget.id;
-
-    if(id && text) {
-      console.log('searching for task with id', id)
-      setTasks(
-        tasks.map(task => {
-          if(task.id === id)
-            name === "title" ? task.title = text : task.note = text;
-          return task;
-        })
-      )
-    }
-    else
-      console.log('task with id:', id, 'was not found')
-  }
-
-  const handleClockClick = (e) => {
-    // show clock timer
-    console.log('clicked clock icon for task')
-  }
-
-  const handleCancel = () => {
+  const handleAddCancel = () => {
     setFormErrors(null)
-    setIsEditing(false)
+    setIsAdding(false)
     setNewTask(undefined)
   }
 
-  // Utility function for dev testing only
-  const printTasks = () => {
-    console.log('Tasks:')
-    console.log(tasks)
+  const startTimer = () => {
+    setTimer(0)
+  }
+
+  const formatTime = (time) => {
+
+
+    return time;
+  }
+
+  const onInputClick = (taskData, fieldName) => {
+    if(isEditing && taskData) {
+      // submit existing form, switch active editing id
+      onSave(activeTask)
+      setActiveTask({
+        ...taskData,
+        activeField: fieldName
+      })
+    }
+    else {
+      setIsEditing(true)
+      setActiveTask({
+        ...taskData,
+        activeField: fieldName
+      })
+    }
+  }
+
+  const onSave = (taskData) => {
+    // save data in the state
+    if(taskData) {
+      setTasks(
+        tasks.map(task => {
+          if(task.id === taskData.id)
+            task = taskData;
+          return task;
+        })
+      )
+      setIsEditing(false)
+      setActiveTask(undefined)
+    }
+    else
+      console.log('task was not found')
   }
 
   return (
@@ -164,21 +187,27 @@ export const Timeblocking = () => {
         {/* Toolbar */}
         <div className="toolbar bar">
           <div className="bar-left">
-            <span className="icon">
+            {timer && (
+              <span className="timer-text">
+                {formatTime(timer)}
+              </span>
+            )}
+            <span className="icon toolbar-icon play-icon"
+              onClick={startTimer}>
               <Play size={24} />
             </span>
-            <span className="icon disabled">
+            <span className="icon toolbar-icon disabled">
               <Pause size={24} />
             </span>
-            <span className="icon disabled">
+            <span className="icon toolbar-icon disabled">
               <Square size={24} />
             </span>
           </div>
           <div className="bar-right">
-            <span className="icon">
+            <span className="icon toolbar-icon">
               <Plus size={24} />
             </span>
-            <span className="icon">
+            <span className="icon toolbar-icon">
               <Clock size={24} />
             </span>
           </div>
@@ -186,51 +215,26 @@ export const Timeblocking = () => {
 
         {/* Task Cards */}
         <div className="task-cards">
-          {tasks.length > 0 && tasks.map(task => (
-            <div className="task-card" key={task.id}>
-              <div className="task-left">
-                <span className="icon"
-                  onClick={handleClockClick}>
-                  <Clock size={24} />
-                </span>
-              </div>
-              <div className="task-body">
-                <h3
-                  className="task-card-title is-size-4"
-                  id={task.id}
-                  contentEditable={!isEditing}
-                  onFocus={(e) => handleFocus(e, "title")}
-                  // onKeyDown={handleKeyDown}
-                  onBlur={(e) => handleBlur(e, "title")}
-                >
-                  {task.title}
-                </h3>
-                {task.note && task.note.length > 0 && (
-                  <p
-                    className="task-card-note has-gray-text is-size-6"
-                    id={task.id}
-                    contentEditable={!isEditing}
-                    onFocus={(e) => handleFocus(e, "note")}
-                    // onKeyDown={handleKeyDown}
-                    onBlur={(e) => handleBlur(e, "note")}
-                  >
-                    {task.note}
-                  </p>
-                )}
-              </div>
-              <div className="task-right">
-
-              </div>
-              
-            </div>
+          {tasks.length > 0 && tasks.map((task, index) => (
+            <TimeBlock
+              key={index}
+              taskData={task}
+              activeField={activeTask ? activeTask.activeField : undefined}
+              isEditing={activeTask && task.id === activeTask.id}
+              onInputClick={onInputClick}
+              onSave={onSave}
+            />
           ))}
 
           {formErrors && <ErrorText message={formErrors} />}
-          {isEditing && (
+          {isAdding && (
             <div className="add-task-card task-card">
               <div className="task-left">
-                <span className="icon">
+                <span style={{position: "relative"}} className="icon" onClick={() => handleClockClick("form")}>
                   <Clock size={24} />
+                  {activeClockId && activeClockId==="form" && (
+                    <ClockModal onSubmit={handleClockSubmit} />
+                  )}
                 </span>
               </div>
               <div className="task-body">
@@ -245,7 +249,7 @@ export const Timeblocking = () => {
                   // autoFocus
                   onKeyDown={handleKeyDown}
                 >
-                  {/* <input type="text" style={{display:'inline-block',width:'100%'}}/> */}
+                  {/* <input type="text" className="is-size-4" style={{display:'inline-block',width:'100%',border:0,outline:0,opacity:.88}}/> */}
                 </h3>
                 <p className="task-card-note has-gray-text is-size-6"
                   contentEditable
@@ -262,10 +266,10 @@ export const Timeblocking = () => {
         </div>
 
         {/* Add Task / Submit Task Button */}
-        {!isEditing ? (
+        {!isAdding ? (
           <div className="add-button-container">
             <button className="button add-task-button is-primary is-regular"
-              onClick={handleEdit}>
+              onClick={handleAddToggle}>
               <span className="icon is-large">
                 <PlusCircle size={24} />
               </span>
@@ -275,14 +279,14 @@ export const Timeblocking = () => {
         ) : (
           <div className="submit-button-container">
             <button className="button submit-task-button is-regular" style={{marginRight:16}}
-              onClick={handleCancel}>
+              onClick={handleAddCancel}>
               <span className="icon is-large">
                 <X size={24} />
               </span>
               <span style={{fontSize:20,fontWeight:800,marginLeft:6}}>Cancel</span>
             </button>
             <button className="button submit-task-button is-success is-regular"
-              onClick={handleSubmit}>
+              onClick={handleAddSubmit}>
               <span className="icon is-large">
                 <Check size={24} />
               </span>
@@ -296,8 +300,13 @@ export const Timeblocking = () => {
   )
 }
 
-const StyledTaskCard = styled.div`
+const mapStateToProps = (state) => ({
+  timer: state.timer
+})
 
+const StyledTaskCard = styled.div`
+`
+const StyledToolbar = styled.div`
 `
 
 const StyledTimeblocking = styled.div`
@@ -327,28 +336,39 @@ const StyledTimeblocking = styled.div`
       .icon {
         cursor: pointer;
         padding: 8px;
-        // border-radius: 50%;
+        border-radius: 50%;
         height: 36px;
         width: 36px;
         padding: 6px;
         background-color: #fff;
+        color: initial;
         transition: background-color .2s ease-in-out;
 
         &:hover {
           background-color: rgba(0,0,0,.07);
+          border-radius: 50%;
           transition: background-color .15s ease-in-out;
         }
       }
       .icon.play-icon {
-        &:hover {
-          color: ${bulmaColors.success};
-          transition: color .2s ease-in-out;
-        }
+        // transition: color .2s ease-in-out;
+
+        // &:hover {
+        //   color: ${bulmaColors.success};
+        //   transition: color .05s ease-in-out;
+        // }
       }
       .icon.disabled {
         cursor: initial;
 
-        &:hover { transition: none; color: rgba(0,0,0,.88); background-color: #fff; }
+        &:hover {
+          transition: none;
+          color: rgba(0,0,0,.88);
+          background-color: #fff;
+        }
+      }
+      .timer-text {
+
       }
     }
     .task-cards {
@@ -369,6 +389,7 @@ const StyledTimeblocking = styled.div`
         display: flex;
         justify-content: space-between;
         align-items: center;
+        // box-shadow: ${boxShadows.shadow};
 
         h3 {
           margin-bottom: 0;
@@ -391,6 +412,7 @@ const StyledTimeblocking = styled.div`
 
             &:hover {
               background-color: rgba(0,0,0,.07);
+              border-radius: 50%;
               transition: background-color .15s ease-in-out;
             }
           }
@@ -428,10 +450,50 @@ const StyledTimeblocking = styled.div`
         // border-radius: 0;
         font-family: montserrat, sans-serif;
         font-style: normal;
+        box-shadow: ${boxShadows.shadow2};
       }
     }
     .add-button-container {
-      border-top: 1px solid rgba(0,0,0,.1);
+      // border-top: 1px solid rgba(0,0,0,.1);
     }
   }
 `
+
+/*  <div className="task-card" key={index}>
+      <div className="task-left">
+        <span style={{position: "relative"}} className="icon" onClick={(e) => handleClockClick(e, task.id)}>
+          <Clock size={24} />
+          {activeClockId && activeClockId === task.id && (
+            <ClockModal onSubmit={handleClockSubmit} />
+          )}
+        </span>
+      </div>
+      <div className="task-body">
+        <h3
+          className="task-card-title is-size-4"
+          id={task.id}
+          contentEditable={!isEditing}
+          onFocus={(e) => handleFocus(e, "title")}
+          // onKeyDown={handleKeyDown}
+          onBlur={(e) => handleBlur(e, "title")}
+        >
+          {task.title}
+        </h3>
+        {task.note && task.note.length > 0 && (
+          <p
+            className="task-card-note has-gray-text is-size-6"
+            id={task.id}
+            contentEditable={!isEditing}
+            onFocus={(e) => handleFocus(e, "note")}
+            // onKeyDown={handleKeyDown}
+            onBlur={(e) => handleBlur(e, "note")}
+          >
+            {task.note}
+          </p>
+        )}
+      </div>
+      <div className="task-right">
+
+      </div>
+      
+    </div> */

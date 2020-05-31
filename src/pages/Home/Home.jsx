@@ -15,5 +15,5 @@ export const Home = () => {
 
 const StyledHome = styled.div`
   position: relative;
-  width: 100%;
+  // width: 100%;
 `

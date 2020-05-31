@@ -3,6 +3,8 @@
 const OPEN_SIDEBAR = "OPEN_SIDEBAR"
 const CLOSE_SIDEBAR = "CLOSE_SIDEBAR"
 
+const SET_TIMEFRAME = 'SET_TIMEFRAME'
+
 
 
 export const openSidebar = () => ({
@@ -12,10 +14,16 @@ export const closeSidebar = () => ({
   type: CLOSE_SIDEBAR
 })
 
+export const setTimeframe = (timeframe) => ({
+  type: SET_TIMEFRAME,
+  timeframe
+})
+
 
 
 const initialState = {
-  sidebarOpen: true
+  sidebarOpen: true,
+  timeframe: "W"
 }
 
 export default (
@@ -32,6 +40,11 @@ export default (
       return {
         ...state,
         sidebarOpen: false
+      }
+    case SET_TIMEFRAME:
+      return {
+        ...state,
+        timeframe: action.timeframe
       }
     default:
       return state;

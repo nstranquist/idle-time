@@ -1,5 +1,7 @@
 import { Timeblocking } from './Timeblocking'
+import { TimeBlock } from './TimeBlock'
 
 export {
-  Timeblocking, 
+  Timeblocking,
+  TimeBlock,
 }
