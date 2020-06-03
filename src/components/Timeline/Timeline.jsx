@@ -55,7 +55,7 @@ export const Timeline = ({
     console.log("timer time changed to:", timer.getTime())
     setTime(timer.getTime())
   }, [timer.time])
-  
+
   const drawDotsOnTimeline = () => {
     // can draw either colored or transparent <span> every 20 minutes (20px)
     // 20px * 3 = 60px/hour 60*24 = 1440px;
@@ -88,16 +88,16 @@ export const Timeline = ({
             return (
               <UnstyledLink to={`/tasks/${dot.id}`} className="dot-item" key={index} id={dot.id}>
                 {dot.status === 1 && (
-                  <span className="dot-image" style={{backgroundColor: bulmaColors.danger, borderColor: bulmaColors.danger}}></span>
+                  <span className="dot-image dot-red"></span>
                 )}
                 {dot.status === 2 && (
-                  <span className="dot-image" style={{backgroundColor: bulmaColors.warning, borderColor: bulmaColors.warning}}></span>
+                  <span className="dot-image dot-yellow"></span>
                 )}
                 {dot.status === 3 && (
-                  <span className="dot-image" style={{backgroundColor: bulmaColors.success, borderColor: bulmaColors.success}}></span>
+                  <span className="dot-image dot-green"></span>
                 )}
                 {dot.status === 4 && (
-                  <span className="dot-image" style={{backgroundColor: bulmaColors.link, borderColor: bulmaColors.link}}></span>
+                  <span className="dot-image dot-blue"></span>
                 )}
 
                 {isHovering && (
@@ -166,8 +166,8 @@ const StyledTimeline = styled.div`
       .dot-item {
         position: relative;
         display: inline-block;
-        width: 15px;
-        height: 15px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
         margin: 3px 0;
         z-index: 999;
@@ -175,11 +175,26 @@ const StyledTimeline = styled.div`
         .dot-image {
           display: inline-block;
           border-radius: 50%;
-          width: 15px;
-          height: 15px;
-          border-width: 1px;
-          border-style: solid;
-          z-index: 999;
+          width: 16px;
+          height: 16px;
+          z-index: 1000;
+
+          &.dot-red {
+            background: ${bulmaColors.danger};
+          }
+          &.dot-yellow {
+            background: ${bulmaColors.warning};
+          }
+          &.dot-green {
+            background: ${bulmaColors.success};
+          }
+          &.dot-blue {
+            background: ${bulmaColors.link};
+          }
+
+          &:hover {
+            border: 1px solid rgba(0,0,0,.8);
+          }
         }
       }
     }

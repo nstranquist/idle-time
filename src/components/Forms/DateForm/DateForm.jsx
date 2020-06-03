@@ -118,7 +118,7 @@ export const DateForm = ({
             <span className="icon">
               <Plus size={18} fillOpacity={.8} />
             </span>
-            <span style={{whiteSpace:"nowrap", fontSize: 16,opacity:.9,color:"#000"}}>duration</span>
+            <span className="add-form-field-label">duration</span>
           </div>
         )}
       </div>
@@ -145,7 +145,7 @@ export const DateForm = ({
             <span className="icon" style={{marginRight:2}}>
               <Plus size={20} fillOpacity={.8} />
             </span>
-            <span style={{whiteSpace:"nowrap", fontSize: 16,opacity:.9,color:"#000"}}>all day</span>
+            <span className="add-form-field-label">all day</span>
           </div>
         )}
       </div>
@@ -166,7 +166,7 @@ export const DateForm = ({
             <span className="icon" style={{marginRight:2}}>
               <Plus size={20} fillOpacity={.8} />
             </span>
-            <span style={{whiteSpace:"nowrap", fontSize: 16,opacity:.9,color:"#000"}}>end time</span>
+            <span className="add-form-field-label">end time</span>
           </div>
         )}
       </div>
@@ -174,7 +174,7 @@ export const DateForm = ({
       {/* Other inputs here: */}
 
 
-      <div className="save-button-container" style={{margin:"0 auto",textAlign:"center",marginTop:12}}>
+      <div className="save-button-container">
         <button className="button is-info is-small" onClick={onCancel}>Save</button>
       </div>
     </DateFormStyled>
@@ -216,5 +216,16 @@ const DateFormStyled = styled.form`
     .label {
       font-size: 16px;
     }
+  }
+  .save-button-container {
+    margin: 0 auto;
+    text-align: center;
+    margin-top: 12px;
+  }
+  .add-form-field-label {
+    white-space: nowrap;
+    font-size: 16px;
+    opacity: .9;
+    color: #000;
   }
 `

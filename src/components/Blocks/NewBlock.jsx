@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import moment from 'moment'
 import { NewBlockForm } from '../Forms'
@@ -20,6 +20,11 @@ export const NewBlock = ({
   const [newBlockData, setNewBlockData] = useState(emptyNewBlock)
   const [errors, setErrors] = useState(null)
 
+  useEffect(() => {
+
+    return () => resetData()
+  }, [])
+
   const handleDateChange = (date, fieldName=null) => {
     console.log('new date:', date)
     // const startTime = moment(date).format('YYYY-MM-DD')
@@ -34,15 +39,26 @@ export const NewBlock = ({
     setNewBlockData(blockData)
   }
 
-  const onHandleSubmit = (data) => {
-    // update newBlockData's title and desc, then submit all data
+  const onHandleSubmitBody = (bodyData) => {
+    // should update newBlockData's title and desc, then submit all data and reset the form
     const blockData = {
       ...newBlockData,
-      title: data.title,
-      desc: data.desc
+      title: bodyData.title,
+      desc: bodyData.desc
     }
     setNewBlockData(blockData)
+    console.log("submitting data:", blockData)
     onSubmit(blockData)
+    resetData()
+  }
+
+  const onHandleSubmitClock = (clockData) => {
+    // should update the clock data, but not submit component
+    const blockData = {
+      ...newBlockData,
+      ...clockData,
+    }
+    setNewBlockData(blockData)
   }
 
   const resetData = () => {
@@ -74,7 +90,7 @@ export const NewBlock = ({
             title: newBlockData.title,
             desc: newBlockData.desc
           }}
-          onSubmit={onHandleSubmit}
+          onSubmit={onHandleSubmitBody}
           onCancel={onCancel}
         />
       </div>

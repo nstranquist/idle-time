@@ -56,11 +56,7 @@ const Timeblocking = ({
 
   const handleAddSubmit = (newTaskData) => { // submits new task
     console.log('new task:', newTaskData)
-    if(!newTaskData)
-      setFormErrors("Task is not defined")
-    else if(newTaskData.title.length < 1)
-      setFormErrors("Task title is required")
-    else {
+    if(newTaskData) {
       console.log('new task:', newTaskData, 'id:', tasks.length.toString())
       // add task
       addTask({

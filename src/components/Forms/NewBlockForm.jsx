@@ -45,7 +45,7 @@ export const NewBlockForm = ({
 
     if(!newBlockData)
       createError("data is undefined")
-    else if (newBlockData.title.length < 1)
+    else if (newBlockData.title === "")
       createError("Title field cannot be empty", "title")
     else {
       console.log('submitting data:', newBlockData)
@@ -72,6 +72,10 @@ export const NewBlockForm = ({
 
   // more robust error alerting, highlights the proper input field that the error relates to
   const createError = (message, field=null) => {
+    if(field) {
+      if(field === 'title')
+        setInputClasses(inputClasses + ' error')
+    }
     let fields = errors.fields;
 
     if(field)

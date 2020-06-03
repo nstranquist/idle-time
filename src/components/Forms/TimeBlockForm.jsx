@@ -69,10 +69,13 @@ export const TimeBlockForm = ({
       ...formData,
       [e.target.name]: e.target.value
     })
-    handleSave({
-      ...formData,
-      [e.target.name]: e.target.value
-    }, false)
+    if(e.target.name === "title" && e.target.value.length < 1)
+      console.log('title is empty, not saving data yet')
+    else
+      handleSave({
+        ...formData,
+        [e.target.name]: e.target.value
+      }, false)
   }
 
   const handleSubmit = (e = null) => {
