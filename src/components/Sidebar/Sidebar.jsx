@@ -1,45 +1,36 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { useLocation } from 'react-router-dom'
 import { Home, CheckSquare, Bookmark } from 'react-feather'
-import { UnstyledLink } from '../../styles/link.styled'
+import { UnstyledLink } from '../../styles/components/link.styled'
 import { bulmaColors } from '../../styles/bulma.colors'
-
-const pageOptions = {
-  sidebarWidth: "20%",
-  sidebarWidthClosed: "98px", // 30px padding + 44px icon size + 24px icon padding = 98px
-  timelineWidth: "120px",
-  topbarHeight: "85px", // includes padding
-  bottombarHeight: "56px", // includes 8px top/bot padding
-  toolbarHeight: "40px",
-  iconSize: 44
-}
 
 
 export const Sidebar = ({
+  pageStyles: {
+    width,
+    widthClosed,
+    iconSize,
+  },
   sidebarOpen,
 }) => {
   const location = useLocation()
 
-  useEffect(() => {
-    console.log('location:', location)
-  }, [location])
-
   return (
-    <StyledSidebar className={sidebarOpen ? "sidebar" : "sidebar closed"}>
+    <StyledSidebar className="sidebar" style={{width: sidebarOpen ? width : widthClosed}}>
       <header className="sidebar-header">
         <h1 className="app-title">{sidebarOpen ? "Idle Time" : "IT"}</h1>
       </header>
       <div className="sidebar-body">
         <nav className="sidebar-nav" role="navigation">
           <UnstyledLink to="/" className={(location.pathname === "/home" || location.pathname === "/") ? "nav-item active" : "nav-item"}>
-            <Home size={pageOptions.iconSize} />
+            <Home size={iconSize} />
           </UnstyledLink>
           <UnstyledLink to="/tasks" className={location.pathname === "/tasks" ? "nav-item active" : "nav-item"}>
-            <CheckSquare size={pageOptions.iconSize} />
+            <CheckSquare size={iconSize} />
           </UnstyledLink>
           <UnstyledLink to="/presets" className={location.pathname === "/presets" ? "nav-item active" : "nav-item"}>
-            <Bookmark size={pageOptions.iconSize} />
+            <Bookmark size={iconSize} />
           </UnstyledLink>
         </nav>
       </div>
@@ -54,15 +45,9 @@ const StyledSidebar = styled.div`
   top: 0;
   left: 0;
   bottom: 0;
-  width: ${pageOptions.sidebarWidth};
+  // width: width;
   background: ${bulmaColors.light};
   border-right: 1px solid rgba(0,0,0,.02);
-
-  &.closed {
-    width: ${pageOptions.sidebarWidthClosed};
-
-    // .sidebar-header { visibility: hidden; }
-  }
 
   .sidebar-header {
     padding: 16px;

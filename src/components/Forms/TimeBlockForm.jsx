@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { bulmaColors } from '../../styles/bulma.colors'
-import { Clock } from 'react-feather'
-import { ClockModal } from '../ClockModal'
+import { FormItemStyled } from '../../styles/components'
 
 // Should contain: Container, Form, Clock Icon / Time, Title Text Input, Desc. Text Input
 
@@ -36,16 +34,9 @@ const defaultErrorsState = {
 export const TimeBlockForm = ({
   timeData = emptyTimeBlock,
   handleSave, // if user changes any of the TimeBlock data, it should be reflected in the app's state and API
+  handleCancel,
   activeField = "title",
   // serverErrors,  // errors coming from outside of this component
-  // timeData: {
-  //   title,
-  //   desc,
-  //   startTime=undefined,
-  //   duration,
-  //   endTime=undefined,
-  // },
-  // activeClockId,
 }) => {
   // const [timeBlock, setTimeBlock] = useState(emptyTimeBlock)
   const [formData, setFormData] = useState(timeData)
@@ -53,7 +44,13 @@ export const TimeBlockForm = ({
   const [inputClasses, setInputClasses] = useState("form-input")
   const [selected, setSelected] = useState(false)
 
+  const [startingFormData, setStartingFormData] = useState(timeData)
+  
+
   useEffect(() => {
+    if(!startingFormData)
+      startingFormData = timeData
+
     if(errors.exists) {
       // apply to fields
       if(errors.fields.includes("title"))
@@ -63,11 +60,19 @@ export const TimeBlockForm = ({
     return () => resetForm()
   }, [errors.exists])
 
+  // useEffect(() => {
+    // this.element.focus() the active field
+  // }, [activeField])
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     })
+    handleSave({
+      ...formData,
+      [e.target.name]: e.target.value
+    }, false)
   }
 
   const handleSubmit = (e = null) => {
@@ -78,7 +83,7 @@ export const TimeBlockForm = ({
     
     // submit form data
     if(!formData)
-      setErrors("item is not a form")
+      createError("item is not a form")
     else if (formData.title.length < 1)
       createError("Title field cannot be empty", "title")
     else {
@@ -120,17 +125,18 @@ export const TimeBlockForm = ({
       onBlur={handleFormBlur}
       onSubmit={handleSubmit}
       onKeyDown={(e) => {
-        if(e.keyCode === 13) {
+        if(e.keyCode === 13)
           handleSubmit();
+        if(e.keyCode === 27) {
+          // if(startingFormData) {
+            setFormData(startingFormData)
+            handleSave(startingFormData)
+            handleCancel();
+          // }
         }
       }}
     >
-      <p className="form-item" onClick={(e) => {
-        if(!selected) {
-          e.target.select()
-          setSelected(true)
-        }
-      }}>
+      <FormItemStyled className="form-item">
         <input
           autoFocus={activeField === "title"}
           className={inputClasses + " form-h3"}
@@ -139,53 +145,22 @@ export const TimeBlockForm = ({
           value={formData.title}
           onChange={handleChange}
         />
-      </p>
-      <p className="form-item form-p">
+      </FormItemStyled>
+      <FormItemStyled className="form-item">
         <input
           autoFocus={activeField === "desc"}
-          className="form-input form-p"
+          className="form-input form-p is-size-6"
           type="text"
           name="desc"
           value={formData.desc}
           onChange={handleChange}
         />
-      </p>
+      </FormItemStyled>
     </TimeBlockFormStyled>
   )
 }
 
 const TimeBlockFormStyled = styled.form`
   
-  .form-item {
-    margin-top: 0;
-
-    .form-input {
-      color: #363636;
-      line-height: 1.125;
-      font-family: montserrat, sans-serif;
-      font-style: normal;
-
-      &.input-error {
-        border-color: rgba(255,0,0,.82);
   
-      }
-      &.form-h3 {
-        font-size: 1.5rem !important;
-        font-weight: 600;
-      }
-      &.form-p {
-        font-size: 1rem !important;
-        font-weight: 400;
-      }
-    }
-    &.form-p {
-
-      input {
-        font-size: 20px;
-        line-height: 24px;
-        color: #000;
-        font-weight: normal;
-      }
-    }
-  }
 `

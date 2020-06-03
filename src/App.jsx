@@ -2,20 +2,12 @@ import React, { Suspense, lazy } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { Route, Switch } from "react-router-dom";
-import { PageNotFound } from "./components/PageNotFound";
+import { PageNotFound } from "./pages/PageNotFound";
 // icon imports
 import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
 import { openSidebar, closeSidebar } from "./store/UI";
-
-const pageOptions = {
-  sidebarWidth: "20%",
-  sidebarWidthClosed: "98px", // 30px padding + 44px icon size + 24px icon padding = 98px
-  timelineWidth: "120px",
-  topbarHeight: "85px", // includes padding
-  bottombarHeight: "56px", // includes 8px top/bot padding
-  toolbarHeight: "40px",
-};
+import { pageOptions } from './styles/pageOptions'
 
 // Perhaps: put sidebar and layout container code here
 
@@ -23,10 +15,17 @@ const App = ({ sidebarOpen, openSidebar, closeSidebar }) => {
   return (
     <StyledApp>
       {/* Sidebar */}
-      <Sidebar sidebarOpen={sidebarOpen} />
+      <Sidebar
+        pageStyles={{
+          width: pageOptions.sidebarWidth,
+          widthClosed: pageOptions.sidebarWidthClosed,
+          iconSize: pageOptions.iconSize,
+        }}
+        sidebarOpen={sidebarOpen}
+      />
 
       {/* Main Section */}
-      <div className={sidebarOpen ? "content" : "content closed"}>
+      <div className="content" style={{marginLeft: sidebarOpen ? pageOptions.sidebarWidth : pageOptions.sidebarWidthClosed}}>
         {/* TopBar */}
         <TopBar
           sidebarOpen={sidebarOpen}
@@ -52,6 +51,10 @@ const App = ({ sidebarOpen, openSidebar, closeSidebar }) => {
                 exact
                 path="/tasks"
                 component={lazy(() => import("./pages/Tasks"))}
+              />
+              <Route
+                path="/tasks/:taskId"
+                component={lazy(() => import("./pages/Tasks/TaskDetail"))}
               />
               <Route
                 exact
@@ -99,12 +102,6 @@ export default ConnectedApp;
 const StyledApp = styled.div`
   .content {
     transition: 0.2s ease-in-out;
-    margin-left: ${pageOptions.sidebarWidth};
-
-    &.closed {
-      transition: 0.2s ease-in-out;
-      margin-left: ${pageOptions.sidebarWidthClosed};
-    }
 
     .page-inner {
       padding-top: 16px;

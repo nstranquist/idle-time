@@ -24,5 +24,7 @@ export const selectActiveItem = state => {
 
 export const selectUpcomingTasks = state => {
   // return an array of the tasks which are upcoming (or present), not past
+  // todo: ...
   
+  return state.tasks.tasks;
 }

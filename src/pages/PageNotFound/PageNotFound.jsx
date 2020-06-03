@@ -1,12 +1,13 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Link } from 'react-router-dom'
 
 export const PageNotFound = () => {
   return (
     <StyledPage>
       <div className="page-not-found-inner">
         <h1>404: Page Not Found</h1>
-        <p>Please go back to our home page</p>
+        <p>Please <Link to="/home">go back</Link> to our home page</p>
       </div>
     </StyledPage>
   )

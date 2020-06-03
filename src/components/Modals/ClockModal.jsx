@@ -79,11 +79,9 @@ const ClockModalStyled = styled.div`
   left: 0;
   bottom: -100px;
   height: 100px;
-  padding-left: 8;
-  padding-right: 8;
+  padding-left: 8px;
+  padding-right: 8px;
   z-index: 1009;
   background: #fff;
   border: 1px solid rgba(0,0,0,.07);
-
-
 `

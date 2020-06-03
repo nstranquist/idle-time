@@ -1,7 +1,9 @@
 import { TimeBlockForm } from './TimeBlockForm'
-import TimeBlockDisplay from './TimeBlockDisplay'
+import { NewBlockForm } from './NewBlockForm'
+import { DateForm } from './DateForm'
 
 export {
   TimeBlockForm, 
-  TimeBlockDisplay,
+  NewBlockForm,
+  DateForm,
 }

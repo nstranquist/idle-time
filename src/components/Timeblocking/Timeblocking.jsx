@@ -2,52 +2,18 @@ import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import moment from 'moment'
-import { Play, Pause, Square, Plus, PlusCircle, Clock, Check, X } from 'react-feather'
 import { bulmaColors } from '../../styles/bulma.colors'
+import { Toolbar } from './Toolbar'
 import { Timeline } from '../Timeline'
 import { TimeBlock } from './TimeBlock'
 import { ErrorText } from '../ErrorText'
-import { ClockModal } from '../ClockModal'
 import { boxShadows } from '../../styles/shadows.style'
+import { pageOptions } from '../../styles/pageOptions'
+import { addTask, updateTask, removeTask } from '../../store/Tasks'
+import { AddButton, SubmitButton, CancelButton } from '../Buttons'
+import { NewBlock } from '../Blocks'
+import { Timer } from './Timer'
 
-
-const pageOptions = {
-  sidebarWidth: "20%",
-  timelineWidth: "120px",
-  topbarHeight: "85px", // includes padding
-  bottombarHeight: "56px", // includes 8px top/bot padding
-  toolbarHeight: "40px",
-}
-
-const startingTasks = [
-  {
-    id: 'a', 
-    title: "Card Title",
-    note: "Card Note",
-    date: new Date(),
-    duration: "3:15", // 3 hours 15 minutes
-  },
-  {
-    id: 'b',
-    title: "Card Title",
-    desc: "Card Description"
-  },
-  {
-    id: 'c',
-    title: "Card Title",
-    desc: "Card Description"
-  },
-  {
-    id: 'd',
-    title: "Card Title",
-    desc: "Card Description"
-  },
-  {
-    id: 'e',
-    title: "Card Title",
-    desc: "Card Description"
-  },
-]
 
 const emptyNewTask = {
   title: "",
@@ -55,118 +21,100 @@ const emptyNewTask = {
   startTime: moment(new Date()).format('YYYY-MM-DD')
 }
 
-export const Timeblocking = ({
-  // tasks,
+const Timeblocking = ({
+  timerState,
+  tasks: {
+    tasks,
+    tasksLoading: loading,
+    tasksErrors: errors
+  },
+  addTask,
+  updateTask,
+  removeTask
 }) => {
+
+  const timer = new Timer();
+
   const [isAdding, setIsAdding] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [tasks, setTasks] = useState(startingTasks)
-  const [newTask, setNewTask] = useState(undefined)
+  // const [tasks, setTasks] = useState(startingTasks)
   const [formErrors, setFormErrors] = useState(null)
-
-  const [timer, setTimer] = useState(undefined)
-
   const [activeTask, setActiveTask] = useState(undefined)
 
-  // const [clockClicked, setClockClicked] = useState(false)
-  const [activeClockId, setActiveClockId] = useState(undefined)
-
+  
   const handleAddToggle = () => {
-    setNewTask(emptyNewTask)
+    // clean up previous editing state
+    if(isEditing) {
+      onSave(activeTask)
+      setIsEditing(false)
+    }
+    setActiveTask(undefined)
+    
+    // then toggle the adding block
     setIsAdding(true)
   }
 
-  const handleClockClick = () => {
-    // toggle clock
-  }
-  const handleClockSubmit = (e) => {
-    // handle clock submit
-    e.preventDefault()
-  }
-
-  const handleKeyDown = (e) => {
-    e = e || window.event; 
-    const charCode = e.charCode || e.keyCode, 
-      character = String.fromCharCode(charCode);
-
-    if(e.keyCode === 13)
-      handleAddSubmit();
-    else
-      setNewTask({ ...newTask, title: newTask.title + character })
-  }
-
-  const handleAddSubmit = () => { // submits new task
-
-    if(!newTask)
+  const handleAddSubmit = (newTaskData) => { // submits new task
+    console.log('new task:', newTaskData)
+    if(!newTaskData)
       setFormErrors("Task is not defined")
-    else if(newTask.title.length < 1)
+    else if(newTaskData.title.length < 1)
       setFormErrors("Task title is required")
-    // else if()
-    // else if()
     else {
-      console.log('new task:', newTask, 'id:', tasks.length.toString())
+      console.log('new task:', newTaskData, 'id:', tasks.length.toString())
       // add task
-      setTasks([
-        ...tasks,
-        {
-          ...newTask,
-          id: tasks.length.toString()
-        }
-      ])
+      addTask({
+        ...newTaskData,
+        id: tasks.length.toString()
+      })
       setIsAdding(false)
-      setNewTask(undefined)
     }
   }
 
   const handleAddCancel = () => {
     setFormErrors(null)
     setIsAdding(false)
-    setNewTask(undefined)
   }
 
   const startTimer = () => {
-    setTimer(0)
+    // adjust time blocks when this gets clicked
+    timer.startTimer();
   }
+  
+  const pauseTimer = () => timer.pauseTimer()
 
-  const formatTime = (time) => {
+  const resumeTimer = () => timer.resumeTimer()
 
-
-    return time;
-  }
+  const stopTimer = () => timer.stopTimer()
 
   const onInputClick = (taskData, fieldName) => {
-    if(isEditing && taskData) {
+    if(isEditing && taskData)
       // submit existing form, switch active editing id
       onSave(activeTask)
-      setActiveTask({
-        ...taskData,
-        activeField: fieldName
-      })
-    }
-    else {
+    else
       setIsEditing(true)
-      setActiveTask({
-        ...taskData,
-        activeField: fieldName
-      })
-    }
+
+    setActiveTask({
+      ...taskData,
+      activeField: fieldName
+    })
   }
 
-  const onSave = (taskData) => {
+  const onSave = (taskData = undefined, finished = true) => {
+    console.log('called onSave')
     // save data in the state
-    if(taskData) {
-      setTasks(
-        tasks.map(task => {
-          if(task.id === taskData.id)
-            task = taskData;
-          return task;
-        })
-      )
+    if(taskData)
+      updateTask(taskData)
+
+    if(finished) {
       setIsEditing(false)
       setActiveTask(undefined)
     }
-    else
-      console.log('task was not found')
+  }
+
+  const onCancel = () => {
+    setIsEditing(false)
+    setActiveTask(undefined)
   }
 
   return (
@@ -177,7 +125,9 @@ export const Timeblocking = ({
 
         {/* Timeline */}
         <div className="timeline">
-          <Timeline />
+          <Timeline
+            timer={timer}
+          />
         </div>
       </div>
 
@@ -185,33 +135,13 @@ export const Timeblocking = ({
       <div className="section-right">
 
         {/* Toolbar */}
-        <div className="toolbar bar">
-          <div className="bar-left">
-            {timer && (
-              <span className="timer-text">
-                {formatTime(timer)}
-              </span>
-            )}
-            <span className="icon toolbar-icon play-icon"
-              onClick={startTimer}>
-              <Play size={24} />
-            </span>
-            <span className="icon toolbar-icon disabled">
-              <Pause size={24} />
-            </span>
-            <span className="icon toolbar-icon disabled">
-              <Square size={24} />
-            </span>
-          </div>
-          <div className="bar-right">
-            <span className="icon toolbar-icon">
-              <Plus size={24} />
-            </span>
-            <span className="icon toolbar-icon">
-              <Clock size={24} />
-            </span>
-          </div>
-        </div>
+        <Toolbar
+          height={pageOptions.toolbarHeight}
+          time={timer.getTime()}
+          startTimer={startTimer}
+          pauseTimer={pauseTimer}
+          stopTimer={stopTimer}
+        />
 
         {/* Task Cards */}
         <div className="task-cards">
@@ -223,75 +153,28 @@ export const Timeblocking = ({
               isEditing={activeTask && task.id === activeTask.id}
               onInputClick={onInputClick}
               onSave={onSave}
+              onCancel={onCancel}
             />
           ))}
 
           {formErrors && <ErrorText message={formErrors} />}
           {isAdding && (
-            <div className="add-task-card task-card">
-              <div className="task-left">
-                <span style={{position: "relative"}} className="icon" onClick={() => handleClockClick("form")}>
-                  <Clock size={24} />
-                  {activeClockId && activeClockId==="form" && (
-                    <ClockModal onSubmit={handleClockSubmit} />
-                  )}
-                </span>
-              </div>
-              <div className="task-body">
-                <h3 className="task-card-title is-size-4"
-                  contentEditable
-                  style={{background:"#fff",paddingLeft:8,paddingRight:8,paddingTop:3,paddingBottom:3, border:"1px solid rgba(0,0,0,.12)",borderRadius:1,minHeight:40}}
-                  // onInput={(e) => {
-                  //   console.log('value:', e.currentTarget.textContent)
-                  //   if(isEditing)
-                  //     setNewTask({ ...newTask, title: e.currentTarget.textContent })
-                  // }}
-                  // autoFocus
-                  onKeyDown={handleKeyDown}
-                >
-                  {/* <input type="text" className="is-size-4" style={{display:'inline-block',width:'100%',border:0,outline:0,opacity:.88}}/> */}
-                </h3>
-                <p className="task-card-note has-gray-text is-size-6"
-                  contentEditable
-                  style={{background:"#fff",paddingLeft:8,paddingRight:8,paddingTop:3,paddingBottom:3, border:"1px solid rgba(0,0,0,.12)",borderRadius:1,minHeight:32}}
-                  onInput={(e) => setNewTask({ ...newTask, note: e.currentTarget.textContent })}
-                >
-                  
-                </p>
-              </div>
-              <div className="task-right"></div>
-              
-            </div>
+            <NewBlock
+              onSubmit={handleAddSubmit}
+              onCancel={handleAddCancel}
+            />
           )}
         </div>
 
         {/* Add Task / Submit Task Button */}
         {!isAdding ? (
           <div className="add-button-container">
-            <button className="button add-task-button is-primary is-regular"
-              onClick={handleAddToggle}>
-              <span className="icon is-large">
-                <PlusCircle size={24} />
-              </span>
-              <span style={{fontSize:20,fontWeight:800,marginLeft:6}}>Add</span>
-            </button>
+            <AddButton handleClick={handleAddToggle} />
           </div>
         ) : (
           <div className="submit-button-container">
-            <button className="button submit-task-button is-regular" style={{marginRight:16}}
-              onClick={handleAddCancel}>
-              <span className="icon is-large">
-                <X size={24} />
-              </span>
-              <span style={{fontSize:20,fontWeight:800,marginLeft:6}}>Cancel</span>
-            </button>
-            <button className="button submit-task-button is-success is-regular"
-              onClick={handleAddSubmit}>
-              <span className="icon is-large">
-                <Check size={24} />
-              </span>
-              <span style={{fontSize:20,fontWeight:800,marginLeft:6}}>Submit</span>
-            </button>
+            <CancelButton handleClick={handleAddCancel} />
+            <SubmitButton handleClick={handleAddSubmit} />
           </div>
         )}
       </div>
@@ -301,12 +184,16 @@ export const Timeblocking = ({
 }
 
 const mapStateToProps = (state) => ({
-  timer: state.timer
+  timerState: state.timer,
+  tasks: state.tasks,
 })
 
+export const ConnectedTimeblocking = connect(
+  mapStateToProps,
+  { addTask, updateTask, removeTask, }
+)(Timeblocking)
+
 const StyledTaskCard = styled.div`
-`
-const StyledToolbar = styled.div`
 `
 
 const StyledTimeblocking = styled.div`
@@ -321,63 +208,21 @@ const StyledTimeblocking = styled.div`
   }
   .section-right {
     margin-left: ${pageOptions.timelineWidth};
-    // height: 100%;
+    dislay: flex;
+    flex-direction: column;
+    height: 100%;
     padding-left: 20px;
     padding-right: 20px; // remove if using overflow side-scroll for kanban
-    // overflow-y: auto;
+    overflow-y: auto;
 
-    .toolbar {
-      border: 1px solid rgba(0,0,0,.17);
-      // margin-bottom: 12px;
-      margin-bottom: 6px;
-      padding: 6px 12px;
-      height: ${pageOptions.toolbarHeight};
-
-      .icon {
-        cursor: pointer;
-        padding: 8px;
-        border-radius: 50%;
-        height: 36px;
-        width: 36px;
-        padding: 6px;
-        background-color: #fff;
-        color: initial;
-        transition: background-color .2s ease-in-out;
-
-        &:hover {
-          background-color: rgba(0,0,0,.07);
-          border-radius: 50%;
-          transition: background-color .15s ease-in-out;
-        }
-      }
-      .icon.play-icon {
-        // transition: color .2s ease-in-out;
-
-        // &:hover {
-        //   color: ${bulmaColors.success};
-        //   transition: color .05s ease-in-out;
-        // }
-      }
-      .icon.disabled {
-        cursor: initial;
-
-        &:hover {
-          transition: none;
-          color: rgba(0,0,0,.88);
-          background-color: #fff;
-        }
-      }
-      .timer-text {
-
-      }
-    }
+    
     .task-cards {
       // bottombar: 56px, toolbar: 40px + 12px margin, addButton: 40px + 12px margin, topbar: 85px, containerPadding: 16px
       // = 56px + 52px + 52px + 85px + 16px
-      max-height: calc(100vh - 56px - 104px - 85px - 10px);
+      // max-height: calc(100vh - 56px - 104px - 85px - 10px);
       padding-top: 6px;
       // border-top: 1px solid rgba(0,0,0,.12);
-      overflow-y: auto;
+      // overflow-y: auto;
       padding-right: 8px;
 
       .task-card {
@@ -433,10 +278,7 @@ const StyledTimeblocking = styled.div`
             font-weight: normal;
           }
         }
-        .task-right {
-
-        }
-        
+        .task-right {  }
       }
     }
     .add-button-container,
@@ -458,42 +300,3 @@ const StyledTimeblocking = styled.div`
     }
   }
 `
-
-/*  <div className="task-card" key={index}>
-      <div className="task-left">
-        <span style={{position: "relative"}} className="icon" onClick={(e) => handleClockClick(e, task.id)}>
-          <Clock size={24} />
-          {activeClockId && activeClockId === task.id && (
-            <ClockModal onSubmit={handleClockSubmit} />
-          )}
-        </span>
-      </div>
-      <div className="task-body">
-        <h3
-          className="task-card-title is-size-4"
-          id={task.id}
-          contentEditable={!isEditing}
-          onFocus={(e) => handleFocus(e, "title")}
-          // onKeyDown={handleKeyDown}
-          onBlur={(e) => handleBlur(e, "title")}
-        >
-          {task.title}
-        </h3>
-        {task.note && task.note.length > 0 && (
-          <p
-            className="task-card-note has-gray-text is-size-6"
-            id={task.id}
-            contentEditable={!isEditing}
-            onFocus={(e) => handleFocus(e, "note")}
-            // onKeyDown={handleKeyDown}
-            onBlur={(e) => handleBlur(e, "note")}
-          >
-            {task.note}
-          </p>
-        )}
-      </div>
-      <div className="task-right">
-
-      </div>
-      
-    </div> */

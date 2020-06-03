@@ -1,4 +1,4 @@
-
+import { startingTasks } from './tasks.data'
 
 const ADD_TASK = "ADD_TASK"
 const UPDATE_TASK = "UPDATE_TASK"
@@ -43,7 +43,7 @@ export const clearErrors = () => ({
 
 
 const initialState = {
-  tasks: [],
+  tasks: startingTasks,
   loading: false,
   errors: null,
 }
@@ -69,6 +69,7 @@ export default (
         errors: null
       }
     case UPDATE_TASK:
+      console.log('taskData id:', action.taskData.id)
       return {
         ...state,
         tasks: state.tasks.map(task => {

@@ -11,7 +11,9 @@ export const Presets = ({
         <h3>Presets</h3>
       </header>
       <div className="presets-inner">
-        
+        <div className="custom-blocks">
+          <h5>Your Time Blocks</h5>
+        </div>
       </div>
     </StyledPresets>
   )

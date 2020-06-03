@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import moment from 'moment'
-import { TimeBlockForm, TimeBlockDisplay } from '../Forms'
-import { ClockModal } from '../ClockModal'
-import { Clock } from 'react-feather'
+import { TimeBlockForm } from '../Forms'
+import TimeBlockDisplay from './TimeBlockDisplay'
+import { OutsideAlerter } from '../../hoc/OutsideAlerter'
+import { ClockInput } from '../../components/Inputs'
 import { bulmaColors } from '../../styles/bulma.colors'
 
 
@@ -15,10 +15,10 @@ export const TimeBlock = ({
   activeField = "title",
   onInputClick,
   onSave,
+  onCancel,
   // onClockClick,
   // onDrag,
 }) => {
-  const [dateActive, setDateActive] = useState(false) // perhaps make this a prop
 
   // toggle form
   const handleInputClick = (fieldName) => {
@@ -26,52 +26,67 @@ export const TimeBlock = ({
     onInputClick(taskData, fieldName)
   }
 
-  const handleClockClick = () => {
-    // onClockClick() // pass task id if passing date as prop
-    setDateActive(true)
+  const handleOutsideClick = () => {
+    // toggle back to display, save data(?)
+    onSave() // will toggle editing and clear the active changes
   }
 
-  const handleSave = ({ title, desc }) => {
+  const handleSave = ({ title, desc }, finished = true) => {
     // update the information
-    onSave({ title, desc })
+    onSave({
+      ...taskData,
+      title,
+      desc
+    }, finished)
     // toggle display view
   }
 
   const handleDateSave = (date) => {
     console.log('new date:', date)
     onSave({
-      title: taskData.title,
-      desc: taskData.desc,
+      ...taskData,
       date: date
     })
   }
 
+  const onSubmit = (timeData) => {
+    console.log('submitting this time data:', timeData, 'and other data:', taskData)
+
+    if(timeData) {
+      onSave({
+        ...taskData,
+        ...timeData
+      })
+    }
+  }
+
   return (
     <StyledTimeBlock className="time-block-container">
-      <div className="block-left">
-        <span className="icon dropdown-icon" onClick={(e) => handleClockClick()}>
-          <Clock size={24} />
-          {dateActive && (
-            <ClockModal
-              clockData={{
-                date: moment(new Date()).format('YYYY-MM-DD'),
-              }}
-              onSubmit={handleDateSave}
-            />
-          )}
-        </span>
+      <div className="block-left" style={{position: 'relative'}}>
+        <ClockInput
+          timeData={{
+            startTime: taskData.startTime,
+            duration: taskData.duration,
+          }}
+          handleDateSave={handleDateSave}
+          onSave={handleDateSave}
+          onCancel={onCancel}
+        />
       </div>
       <div className="block-right">
         {isEditing ? (
-          <TimeBlockForm
-            timeData={{
-              title: taskData.title,
-              desc: (taskData.desc ? taskData.desc : null)
-              // other form options...
-            }}
-            handleSave={handleSave}
-            activeField={activeField}
-          />
+          <OutsideAlerter handleOutsideClick={handleOutsideClick}>
+            <TimeBlockForm
+              timeData={{
+                title: taskData.title,
+                desc: (taskData.desc ? taskData.desc : null)
+                // other form options...
+              }}
+              activeField={activeField}
+              handleSave={handleSave}
+              handleCancel={onCancel}
+            />
+          </OutsideAlerter>
         ) : (
           <TimeBlockDisplay
             title={taskData.title}
@@ -107,7 +122,7 @@ const StyledTimeBlock = styled.div`
   .block-left {
     padding-right: 8px;
 
-    .icon {
+    .block-icon {
       cursor: pointer;
       padding: 16px;
       border-radius: 50%;
