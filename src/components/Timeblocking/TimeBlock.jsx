@@ -15,6 +15,8 @@ import { bulmaColors } from '../../styles/bulma.colors'
 
 // TimeBlock should hold editing state and switch between Display and Form blocks
 
+// I like... "Fit to Screen" and "Show to scale" checkbox feature to toggle display settings
+
 export const TimeBlock = ({
   taskData, // Title, Desc, startTime, duration, endTime
   isEditing,
@@ -22,6 +24,9 @@ export const TimeBlock = ({
   onInputClick,
   onSave,
   onCancel,
+  handleDragStart,
+  handleDragEnd,
+  isCollapsed,
   // onClockClick,
   // onDrag,
 }) => {
@@ -47,82 +52,165 @@ export const TimeBlock = ({
     // toggle display view
   }
 
-  const handleDateSave = (date) => {
-    console.log('new date:', date)
+  const handleSubmitClock = (clockData) => {
+    console.log('new clock data:', clockData)
     onSave({
       ...taskData,
-      date: date
+      ...clockData,
     })
   }
 
-  const onSubmit = (timeData) => {
-    console.log('submitting this time data:', timeData, 'and other data:', taskData)
-
-    if(timeData) {
-      onSave({
-        ...taskData,
-        ...timeData
-      })
-    }
-  }
+  // const onSubmit = (timeData) => {
+  //   console.log('submitting this time data:', timeData, 'and other data:', taskData)
+  //
+  //   if(timeData) {
+  //     onSave({
+  //       ...taskData,
+  //       ...timeData
+  //     })
+  //   }
+  // }
 
   return (
-    <StyledTimeBlock className="time-block-container" draggable>
-      <div className="block-left" style={{position: 'relative'}}>
-        <ClockInput
-          timeData={{
-            startTime: taskData.startTime,
-            duration: taskData.duration,
-          }}
-          handleDateSave={handleDateSave}
-          onSave={handleDateSave}
-          onCancel={onCancel}
-        />
-      </div>
-      {/* draggable ref: https://www.freecodecamp.org/news/reactjs-implement-drag-and-drop-feature-without-using-external-libraries-ad8994429f1a/ */}
-      <div className="block-body">
-        {isEditing ? (
-          <OutsideAlerter handleOutsideClick={handleOutsideClick}>
-            <TimeBlockForm
-              timeData={{
-                title: taskData.title,
-                desc: (taskData.desc ? taskData.desc : null)
-                // other form options...
-              }}
-              activeField={activeField}
-              handleSave={handleSave}
-              handleCancel={onCancel}
-            />
-          </OutsideAlerter>
-        ) : (
-          <TimeBlockDisplay
-            title={taskData.title}
-            desc={taskData.desc}
-            handleInputClick={handleInputClick}
-          />
-        )}
-      </div>
-      <div className="block-right drag-icon-container" onDrag={(e) => console.log('dragging event:', e)}>
-        <span className="icon drag-icon">
-          <Grid size={20} color={bulmaColors.black}  />
-        </span>
-      </div>
+    <StyledTimeBlock
+      className="time-block-container"
+      style={{position: 'relative'}}
+      draggable={true}
+      id={taskData.id}
+      onDragStart={(event) => handleDragStart(event, taskData.id)}
+      onDragEnd={(event) => handleDragEnd(event)}
+    >
 
-      {/* No save / cancel button? */}
+      {taskData.duration && (
+        <DurationText className="duration-text-container" priority={taskData.priority ? taskData.priority : -1}>
+          <span className="duration-text">{taskData.duration}</span>
+        </DurationText>
+      )}
+
+      {/* Holds the padding, layout, and stuff */}
+      <BlockSpacer className={isCollapsed ? "time-block-spacer" : "time-block-spacer expanded"}
+        isCollapsed={isCollapsed} duration={taskData.duration} hasDesc={taskData.desc ? true : false}
+        isEditing={isEditing} >
+        <div className="time-block-inner">
+          {/* <div className="block-left" style={{position: 'relative'}}>
+            <ClockInput
+              timeData={{
+                startTime: taskData.startTime,
+                duration: taskData.duration,
+              }}
+              serverErrors={null}
+              onSave={handleSubmitClock}
+              onCancel={onCancel}
+            />
+          </div> */}
+          {/* draggable ref: https://www.freecodecamp.org/news/reactjs-implement-drag-and-drop-feature-without-using-external-libraries-ad8994429f1a/ */}
+          <div className="block-body" style={{paddingLeft:8}}>
+            {isEditing ? (
+              <OutsideAlerter handleOutsideClick={handleOutsideClick}>
+                {/* Note: <OutsideAlerter/> Messes up stuff */}
+                <TimeBlockForm
+                  timeData={{
+                    title: taskData.title,
+                    desc: (taskData.desc ? taskData.desc : null)
+                    // other form options...
+                  }}
+                  activeField={activeField}
+                  handleSave={handleSave}
+                  handleCancel={onCancel}
+                />
+              </OutsideAlerter>
+            ) : (
+              <TimeBlockDisplay
+                title={taskData.title}
+                desc={taskData.desc}
+                handleInputClick={handleInputClick}
+              />
+            )}
+          </div>
+          <div className="block-right">
+            <div className="" style={{position: 'relative', marginRight:2}}>
+              <ClockInput
+                timeData={{
+                  startTime: taskData.startTime,
+                  duration: taskData.duration,
+                }}
+                serverErrors={null}
+                onSave={handleSubmitClock}
+                onCancel={onCancel}
+              />
+            </div>
+            <div className="drag-icon-container" onDrag={(e) => console.log('dragging event:', e)}>
+              <span className="icon drag-icon">
+                <Grid size={20} color={bulmaColors.black}  />
+              </span>
+            </div>
+          </div>
+        </div>
+      </BlockSpacer>
     </StyledTimeBlock>
   )
 }
 
+const BlockSpacer = styled.div`
+  height: initial;
+  min-height: 51px;
+  
+  // transition: .25s ease-in-out;
+
+  &.expanded {
+    height: ${props => props.duration * 3}px;
+    min-height: ${props => props.isEditing ? 102 : 51}px;
+    // ${props => props.isEditing}
+    // transition: .23s ease-in-out;
+
+    .block-desc,
+    .add-form-item {
+      display: ${props => props.duration < 40 && !props.isEditing ? "none" : "block"};
+      // transition: .23s ease-in-out;
+    }
+    .desc-container {
+      // display: ${props => props.duration < 40 && !props.isEditing ? "none" : "flex"};
+      display: flex;
+    }
+
+    &:hover {
+      height: ${props => (props.duration < 40) && props.hasDesc ? "100%" : props.duration * 3 + "px"};
+      transition: .23s ease-in-out;
+
+      .block-desc,
+      .add-form-item {
+        display: block;
+      }
+      .desc-container { display: flex; }
+    }
+  }
+`
+
 const StyledTimeBlock = styled.div`
   // container styles:
-  padding: 12px 20px; // NOTE: adjust the padding to make responsive
-  background: ${bulmaColors.light};
-  border: 1px solid rgba(0,0,0,.15);
-  border-radius: 8px;
   margin-bottom: 8px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+
+  .time-block-spacer {
+    flex: 1;
+    background: ${bulmaColors.light};
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,.15);
+    // overflow-y: auto;
+    // transition: .25s ease-in-out;
+  }
+  .time-block-inner {
+    // flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 6px 0 8px; // note: adjust the padding to make responsive
+    // background-color: ${props => props.isCollapsed ? "none" : bulmaColors.light};
+    // border-radius: ${props => props.isCollapsed ? "0" : "8px"};
+    // border: ${props => props.isCollapsed ? "none" : "1px solid rgba(0,0,0,.15)"};
+    // transition: .25s ease-in-out;
+  }
 
   h3 {
     margin-bottom: 0;
@@ -132,40 +220,35 @@ const StyledTimeBlock = styled.div`
   }
 
   .block-left {
+    padding-top: 12px;
+    padding-bottom: 12px;
     padding-right: 8px;
-
-    .block-icon {
-      cursor: pointer;
-      padding: 16px;
-      border-radius: 50%;
-      height: 44px;
-      width: 44px;
-      padding: 6px;
-      transition: background-color .2s ease-in-out;
-
-      &:hover {
-        background-color: rgba(0,0,0,.07);
-        border-radius: 50%;
-        transition: background-color .15s ease-in-out;
-      }
-    }
   }
   
-  .block-body { flex: 1; }
-
+  .block-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 4px;
+  }
   .block-right {
-    
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
   }
 
   .drag-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 6px;
     border-radius: 50%;
     cursor: pointer;
     background-color: inherit;
     transition: background-color .2s ease-in-out;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     &:hover {
       background-color: rgba(0,0,0,.06);
@@ -174,7 +257,44 @@ const StyledTimeBlock = styled.div`
 
     .drag-icon {
       flex: 1;
-      background-color: inherit;
+    }
+  }
+
+  
+`
+
+const DurationText = styled.div`
+  &.duration-text-container {
+    width: 54px;
+    text-align: center;
+    // padding-right: 10px;
+
+    .duration-text {
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 20px;
+      padding: 6px;
+      text-align: center;
+      align-self: center;
+      margin: 0 auto;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,.3);
+      // text-decoration: underline;
+
+      // border-color: ${props => {
+      //   switch(props.priority) {
+      //     case 1:
+      //       return bulmaColors.danger;
+      //     case 2:
+      //       return bulmaColors.warning;
+      //     case 3:
+      //       return bulmaColors.success;
+      //     case 4:
+      //       return bulmaColors.link;
+      //     default:
+      //       return "rgba(0,0,0,.3)";
+      //   }
+      // }}
     }
   }
 `

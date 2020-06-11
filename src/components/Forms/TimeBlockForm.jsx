@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import { MinusButton } from '../IconButtons'
+import { AddFormItem } from './AddFormItem'
+import { defaultErrorsState, emptyNewTask as emptyTimeBlock } from '../../constants'
 import { FormItemStyled } from '../../styles/components'
 
 // Should contain: Container, Form, Clock Icon / Time, Title Text Input, Desc. Text Input
@@ -9,27 +12,6 @@ import { FormItemStyled } from '../../styles/components'
 //  - clock should be clicked and time changed without necessarily converting to full-out form & inputs
 //  - should work independently of the TimeBlockForm
 
-const emptyTimeBlock = {
-  title: "",
-  desc: "",
-  startTime: undefined, // or default to Date.now()
-  // duration or endTime?
-  duration: 60, // in minutes
-  endTime: undefined, // can keep it this way unless used
-  // dateActive: false, // if clock icon is clicked and user is selecting the date
-}
-
-// const emptyErrorFields = {
-//   title: false,
-//   desc: false,
-//   startTime: false
-// }
-
-const defaultErrorsState = {
-  exists: null, // use this to check if exists
-  message: null,
-  fields: []
-}
 
 export const TimeBlockForm = ({
   timeData = emptyTimeBlock,
@@ -39,18 +21,18 @@ export const TimeBlockForm = ({
   // serverErrors,  // errors coming from outside of this component
 }) => {
   // const [timeBlock, setTimeBlock] = useState(emptyTimeBlock)
-  const [formData, setFormData] = useState(timeData)
+  // const [formData, setFormData] = useState(timeData)
+
+  const [title, setTitle] = useState(timeData.title)
+  const [desc, setDesc] = useState(timeData.desc)
+
   const [errors, setErrors] = useState(defaultErrorsState)
   const [inputClasses, setInputClasses] = useState("form-input")
-  const [selected, setSelected] = useState(false)
 
   const [startingFormData, setStartingFormData] = useState(timeData)
   
 
   useEffect(() => {
-    if(!startingFormData)
-      startingFormData = timeData
-
     if(errors.exists) {
       // apply to fields
       if(errors.fields.includes("title"))
@@ -65,40 +47,42 @@ export const TimeBlockForm = ({
   // }, [activeField])
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+    if(e.target.name === 'title') {
+      setTitle(e.target.value)
+      console.log('saving title value:', e.target.value)
+    }
+    else if(e.target.name === 'desc')
+      setDesc(e.target.value)
+
     if(e.target.name === "title" && e.target.value.length < 1)
       console.log('title is empty, not saving data yet')
     else
-      handleSave({
-        ...formData,
-        [e.target.name]: e.target.value
-      }, false)
+      handleSave({ title, desc }, false)
+
+    console.log('title:', title, "desc:", desc)
+  }
+
+  const setSaveDesc = (descValue) => {
+    setDesc(descValue)
+    handleSave({ title, desc: descValue }, false)
   }
 
   const handleSubmit = (e = null) => {
-    console.log('in handle submit')
-
-    if(e)
-      e.preventDefault()
+    if(e) e.preventDefault()
     
-    // submit form data
-    if(!formData)
-      createError("item is not a form")
-    else if (formData.title.length < 1)
+    if (!title || title.length < 1)
       createError("Title field cannot be empty", "title")
     else {
-      console.log('submitting data:', formData)
-      handleSave(formData)
+      console.log('submitting data: { title:', title, ", desc:",desc)
+      if(desc === undefined) handleSave({ title, desc: ""})
+      else handleSave({title, desc})
+      resetForm()
     }
-    
-    resetForm()
   }
   
   const resetForm = () => {
-    setFormData(timeData)
+    setTitle("")
+    setDesc("")
     setErrors(defaultErrorsState)
   }
 
@@ -131,11 +115,10 @@ export const TimeBlockForm = ({
         if(e.keyCode === 13)
           handleSubmit();
         if(e.keyCode === 27) {
-          // if(startingFormData) {
-            setFormData(startingFormData)
-            handleSave(startingFormData)
-            handleCancel();
-          // }
+          setTitle("")
+          setDesc("")
+          handleSave(startingFormData)
+          handleCancel();
         }
       }}
     >
@@ -145,25 +128,46 @@ export const TimeBlockForm = ({
           className={inputClasses + " form-h3"}
           type="text"
           name="title"
-          value={formData.title}
+          value={title}
           onChange={handleChange}
         />
       </FormItemStyled>
       <FormItemStyled className="form-item">
-        <input
-          autoFocus={activeField === "desc"}
-          className="form-input form-p is-size-6"
-          type="text"
-          name="desc"
-          value={formData.desc}
-          onChange={handleChange}
-        />
+        {(desc || desc === "") ? (
+          <span className="desc-container">
+            <MinusButton handleClick={() => setSaveDesc(undefined)} />
+            <input
+              autoFocus={activeField === "desc"}
+              className="form-input form-p is-size-6"
+              type="text"
+              name="desc"
+              value={desc}
+              onChange={handleChange}
+            />
+          </span>
+        ) : (
+          <AddFormItem labelText="Add Duration" handleClick={() => startingFormData.desc ? setSaveDesc(startingFormData.desc) : setSaveDesc("")} />
+        )}
       </FormItemStyled>
     </TimeBlockFormStyled>
   )
 }
 
 const TimeBlockFormStyled = styled.form`
+  padding-right: calc(18px + 3rem); // 6px + 12px + 3rem
+  flex: 1;
+
+  .desc-container {
+    display: flex;
+    align-items: center;
+
+    .form-input {
+      margin-left: 6px;
+    }
+  }
   
-  
+  .form-item {
+
+  }
+
 `

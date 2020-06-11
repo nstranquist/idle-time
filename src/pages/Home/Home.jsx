@@ -5,9 +5,9 @@ import { BottomBar } from '../../components/BottomBar'
 
 export const Home = () => {
   return (
-    <main style={{position:'relative'}}>
+    <div style={{position:'relative', height:'100%'}}>
       <Timeblocking />
       <BottomBar />
-    </main>
+    </div>
   )
 }

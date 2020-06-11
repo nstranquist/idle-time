@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { FormItemStyled } from '../../styles/components'
+import { SubmitButton, CancelButton } from '../Buttons'
+import { boxShadows } from '../../styles/shadows.style'
 
 
 const emptyBlock = {
@@ -15,10 +17,11 @@ const defaultErrorsState = {
 }
 
 export const NewBlockForm = ({
+  newBlock,
   onSubmit,
   onCancel,
 }) => {
-  const [newBlockData, setFormData] = useState(emptyBlock)
+  const [newBlockData, setFormData] = useState(newBlock)
   const [errors, setErrors] = useState(defaultErrorsState)
   const [inputClasses, setInputClasses] = useState("form-input")
 
@@ -124,15 +127,32 @@ export const NewBlockForm = ({
           </FormItemStyled>
         </>
       )}
+      <div className="submit-button-container">
+        <CancelButton handleClick={handleCancel} />
+        <SubmitButton handleClick={() => handleSubmit()} />
+      </div>
     </NewBlockFormStyled>
   )
 }
 
 const NewBlockFormStyled = styled.form`
-  
+  margin-right: 20px !important;
 
   .form-input {
     display: block;
     width: 100%;
+  }
+  .submit-button-container {
+    padding-top: 6px;
+    margin-bottom: 6px;
+    text-align: center;
+
+    .add-task-button,
+    .submit-task-button {
+      // border-radius: 0;
+      font-family: montserrat, sans-serif;
+      font-style: normal;
+      box-shadow: ${boxShadows.shadow2};
+    }
   }
 `

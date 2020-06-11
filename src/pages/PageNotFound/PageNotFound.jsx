@@ -14,6 +14,7 @@ export const PageNotFound = () => {
 }
 
 const StyledPage = styled.div`
+  padding-top: 16px;
 
   .page-not-found-inner {
     font-family: sans-serif;

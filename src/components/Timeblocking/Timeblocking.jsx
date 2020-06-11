@@ -1,25 +1,31 @@
-import React, { useState, useEffect } from 'react'
+// src/components/Timeblocking/Timeblocking.jsx
+
+// library imports
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import moment from 'moment'
-import { bulmaColors } from '../../styles/bulma.colors'
+// import moment from 'moment'
+
+// import components
 import { Toolbar } from './Toolbar'
-import { Timeline } from '../Timeline'
+import { ConnectedTimeline as Timeline } from '../Timeline'
 import { TimeBlock } from './TimeBlock'
 import { ErrorText } from '../ErrorText'
-import { boxShadows } from '../../styles/shadows.style'
-import { pageOptions } from '../../styles/pageOptions'
-import { addTask, updateTask, removeTask } from '../../store/Tasks'
-import { AddButton, SubmitButton, CancelButton } from '../Buttons'
-import { NewBlock } from '../Blocks'
 import { Timer } from './Timer'
+import { AddButton } from '../Buttons'
+import { NewBlock } from '../Blocks'
+import { Trash2, Save } from 'react-feather'
+import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 
+// import redux actions
+import { addTask, updateTask, removeTask } from '../../store/Tasks'
 
-const emptyNewTask = {
-  title: "",
-  desc: "",
-  startTime: moment(new Date()).format('YYYY-MM-DD')
-}
+// import styles, other components
+import { pageOptions } from '../../styles/pageOptions'
+import { boxShadows } from '../../styles/shadows.style'
+import { bulmaColors } from '../../styles/bulma.colors'
+// import { emptyNewTask } from '../../constants'
+
 
 const Timeblocking = ({
   timerState,
@@ -33,15 +39,17 @@ const Timeblocking = ({
   removeTask
 }) => {
 
-  const timer = new Timer();
-
+  const [timer, setTimer] = useState(new Timer())
   const [isAdding, setIsAdding] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  // const [tasks, setTasks] = useState(startingTasks)
   const [formErrors, setFormErrors] = useState(null)
   const [activeTask, setActiveTask] = useState(undefined)
+  const [areTasksCollapsed, setAreTasksCollapsed] = useState(true)
 
-  
+  const [isDragging, setIsDragging] = useState(false)
+  const [dropId, setDropId] = useState(undefined)
+
+
   const handleAddToggle = () => {
     // clean up previous editing state
     if(isEditing) {
@@ -49,7 +57,7 @@ const Timeblocking = ({
       setIsEditing(false)
     }
     setActiveTask(undefined)
-    
+
     // then toggle the adding block
     setIsAdding(true)
   }
@@ -68,20 +76,19 @@ const Timeblocking = ({
   }
 
   const handleAddCancel = () => {
+    console.log('add cancelled')
     setFormErrors(null)
     setIsAdding(false)
   }
 
   const startTimer = () => {
-    // adjust time blocks when this gets clicked
+    // start timer and adjust / align time blocks
     timer.startTimer();
   }
   
-  const pauseTimer = () => timer.pauseTimer()
-
-  const resumeTimer = () => timer.resumeTimer()
-
-  const stopTimer = () => timer.stopTimer()
+  // const pauseTimer = () => timer.pauseTimer()
+  // const resumeTimer = () => timer.resumeTimer()
+  // const stopTimer = () => timer.stopTimer()
 
   const onInputClick = (taskData, fieldName) => {
     if(isEditing && taskData)
@@ -113,8 +120,99 @@ const Timeblocking = ({
     setActiveTask(undefined)
   }
 
+  const dragStart = (event, id) => {
+    // set isDragging to true
+    setIsDragging(true)
+    event.originalEvent.dataTransfer.effectAllowed = 'move'
+    event.originalEvent.dataTransfer.setData('text/plain', id)
+    console.log('drag has started with event:', event, 'currentTarget:', event.currentTarget.id)
+  }
+
+  const dragEnd = (event) => {
+    // set isDragging to true
+    console.log('drag has stopped with event:', event, 'target:', event.target, 'id:', event.target.id, 'currentTarget id:', event.currentTarget.id)
+    console.log('event srcElement:', event.srcElement)
+
+    if(dropId) {
+      const elementId = event.target.id;
+
+      console.log('target id:', elementId, 'currentTarget id:', event.currentTarget.id)
+
+      if(elementId) {
+        // if(elementId === "trashIcon") {
+          // delete the item with id
+          removeTask(elementId);
+        // }
+        // else if(elementId === 'saveIcon') {
+          // add to archives or some shit
+          // console.log('attempted to save the element')
+        // }
+      }
+    }
+    else
+      console.log('drop id was undefined, so no action was taken')
+
+    setIsDragging(false)
+
+  }
+
+  const handleDrop = (e, action) => {
+    const id = e.dataTransfer.getData("id")
+
+    if(action === 'trash') {
+      console.log('id to remove:', id)
+      removeTask(id)
+    }
+    else if(action === 'save') {
+      console.log('save item with id', id, 'to presets')
+    }
+  }
+
+  const onDragStart = (e) => {
+
+  }
+  const onDragUpdate = (e) => {
+    
+  }
+  const onDragEnd = (e) => {
+    
+  }
+
   return (
-    <StyledTimeblocking className="idle-time-page">
+    <StyledTimeblocking className="idle-time-page container" style={{position:'relative'}}>
+
+      {/* After inline-styles, make its own styled-component called TrashStyled */}
+      {isDragging === true && (
+        <div className="icon-bar-container" style={{position:'absolute', right: 0, bottom: 0, zIndex:1100, marginRight: 12, marginBottom: 12}}>
+          <div className="icon-container" id="trashIcon"
+            onDragOver={e => e.preventDefault()}
+            onDragEnter={e => {
+              console.log('current:', e.currentTarget)
+              if(e.currentTarget)
+                e.currentTarget.classList.add('hovered')
+            }}
+            onDragExit={e => {
+              if(e.currentTarget)
+                e.currentTarget.classList.remove('hovered')
+            }}
+            onDrop={e => {
+              handleDrop(e, 'trash')
+            }}
+          >
+            <span className="icon trash-icon">
+              <Trash2 color={bulmaColors.danger} size={32} />
+            </span>
+          </div>
+          <div className="icon-container" id="saveIcon"
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => handleDrop(e, 'save')}
+          >
+            <span className="icon trash-icon">
+              <Save color={bulmaColors.success} size={32} />
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Content-Left */}
       <div className="section-left">
@@ -133,47 +231,60 @@ const Timeblocking = ({
         {/* Toolbar */}
         <Toolbar
           height={pageOptions.toolbarHeight}
-          time={timer.getTime()}
-          startTimer={startTimer}
-          pauseTimer={pauseTimer}
-          stopTimer={stopTimer}
+          timer={timer}
+          startTimer={() => timer.startTimer()}
+          pauseTimer={() => timer.pauseTimer()}
+          stopTimer={() => timer.stopTimer()}
+          areTasksCollapsed={areTasksCollapsed}
+          handleCollapse={() => setAreTasksCollapsed(!areTasksCollapsed)}
         />
 
-        {/* Task Cards */}
-        <div className="task-cards">
-          {tasks.length > 0 && tasks.map((task, index) => (
-            <TimeBlock
-              key={index}
-              taskData={task}
-              activeField={activeTask ? activeTask.activeField : undefined}
-              isEditing={activeTask && task.id === activeTask.id}
-              onInputClick={onInputClick}
-              onSave={onSave}
-              onCancel={onCancel}
-            />
-          ))}
+        <div className="section-right-inner">
+          
+          <DragDropContext
+            onDragStart={onDragStart}
+            onDragUpdate={onDragUpdate}
+            onDragEnd={onDragEnd}
+          >
+        
+            {/* Task Cards */}
+            <div className="task-cards">
+              {tasks.length > 0 && tasks.map((task, index) => (
+                <TimeBlock
+                  key={index}
+                  taskData={task}
+                  activeField={activeTask ? activeTask.activeField : undefined}
+                  isEditing={activeTask && task.id === activeTask.id}
+                  onInputClick={onInputClick}
+                  onSave={onSave}
+                  onCancel={onCancel}
+                  handleDragStart={dragStart}
+                  handleDragEnd={dragEnd}
+                  isCollapsed={areTasksCollapsed}
+                />
+              ))}
 
-          {formErrors && <ErrorText message={formErrors} />}
-          {isAdding && (
-            <NewBlock
-              onSubmit={handleAddSubmit}
-              onCancel={handleAddCancel}
-            />
+              {formErrors && <ErrorText message={formErrors} />}
+              
+              {isAdding && (
+                <NewBlock
+                  onSubmit={handleAddSubmit}
+                  onCancel={handleAddCancel}
+                />
+              )}
+            </div>
+
+          </DragDropContext>
+
+          {/* Add Task / Submit Task Button */}
+          {!isAdding && (
+            <div className="add-button-container">
+              <AddButton handleClick={handleAddToggle} />
+            </div>
           )}
         </div>
-
-        {/* Add Task / Submit Task Button */}
-        {!isAdding ? (
-          <div className="add-button-container">
-            <AddButton handleClick={handleAddToggle} />
-          </div>
-        ) : (
-          <div className="submit-button-container">
-            <CancelButton handleClick={handleAddCancel} />
-            <SubmitButton handleClick={handleAddSubmit} />
-          </div>
-        )}
       </div>
+
       {/* <BottomBar /> */}
     </StyledTimeblocking>
   )
@@ -194,32 +305,71 @@ const StyledTaskCard = styled.div`
 
 const StyledTimeblocking = styled.div`
   position: relative;
-  height: calc(100vh - 85px - 16px);
+  height: calc(100% - 56px);
+  // overflow-y: auto;
+  // padding-top: 16px;
+  // padding-bottom: -16px;
+  // height: calc(100vh - 85px - 16px - 56px); // 85px for topbar, 16px for top padding, 56px for bottom bar
+
+  .icon-bar-container {
+    display: flex;
+
+    .icon-container {
+      padding: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      background-color: inherit;
+      transition: background-color .2s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background-color: rgba(0,0,0,.05);
+        transition: background-color .2s ease-in-out;
+      }
+      &.hovered {
+        background-color: rgba(0,0,0,.05);
+        transition: background-color .2s ease-in-out;
+      }
+
+      .trash-icon {
+        flex: 1;
+        // background-color: inherit;
+      }
+    }
+  }
 
   .section-left {
     width: ${pageOptions.timelineWidth};
     // height: 100%;
     float: left;
     border-right: 1px solid rgba(0,0,0,.09);
+    // padding-top: 16px;
   }
   .section-right {
     margin-left: ${pageOptions.timelineWidth};
     dislay: flex;
     flex-direction: column;
-    height: 100%;
-    padding-left: 20px;
-    padding-right: 20px; // remove if using overflow side-scroll for kanban
-    overflow-y: auto;
 
+    .section-right-inner {
+      padding-left: 20px;
+      padding-right: 20px; // remove if using overflow side-scroll for kanban
+      padding-top: 6px;
+      height: calc(100vh - 85px - 40px - 56px); // topbar, toolbar, bottombar
+      overflow-y: auto;
+    }
     
     .task-cards {
       // bottombar: 56px, toolbar: 40px + 12px margin, addButton: 40px + 12px margin, topbar: 85px, containerPadding: 16px
       // = 56px + 52px + 52px + 85px + 16px
-      // max-height: calc(100vh - 56px - 104px - 85px - 10px);
+      // height: calc(100vh - 56px - 104px - 85px - 10px);
       padding-top: 6px;
+      padding-bottom: 6px;
       // border-top: 1px solid rgba(0,0,0,.12);
       // overflow-y: auto;
       padding-right: 8px;
+      // height: 100%;
 
       .task-card {
         padding: 12px 20px; // NOTE: adjust the padding to make responsive
@@ -294,5 +444,15 @@ const StyledTimeblocking = styled.div`
     .add-button-container {
       // border-top: 1px solid rgba(0,0,0,.1);
     }
+  }
+
+  @media(min-width: 1672px) {
+    &.container {
+      border-left: 1px solid rgba(0,0,0,.09);
+      border-right: 1px solid rgba(0,0,0,.09);
+
+      .timeline {
+        border-left: 1px solid rgba(0,0,0,.09);
+      }
   }
 `

@@ -22,5 +22,5 @@ export const OutsideAlerter = (props) => {
   const wrapperRef = useRef(null);
   useOutsideAlerter(wrapperRef, props.handleOutsideClick);
 
-  return <div ref={wrapperRef}>{props.children}</div>;
+  return <div ref={wrapperRef} style={{flex:1}}>{props.children}</div>;
 }

@@ -48,6 +48,8 @@ export const ConnectedTasks = connect(
 const StyledTasks = styled.div`
   padding-left: 20px;
   padding-right: 20px;
+  padding-top: 16px;
+
 
   .tasks-header {
 

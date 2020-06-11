@@ -1,4 +1,4 @@
-import { startingTasks } from './tasks.data'
+import { startingTasks } from '../../data/tasks.data'
 
 const ADD_TASK = "ADD_TASK"
 const UPDATE_TASK = "UPDATE_TASK"
@@ -10,7 +10,10 @@ const CLEAR_ERRORS = "CLEAR_ERRORS"
 
 
 export const getTasks = () => (dispatch) => {
-  
+  // make api call & set loading to true
+
+  // after successful get data, set Tasks to the user's tasks stored in the database
+
 }
 
 export const addTask = (taskData) => (dispatch) => {

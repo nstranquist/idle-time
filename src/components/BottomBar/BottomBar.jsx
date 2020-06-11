@@ -8,7 +8,7 @@ export const BottomBar = () => {
   const [selectedText, setSelectedText] = useState(undefined)
 
   return (
-    <StyledBottomBar className="bottom-bar bar">
+    <StyledBottomBar className="bottom-bar bar container">
       <div className="bar-left">
         {showTime && <p className="time-text no-select">8:20 am</p>}
         <p className="checkbox-with-text" style={{marginLeft:8}}
@@ -41,7 +41,7 @@ export const BottomBar = () => {
 
 const StyledBottomBar = styled.div`
   height: 56px;
-  position: absolute;
+  // position: absolute;
   z-index: 1050;
   background: #fff;
   bottom: 0;
@@ -77,6 +77,11 @@ const StyledBottomBar = styled.div`
     input {
       cursor: pointer;
     }
+  }
+
+  @media(min-width: 1672px) {
+    border-left: 1px solid rgba(0,0,0,.09);
+    border-right: 1px solid rgba(0,0,0,.09);
   }
 `
 

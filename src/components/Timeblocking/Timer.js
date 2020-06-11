@@ -33,10 +33,13 @@ export class Timer {
     if(minutes < 10)
       minutes = "0" + minutes;
     
-    return `${minutes}:${seconds}`
+    return `${minutes}:${seconds}` // 00:00 format (minutes:seconds)
   }
 
   startTimer = () => {
+    if(this.paused) this.paused = false;
+    if(this.stopped) this.stopped = false;
+    
     this.activeId = setInterval(() => {
       if(!this.paused && !this.stopped) {
         console.log('call interval')
@@ -46,8 +49,10 @@ export class Timer {
   }
 
   pauseTimer = () => {
-    // pause the interval mechanism
+    // pause the interval mechanism, clear the interval but don't reset the time
     this.paused = true;
+    clearInterval(this.activeId)
+    this.activeId = undefined;
   }
 
   resumeTimer = () => {
@@ -59,6 +64,12 @@ export class Timer {
 
   stopTimer = () => {
     this.stopped = true;
+    if(this.paused) this.paused = false;
+    if(this.activeId) {
+      clearInterval(this.activeId)
+      this.activeId = undefined;
+    }
+    this.time = 0;
   }
 
   resetTimer = () => {

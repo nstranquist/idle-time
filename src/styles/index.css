@@ -69,5 +69,25 @@ i {
 }
 
 .dropdown-icon {
-  position: "relative";
+  position: relative;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 12px;
+}
+.checkbox-group .checkbox-label {
+  margin-right: 4px;
+  cursor: pointer;
+}
+.checkbox-group .checkbox-input {
+  cursor: pointer;
+}
+
+.minus-icon {
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,.33);
+  border-radius: 50%;
 }

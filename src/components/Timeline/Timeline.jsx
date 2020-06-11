@@ -1,53 +1,33 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { UnstyledLink } from '../../styles/components/link.styled'
+// import { UnstyledLink } from '../../styles/components/link.styled'
 import { bulmaColors } from '../../styles/bulma.colors'
-import { selectActiveItem, selectUpcomingTasks } from '../../store/selectors'
+import { boxShadows } from '../../styles/shadows.style'
+import { selectActiveItem, selectUpcomingTasks, selectDots } from '../../store/selectors'
 
 // note: get static image asset for hours / numbers display
 // then, need that blue line to update with the timer
 // and update the dots
 
 
-const startingDots = [
-  {
-    id: 'a',
-    status: 1, // 1 is 'urgent', 2 is 'neutral' (yellow), 3 is 'not urgent'
-  },
-  {
-    id: 'b',
-    status: 2,
-  },
-  {
-    id: 'c',
-    status: 3,
-  },
-  {
-    id: 'd',
-    status: 1,
-  },
-  {
-    id: 'e',
-    status: 4,
-  },
-];
-
 const startingDotSettings = {
-  colors: ['green', 'blue', 'yellow'],
-
+  colors: ['green', 'blue', 'yellow', 'red'],
+  // ...
 }
 
 export const Timeline = ({
+  dots,
   timer,
   tasksState,
   upcomingTasks,
   activeTask
 }) => {
   // const [viewHeight, setViewHeight] = useState("0px");
-  const [dots, setDots] = useState(startingDots)
+  // const [dots, setDots] = useState(startingDots)
   const [dotSettings, setDotSettings] = useState(startingDotSettings)
-  const [isHovering, setIsHovering] = useState(false)
+  const [isHovering, setIsHovering] = useState(undefined)
   const [dotHoverData, setDotHoverData] = useState(undefined)
   const [time, setTime] = useState(0)
 
@@ -56,62 +36,62 @@ export const Timeline = ({
     setTime(timer.getTime())
   }, [timer.time])
 
-  const drawDotsOnTimeline = () => {
-    // can draw either colored or transparent <span> every 20 minutes (20px)
-    // 20px * 3 = 60px/hour 60*24 = 1440px;
-    // 60px * 12 = 720px;
+  useEffect(() => {
+    if(isHovering) {
+      // get the new hovering data
+      const dotId = isHovering;
+      const dot = tasksState.tasks.find(task => task.id === dotId)
+      if(dot)
+        setDotHoverData(dot)
+    }
+  }, [isHovering])
 
-  }
+  // const drawDotsOnTimeline = () => {
+  //   // can draw either colored or transparent <span> every 20 minutes (20px)
+  //   // 20px * 3 = 60px/hour 60*24 = 1440px;
+  //   // 60px * 12 = 720px;
 
-  const handleDotHover = async taskId => {
-    // set the necessary data for dot hover
-    const dotData = tasksState.tasks.find(task => task.id === taskId)
-  }
+  // }
+
+  // const handleDotHover = async taskId => {
+  //   // set the necessary data for dot hover
+  //   const dotData = tasksState.tasks.find(task => task.id === taskId)
+  // }
 
   const handleMouseOver = (e) => {
-    console.log('mouse over event:', e, 'currentTarget:', e.currentTarget)
-    console.log('id of currentTarget:', e.currentTarget.id)
-    console.log('id of target:', e.target.id)
-    console.log('key of target:', e.target.key)
+    if(e.target.id) {
+      console.log('mouse over event:', e, 'currentTarget:', e.currentTarget, 'target:', e.target)
+      console.log('id of currentTarget:', e.currentTarget.id)
+      console.log('id of target:', e.target.id)
+      setIsHovering(e.target.id)
+    }
   }
   const handleMouseOut = (e) => {
-    console.log('mouse out event:', e, 'currentTarget:', e.currentTarget)
+    if(e.target.id) {
+      console.log('mouse out event:', e, 'currentTarget:', e.currentTarget)
+      setIsHovering(undefined)
+      setDotHoverData(undefined)
+    }
   }
 
   return (
     <StyledTimeline className="timeline-1">
-      <span>{time}</span>
+
+      <span className="timeline-time" style={{display:'flex',alignItems:"center",justifyContent:"center",height:40}}>{time}</span>
+
       <div className="timeline-line">
 
         <div className="dots-container" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
           {dots && dots.map((dot, index) => {
             return (
-              <UnstyledLink to={`/tasks/${dot.id}`} className="dot-item" key={index} id={dot.id}>
-                {dot.status === 1 && (
-                  <span className="dot-image dot-red"></span>
+              <Dot to={`/tasks/${dot.id}`} className="dot-item" key={index} priority={dot.priority} id={dot.id}>
+                {isHovering === dot.id && dotHoverData && (
+                  <DotHoverMenu className="dot-hover-menu">
+                    <h3 style={{wordBreak:'keep-all',wordWrap:'normal',overflowWrap:'normal',}}>{dotHoverData.title}</h3>
+                    {dotHoverData.desc && <p style={{opacity:1,fontSize:"1.1rem"}}>{dotHoverData.desc}</p>}
+                  </DotHoverMenu>
                 )}
-                {dot.status === 2 && (
-                  <span className="dot-image dot-yellow"></span>
-                )}
-                {dot.status === 3 && (
-                  <span className="dot-image dot-green"></span>
-                )}
-                {dot.status === 4 && (
-                  <span className="dot-image dot-blue"></span>
-                )}
-
-                {isHovering && (
-                  <div className="dot-hover-menu">
-                    {dotHoverData ? (
-                      <>
-
-                      </>
-                    ) : (
-                      <div className="menu-loading">loading...</div>
-                    )}
-                  </div>
-                )}
-              </UnstyledLink>
+              </Dot>
             )
           })}
         </div>
@@ -121,6 +101,7 @@ export const Timeline = ({
 }
 
 const mapStateToProps = (state) => ({
+  dots: selectDots(state),
   tasksState: state.tasks,
   upcomingTasks: selectUpcomingTasks(state),
   activeTask: selectActiveItem(state),
@@ -131,13 +112,54 @@ export const ConnectedTimeline = connect(
   {  }
 )(Timeline)
 
+const DotHoverMenu = styled.div`
+  position: absolute;
+  top: 2px;
+  left: 20px;
+  padding: 14px 16px;
+  text-align: left;
+  background-color: #fff;
+  border: 1px solid rgba(0,0,0,.18);
+  border-radius: 6px;
+  box-shadow: ${boxShadows.shadow3};
+  width: 480px; // 120px * 4;  Note: needs update for responsiveness
+`
+
+const Dot = styled(Link)`
+  background: ${props => {
+    switch(props.priority) {
+      case 1:
+        return bulmaColors.danger;
+      case 2:
+        return bulmaColors.warning;
+      case 3:
+        return bulmaColors.success;
+      case 4:
+        return bulmaColors.link;
+      default:
+        return "initial";
+    }
+  }};
+
+  // remove default link styles
+  text-decoration: inherit;
+  color: inherit;
+  font-size: inherit;
+
+  &:active, &:focus, &:focused {
+    outline: 0;
+    border: none;
+    -mox-outline-style: none;
+  }
+`
+
 const StyledTimeline = styled.div`
   &.timeline-1 {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 52px;
+    // margin-top: 16px;
     padding-bottom: 12px;
     background: transparent;
 
@@ -145,9 +167,13 @@ const StyledTimeline = styled.div`
       width: 2px; // or 1px, test which one looks best
       // background: rgba(0,0,0,.88);
       background: #363636;
-      height: calc(100vh - 86px - 52px - 56px - 12px - 16px);
+      height: calc(100vh - 86px - 52px - 56px - 12px);
       z-index: 1012;
+      margin-top: 12px;
       // height: 100%;
+    }
+    .timeline-time {
+
     }
     .dots-container {
       position: absolute;
@@ -155,7 +181,7 @@ const StyledTimeline = styled.div`
       bottom: 0;
       left: 0;
       right: 0;
-      margin-top: 24px;
+      margin-top: 54px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -171,31 +197,35 @@ const StyledTimeline = styled.div`
         border-radius: 50%;
         margin: 3px 0;
         z-index: 999;
+        border: 1px solid rgba(0,0,0,.3);
 
-        .dot-image {
-          display: inline-block;
-          border-radius: 50%;
-          width: 16px;
-          height: 16px;
-          z-index: 1000;
-
-          &.dot-red {
-            background: ${bulmaColors.danger};
-          }
-          &.dot-yellow {
-            background: ${bulmaColors.warning};
-          }
-          &.dot-green {
-            background: ${bulmaColors.success};
-          }
-          &.dot-blue {
-            background: ${bulmaColors.link};
-          }
-
-          &:hover {
-            border: 1px solid rgba(0,0,0,.8);
-          }
+        &:hover {
+          border: 1px solid rgba(0,0,0,.8);
         }
+
+        // .dot-image {
+        //   // display: inline-block;
+        //   border-radius: 50%;
+        //   width: 16px;
+        //   height: 16px;
+        //   z-index: 1000;
+        //   opacity: .97; // 1;
+
+          // &.dot-red {
+          //   background: ${bulmaColors.danger};
+          // }
+          // &.dot-yellow {
+          //   background: ${bulmaColors.warning};
+          // }
+          // &.dot-green {
+          //   background: ${bulmaColors.success};
+          // }
+          // &.dot-blue {
+          //   background: ${bulmaColors.link};
+          // }
+
+          
+        // }
       }
     }
   }
@@ -205,4 +235,8 @@ const StyledTimeline = styled.div`
     margin: 20px;
     text-align: center;
   }
+
+  // .dot-hover-menu {
+  //   position: absolute;
+  // }
 `

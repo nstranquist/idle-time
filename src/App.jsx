@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import { Route, Switch } from "react-router-dom";
 import { PageNotFound } from "./pages/PageNotFound";
-// icon imports
+// component imports
 import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
 import { openSidebar, closeSidebar } from "./store/UI";
@@ -11,7 +11,11 @@ import { pageOptions } from './styles/pageOptions'
 
 // Perhaps: put sidebar and layout container code here
 
-const App = ({ sidebarOpen, openSidebar, closeSidebar }) => {
+const App = ({ 
+  sidebarOpen,
+  openSidebar,
+  closeSidebar
+}) => {
   return (
     <StyledApp>
       {/* Sidebar */}
@@ -80,9 +84,12 @@ const App = ({ sidebarOpen, openSidebar, closeSidebar }) => {
               />
 
               <Route path="/" component={PageNotFound} />
+
             </Switch>
           </Suspense>
         </main>
+
+        {/* BottomBar */}
       </div>
     </StyledApp>
   );
@@ -100,12 +107,17 @@ export const ConnectedApp = connect(mapStateToProps, {
 export default ConnectedApp;
 
 const StyledApp = styled.div`
+  min-height: 100vh;
+
   .content {
+    height: 100vh;
     transition: 0.2s ease-in-out;
 
     .page-inner {
-      padding-top: 16px;
-      padding-bottom: ${pageOptions.bottombarHeight}; // makes room for bottom bar
+      height: calc(100% - 85px);
+      max-height: calc(100% - 85px);
+      // padding-top: 16px;
+      // padding-bottom: ${pageOptions.bottombarHeight}; // makes room for bottom bar
     }
   }
 

@@ -31,6 +31,7 @@ export const Presets = ({
 const StyledPresets = styled.div`
   padding-left: 20px;
   padding-right: 20px;
+  padding-top: 16px;
 
   
 `

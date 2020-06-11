@@ -5,10 +5,12 @@ import authReducer from './Auth'
 import timeshiftReducer from './Timeshift'
 import tasksReducer from './Tasks'
 import uiReducer from './UI'
+import presetsReducer from './Presets'
 
 export const rootReducer = combineReducers({
   auth: authReducer,
   timeshift: timeshiftReducer,
   tasks: tasksReducer,
   ui: uiReducer,
+  presets: presetsReducer,
 })

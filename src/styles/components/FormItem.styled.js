@@ -4,7 +4,7 @@ import styled from 'styled-components'
 export const FormItemStyled = styled.p`
   &.form-item {
     margin-top: 0;
-    margin-bottom: 0;
+    margin-bottom: 0 !important;
   }
   &.form-item:not(:first-child) {
     margin-top: .6666em;

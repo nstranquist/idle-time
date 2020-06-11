@@ -1,22 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import moment from 'moment'
-import { ClockInput } from '../../Inputs'
-import { Clock, Plus, Minus } from 'react-feather'
+import { Plus, Minus } from 'react-feather'
+import { ErrorText } from '../../ErrorText'
 import { bulmaColors } from '../../../styles/bulma.colors'
+import { boxShadows } from '../../../styles/shadows.style'
+import { emptyDateForm, defaultErrorsState } from '../../../constants'
 
-const emptyDateForm = {
-  startTime: moment('YYYY-MM-DD'),
-  duration: 60,
-  endTime: undefined,
-  allDay: false,
-}
-
-const defaultErrorsState = {
-  exists: null,
-  message: null,
-  fields: []
-}
 
 export const DateForm = ({
   timeData = emptyDateForm, // startTime, duration, endTime
@@ -24,13 +14,27 @@ export const DateForm = ({
   onSubmit,
   onCancel,
 }) => {
-  const [formData, setFormData] = useState(timeData)
-  const [errors, setErrors] = useState(defaultErrorsState)
-  const [showDuration, setShowDuration] = useState(false)
+  const [formData, setFormData] = useState({
+    ...emptyDateForm,
+    ...timeData
+  })
+
+  const durationRef = React.createRef();
+  const allDayRef = React.createRef();
+  const startTimeRef = React.createRef();
+
+  const [errors, setErrors] = useState(null)
+  const [showStartTime, setShowStartTime] = useState(false)
   const [showAllDay, setShowAllDay] = useState(false)
-  const [showEndTime, setShowEndTime] = useState(false)
+
+  useEffect(() => {
+    if(durationRef.current)
+      durationRef.current.select();
+  }, [])
 
   const handleChange = (e) => {
+    if(errors) setErrors(null)
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -44,104 +48,131 @@ export const DateForm = ({
     })
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleAllDayToggle = () => {
+      setFormData({
+        ...formData,
+        allDay: showAllDay ? false : true,
+      })
+      setShowAllDay(!showAllDay)
 
-    if(formData) {
+      if(allDayRef.current)
+        allDayRef.current.focus();
+  }
+
+  const handleStartToggle = () => {
+    setFormData({
+      ...formData,
+      startTime: showStartTime ? undefined : moment('MM-DD-YYYY'),
+    })
+    setShowStartTime(!showStartTime)
+
+    if(startTimeRef.current)
+      startTimeRef.current.focus();
+  }
+
+  const handleSubmit = (e = undefined) => {
+    if(e)
+      e.preventDefault()
+
+    if(formData.duration < 1 || formData.duration > 1440) {
+      setErrors("Duration is out of range. Can be 1 to 1440")
+    }
+    else {
       console.log('submitting date form data:', formData)
       onSubmit(formData)
       resetForm()
     }
   }
 
-  const addDurationInput = () => {
-    setShowDuration(true)
-  }
-
   const resetForm = () => {
     setFormData(timeData)
     setErrors(defaultErrorsState)
-    setShowDuration(false)
     onCancel()
   }
+  
   // note: move to errors
-  const createError = (message, field=null) => {
-    let fields = errors.fields;
+  // const createError = (message, field=null) => {
+  //   let fields = errors.fields;
 
-    if(field)
-      fields.push(field)
+  //   if(field)
+  //     fields.push(field)
 
-    setErrors({
-      exists: true,
-      message: message,
-      fields: fields
-    })
-  }
+  //   setErrors({
+  //     exists: true,
+  //     message: message,
+  //     fields: fields
+  //   })
+  // }
 
   return (
     <DateFormStyled onSubmit={handleSubmit}>
       {/* Should have a Clock Icon, that when clicked, opens by default to the startTime selector,
           but duration and other fields can be selected as well
       */}
-      <div className="date-form-item">
-        <div className="start-time-input">
-          <span className="label" style={{marginBottom:0}}>
-            start:
-          </span>
+      {errors && <ErrorText message={errors} />}
+      <div className="form-item date-form-item" style={{marginTop: errors ? 0 : 'initial', paddingTop: errors ? 0 : 'initial'}}>
+        <div className="form-field" >
+          <label htmlFor="duration">duration:</label>
           <input
-            type="date"
-            style={{display:'block'}}
+            autoFocus
+            ref={durationRef}
+            type="number"
+            name="duration"
+            min={5}
+            max={1440} // total minutes in a day (60 * 24)
+            className="form-input form-number-input"
+            value={formData.duration}
+            onChange={handleChange}
           />
-          {/* <ClockInput
-            clockData={{
-              data: timeData.startTime
-            }}
-            handleDateChange={handleDateChange}
-            errors={errors.fields.includes("startTime")}
-          /> */}
         </div>
       </div>
-      <div className="date-form-item">
-        {showDuration ? (
-          <div className="form-duration-input" >
-            <label htmlFor="duration">duration: </label>
+      <div className="form-item date-form-item">
+        {showStartTime ? (
+          <div className="form-field">
+            <label htmlFor="startTime">start time:</label>
             <input
-              autoFocus
-              type="number" // number
-              name="duration"
-              value={formData.duration}
-              onChange={handleChange}
+              type="date"
+              ref={startTimeRef}
+              name="startTime"
+              style={{display:'block'}}
+              className="form-input form-date-input"
+              value={formData.date}
+              onChange={handleDateChange}
             />
           </div>
         ) : (
-          <div className="add-form-item" onClick={() => setShowDuration(true)}>
-            <span className="icon">
-              <Plus size={18} fillOpacity={.8} />
+          <div className="add-form-item" onClick={handleStartToggle}>
+            <span className="icon" style={{marginRight:2}}>
+              <Plus size={20} fillOpacity={.8} />
             </span>
-            <span className="add-form-field-label">duration</span>
+            <span className="add-form-field-label">start time</span>
           </div>
         )}
       </div>
-      <div className="date-form-item">
+      <div className="form-item date-form-item">
         {showAllDay ? (
-          <div className="form-duration-input" >
-            <label htmlFor="allDay" style={{display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-              <span>all day: </span>
-              <span className="icon" style={{cursor:'pointer',borderRadius:"50%",border:"1px solid rgba(0,0,0,.12)"}}
-                onClick={() => setShowAllDay(false)}>
-                <Minus size={18} fillOpacity={.8} />
-              </span>
-            </label>
-            <input
-              autoFocus
-              type="checkbox" // number
-              name="allDay"
-              value={formData.allDay}
-              onChange={handleChange}
-            />
+          <div className="form-field form-field-checkbox" >
+            <div className="checkbox-group" onClick={() => {
+              setFormData({
+                ...formData,
+                allDay: !formData.allDay
+              })
+            }}>
+              <label htmlFor="allDay" className="checkbox-label">all day:</label>
+              <input
+                ref={allDayRef}
+                className="checkbox-input"
+                type="checkbox" // number
+                name="allDay"
+                checked={formData.allDay}
+              />
+            </div>
+            <span className="icon minus-icon" onClick={handleAllDayToggle}>
+              <Minus size={20} fillOpacity={.85} />
+            </span>
           </div>
         ) : (
-          <div className="add-form-item" onClick={() => setShowAllDay(true)}>
+          <div className="add-form-item" onClick={handleAllDayToggle}>
             <span className="icon" style={{marginRight:2}}>
               <Plus size={20} fillOpacity={.8} />
             </span>
@@ -149,33 +180,9 @@ export const DateForm = ({
           </div>
         )}
       </div>
-      <div className="date-form-item">
-        {showEndTime ? (
-          <div className="form-duration-input" >
-            <label htmlFor="endTime">end time: </label>
-            <input
-              autoFocus
-              type="number" // number
-              name="endTime"
-              value={formData.duration}
-              onChange={handleChange}
-            />
-          </div>
-        ) : (
-          <div className="add-form-item" onClick={() => setShowEndTime(true)}>
-            <span className="icon" style={{marginRight:2}}>
-              <Plus size={20} fillOpacity={.8} />
-            </span>
-            <span className="add-form-field-label">end time</span>
-          </div>
-        )}
-      </div>
-      
-      {/* Other inputs here: */}
-
 
       <div className="save-button-container">
-        <button className="button is-info is-small" onClick={onCancel}>Save</button>
+        <button className="button save-button is-info" onClick={handleSubmit}>Save</button>
       </div>
     </DateFormStyled>
   )
@@ -185,9 +192,14 @@ const DateFormStyled = styled.form`
   background: #fff;
   color: ${bulmaColors.dark};
 
-  .date-form-item {
+  .form-item {
     margin-top: 8px;
     margin-bottom: 8px;
+    padding: 4px;
+  }
+  .form-input {
+    font-size: 16px;
+    font-family: sans-serif;
   }
   .add-form-item {
     display: flex;
@@ -198,8 +210,6 @@ const DateFormStyled = styled.form`
     padding-right: 6px;
     padding-top: 2px;
     padding-bottom: 2px;
-    margin-top: 12px;
-    margin-bottom: 12px;
     border-radius: 6px;
     border: 1px solid rgba(0,0,0,.03);
     cursor: pointer;
@@ -209,12 +219,21 @@ const DateFormStyled = styled.form`
       border-color: rgba(0,0,0,.3);
     }
   }
-  .start-time-input {
-    // display: flex;
-    // align-items: center;
-
-    .label {
-      font-size: 16px;
+  .form-item-label {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .form-field-checkbox {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    
+    .checkbox-group {
+      box-shadow: ${boxShadows.shadow1};
+      border: 1px solid rgba(44,44,44,.26);
+      border-radius: 4px;
+      padding: 4px 12px;
     }
   }
   .save-button-container {
@@ -227,5 +246,8 @@ const DateFormStyled = styled.form`
     font-size: 16px;
     opacity: .9;
     color: #000;
+  }
+  .minus-icon {
+    box-shadow: ${boxShadows.shadow1};
   }
 `

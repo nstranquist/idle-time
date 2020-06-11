@@ -1,63 +1,152 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { Play, Pause, Square, Plus, Clock } from 'react-feather'
+import { connect } from 'react-redux'
+import { Play, Pause, Square, Plus, Clock, Maximize2, Minimize2, Settings } from 'react-feather'
 import { bulmaColors } from '../../styles/bulma.colors'
+
 
 
 export const Toolbar = ({
   height,
   timer,
   startTimer,
-
-  // handlePause,
-  // handleStop,
-  // handlePlus,
-  // handleClock,
+  pauseTimer,
+  stopTimer,
+  areTasksCollapsed,
+  handleCollapse,
 }) => {
+  const [timeActive, setTimeActive] = useState(false)
+  const [pauseActive, setPauseActive] = useState(false)
+  const [time, setTime] = useState(timer.getTime())
+  const [timerId, setTimerId] = useState(undefined)
 
-  const formatTime = (time) => {
+  // const getFormattedTime = () => { return time; }
 
-    return time;
+  const getTimeInterval = () => {
+    const newTimerId = setInterval(() => {
+      console.log('toolbar called interval')
+      setTime(timer.getTime())
+    }, 1000)
+
+    setTimerId(newTimerId)
+  }
+
+  const addNewEvent = () => {
+    console.log('user wants to create a new event')
+    // auto-create a new event, position it at index: 0 (top of list)
+    
+    // default setting is 'isEditing={true}' with the title text highlighted and the description text 'undefined'
+
+    // defaults to 5, 15, 30, or 60 minutes. Todo: Change this option in settings (clock settings or regular settings??)
+
+  }
+
+  const handleStartTimer = () => {
+    console.log('timer started')
+    if(pauseActive) setPauseActive(false)
+    setTimeActive(true)
+    startTimer()
+    getTimeInterval()
+  }
+
+  const handlePauseTimer = () => {
+    clearInterval(timerId)
+    setTimerId(undefined)
+
+    pauseTimer()
+    setPauseActive(true)
+  }
+
+  const handleStopTimer = () => {
+    stopTimer()
+    clearInterval(timerId)
+    setTimerId(undefined)
+    setTimeActive(false)
+    setTime("00:00")
+    if(pauseActive) setPauseActive(false)
+  }
+
+  const openSettings = () => {
+    console.log('user wants to open settings')
+    // local state or ???
+
+    // ... I like the idea of a centered modal on the page... React portals??
+  }
+
+  const openClockSettings = () => {
+    console.log('user wants to open clock settings')
+
+    // This could be a nice, local dropdown type of modal
+    
   }
 
   return (
     <ToolbarStyled className="toolbar bar" style={{height: height}}>
       <div className="bar-left">
-        <span className="icon toolbar-icon play-icon"
-          onClick={startTimer}>
+        <span className={(!timeActive || pauseActive) ? "icon play-icon" : "icon play-icon disabled"} onClick={(!timeActive || pauseActive)
+          ? () => handleStartTimer()
+          : () => console.log('skipping start timer')
+        }>
           <Play size={24} />
         </span>
-
-        {timer && (
-          <span className="icon timer-text">
-            hey
-          </span>
-        )}
-
-        <span className="icon toolbar-icon disabled">
+        <span className={(timeActive && !pauseActive) ? "icon" : "icon disabled"} onClick={(timeActive || !pauseActive) ? () => {
+          handlePauseTimer()
+        } : () => null}>
           <Pause size={24} />
         </span>
-        <span className="icon toolbar-icon disabled">
+        <span className={timeActive ? "icon" : "icon disabled"} onClick={timeActive ? () => {
+          handleStopTimer()
+        } : () => null}>
           <Square size={24} />
         </span>
+
+        {timeActive && (
+          <span className="icon timer-text" style={{marginLeft:18,fontFamily:'sans-serif',opacity:.8}}>
+            {time}
+          </span>
+        )}
       </div>
       <div className="bar-right">
-        <span className="icon toolbar-icon">
+        <span className="icon toolbar-icon" onClick={addNewEvent}>
           <Plus size={24} />
         </span>
-        <span className="icon toolbar-icon">
+
+        {areTasksCollapsed ? (
+          <span className="icon toolbar-icon" onClick={handleCollapse}>
+            <Maximize2 size={24} />
+          </span>
+        ) : (
+          <span className="icon toolbar-icon" onClick={handleCollapse}>
+            <Minimize2 size={24} />
+          </span>
+        )}
+        
+        <span className="icon toolbar-icon" onClick={openClockSettings}>
           <Clock size={24} />
+        </span>
+        <span className="icon toolbar-icon" onClick={openSettings}>
+          <Settings size={24} />
         </span>
       </div>
     </ToolbarStyled>
   )
 }
 
+const mapStateToProps = (state) => ({
+  timer: state.timer
+})
+
+export const ConnectedToolbar = connect(
+  mapStateToProps,
+  {  }
+)(Toolbar)
+
 const ToolbarStyled = styled.div`
   &.toolbar {
-    border: 1px solid rgba(0,0,0,.17);
+    border-bottom: 1px solid rgba(0,0,0,.17);
+    // border: 1px solid rgba(0,0,0,.17);
     // margin-bottom: 12px;
-    margin-bottom: 6px;
+    // margin-bottom: 6px;
     padding: 6px 12px;
 
     .icon {
@@ -66,9 +155,10 @@ const ToolbarStyled = styled.div`
       border-radius: 50%;
       height: 36px;
       width: 36px;
-      padding: 6px;
+      padding: 4px;
       background-color: #fff;
       color: initial;
+      opacity: .9;
       transition: background-color .2s ease-in-out;
 
       &:hover {
@@ -76,6 +166,12 @@ const ToolbarStyled = styled.div`
         border-radius: 50%;
         transition: background-color .15s ease-in-out;
       }
+    }
+    .toolbar-icon {
+      // padding-left: 8px;
+      // padding-right: 8px;
+      margin-left: 2px;
+      margin-right: 2px;
     }
     .icon.play-icon {
       // transition: color .2s ease-in-out;
@@ -87,10 +183,12 @@ const ToolbarStyled = styled.div`
     }
     .icon.disabled {
       cursor: initial;
+      opacity: .6;
 
       &:hover {
         transition: none;
-        color: rgba(0,0,0,.88);
+        color: initial;
+        opacity: .6;
         background-color: #fff;
       }
     }
