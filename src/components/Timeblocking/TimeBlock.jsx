@@ -24,12 +24,9 @@ export const TimeBlock = ({
   onInputClick,
   onSave,
   onCancel,
-  dragHandleProps,
-  // handleDragStart,
-  // handleDragEnd,
+  // dragHandleProps,
   isCollapsed,
   // onClockClick,
-  // onDrag,
 }) => {
 
   const handleInputClick = (fieldName) => {
@@ -59,12 +56,9 @@ export const TimeBlock = ({
 
   return (
     <StyledTimeBlock
-      className="time-block-container"
+      className="time-block-container noselect"
       style={{position: 'relative'}}
       id={taskData.id}
-      // draggable={true}
-      // onDragStart={(event) => handleDragStart(event, taskData.id)}
-      // onDragEnd={(event) => handleDragEnd(event)}
     >
 
       {taskData.duration && (
@@ -89,16 +83,14 @@ export const TimeBlock = ({
               onCancel={onCancel}
             />
           </div> */}
-          {/* draggable ref: https://www.freecodecamp.org/news/reactjs-implement-drag-and-drop-feature-without-using-external-libraries-ad8994429f1a/ */}
           <div className="block-body" style={{paddingLeft:8}}>
             {isEditing ? (
               <OutsideAlerter handleOutsideClick={handleOutsideClick}>
-                {/* Note: <OutsideAlerter/> Messes up stuff */}
                 <TimeBlockForm
                   timeData={{
                     title: taskData.title,
                     desc: (taskData.desc ? taskData.desc : null)
-                    // other form options...
+                    // other form options... like a ToDo list
                   }}
                   activeField={activeField}
                   handleSave={handleSave}

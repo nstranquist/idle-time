@@ -1,5 +1,6 @@
 // src/store/selectors.js
 
+import { createSelector } from 'reselect'
 
 
 export const selectDots = state => {
@@ -10,6 +11,18 @@ export const selectDots = state => {
     }
   })
 }
+
+const tasksSelector = state => state.tasks.tasks;
+
+// sort tasks in ascending order by index
+export const selectOrderedTasks = createSelector(
+  tasksSelector,
+  (tasks) => {
+    const myTasks = tasks.sort((a, b) => a.index - b.index)
+    console.log('sorted tasks:', myTasks)
+    return myTasks;
+  }
+)
 
 export const selectActiveItem = state => {
   // find item in state.example.items, using the 'activeId' in state.example.activeId

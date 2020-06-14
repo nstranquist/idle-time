@@ -2,7 +2,8 @@
 
 export const startingTasks = [
   {
-    id: 'a', 
+    id: 'a',
+    index: 0,
     title: "A Note",
     // desc: "Remember this note",
     duration: 85,
@@ -11,6 +12,7 @@ export const startingTasks = [
   },
   {
     id: 'b',
+    index: 1,
     title: "Chores",
     desc: "Do your chores like laundry and dishes",
     duration: 40,
@@ -19,6 +21,7 @@ export const startingTasks = [
   },
   {
     id: 'c',
+    index: 2,
     title: "Coding - Session 1",
     desc: "Work on Portfolio and IdleTime with React.js",
     duration: 60,
@@ -27,6 +30,7 @@ export const startingTasks = [
   },
   {
     id: 'd',
+    index: 3,
     title: "Break - Lunch",
     desc: "Eat peas and rice or else...",
     duration: 10,
@@ -35,6 +39,7 @@ export const startingTasks = [
   },
   {
     id: 'e',
+    index: 4,
     title: "Coding - Session 2",
     desc: "Freelance work - Micah's app",
     duration: 25,
@@ -43,6 +48,7 @@ export const startingTasks = [
   },
   {
     id: 'f',
+    index: 5,
     title: "Dinner",
     duration: 60,
     startTime: new Date().toISOString(),

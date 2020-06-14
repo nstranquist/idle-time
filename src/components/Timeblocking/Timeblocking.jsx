@@ -18,7 +18,8 @@ import { NewBlock } from '../Blocks'
 import { DragIconBar } from './DragIconBar'
 
 // import redux actions
-import { addTask, updateTask, removeTask } from '../../store/Tasks'
+import { addTask, updateTask, removeTask, setTaskIndex } from '../../store/Tasks'
+import { selectOrderedTasks } from '../../store/selectors'
 
 // import styles, other components
 import { pageOptions } from '../../styles/pageOptions'
@@ -28,15 +29,14 @@ import { bulmaColors } from '../../styles/bulma.colors'
 
 
 const Timeblocking = ({
-  timerState,
-  tasks: {
-    tasks: tasksStore,
-    tasksLoading: loading,
-    tasksErrors: errors
-  },
+  tasks,
+  loading,
+  sortingTasks,
+  errors,
   addTask,
   updateTask,
-  removeTask
+  removeTask,
+  setTaskIndex,
 }) => {
 
   const [timer, setTimer] = useState(new Timer())
@@ -49,16 +49,9 @@ const Timeblocking = ({
   const [isDragging, setIsDragging] = useState(false)
   const [dropId, setDropId] = useState(undefined)
 
-  const [tasks, setTasks] = useState(tasksStore)
-
   useEffect(() => {
-    setTasks(
-      tasksStore.map((task, index) => ({
-        ...task,
-        index
-      }))
-    )
-  }, [tasksStore])
+    console.log('tasks updated:', tasks)
+  }, [tasks])
 
   const handleAddToggle = () => {
     // clean up previous editing state
@@ -96,10 +89,6 @@ const Timeblocking = ({
     timer.startTimer();
   }
   
-  // const pauseTimer = () => timer.pauseTimer()
-  // const resumeTimer = () => timer.resumeTimer()
-  // const stopTimer = () => timer.stopTimer()
-
   const onInputClick = (taskData, fieldName) => {
     if(isEditing && taskData)
       // submit existing form, switch active editing id
@@ -199,14 +188,12 @@ const Timeblocking = ({
       return;
 
     if(type === 'day') {
-      console.log("it's a day")
-      const newTasksOrder = Array.from(tasks);
-      newTasksOrder.splice(source.index, 1)
-      const foundTask = tasks.find(task => task.id === draggableId)
-      newTasksOrder.splice(destination.index, 0, foundTask)
-      console.log('new tasks order:', newTasksOrder)
+      // const newTasksOrder = Array.from(tasks);
+      // newTasksOrder.splice(source.index, 1)
+      // const foundTask = tasks.find(task => task.id === draggableId)
+      // newTasksOrder.splice(destination.index, 0, foundTask)
 
-      setTasks(newTasksOrder)
+      setTaskIndex(draggableId, source.index, destination.index)
       return;
     }
   }
@@ -288,7 +275,6 @@ const Timeblocking = ({
                               handleDragStart={dragStart}
                               handleDragEnd={dragEnd}
                               isCollapsed={areTasksCollapsed}
-                              
                             />
                           </div>
                         )}
@@ -324,12 +310,15 @@ const Timeblocking = ({
 
 const mapStateToProps = (state) => ({
   timerState: state.timer,
-  tasks: state.tasks,
+  tasks: selectOrderedTasks(state),
+  loading: state.tasks.loading,
+  sortingTasks: state.tasks.sortingTasks,
+  errors: state.tasks.errors,
 })
 
 export const ConnectedTimeblocking = connect(
   mapStateToProps,
-  { addTask, updateTask, removeTask, }
+  { addTask, updateTask, removeTask, setTaskIndex }
 )(Timeblocking)
 
 const StyledTaskCard = styled.div`

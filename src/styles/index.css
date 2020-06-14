@@ -61,13 +61,14 @@ i {
   transition: background-color .2s ease-in-out;
 }
 
-.no-select {
-  -webkit-user-select: none; /* Safari */        
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* IE10+/Edge */
-  user-select: none; /* Standard */
+.noselect {
+  -webkit-touch-callout: none; 
+  -webkit-user-select: none; 
+   -khtml-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none; 
 }
-
 .dropdown-icon {
   position: relative;
 }
