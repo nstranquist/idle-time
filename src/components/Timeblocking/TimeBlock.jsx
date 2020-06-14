@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { TimeBlockForm } from '../Forms'
-import { MoreVertical, Maximize2, Minimize2, Grid } from 'react-feather'
+import { Grid } from 'react-feather'
 import TimeBlockDisplay from './TimeBlockDisplay'
 import { OutsideAlerter } from '../../hoc/OutsideAlerter'
 import { ClockInput } from '../../components/Inputs'
@@ -13,9 +13,9 @@ import { bulmaColors } from '../../styles/bulma.colors'
 
 // options for dragging icon: "grid", "move", "align-justify", "menu", 
 
-// TimeBlock should hold editing state and switch between Display and Form blocks
+// [x] TimeBlock should hold editing state and switch between Display and Form blocks
 
-// I like... "Fit to Screen" and "Show to scale" checkbox feature to toggle display settings
+// [x] I like... "Fit to Screen" and "Show to scale" checkbox feature to toggle display settings
 
 export const TimeBlock = ({
   taskData, // Title, Desc, startTime, duration, endTime
@@ -24,16 +24,15 @@ export const TimeBlock = ({
   onInputClick,
   onSave,
   onCancel,
-  handleDragStart,
-  handleDragEnd,
+  dragHandleProps,
+  // handleDragStart,
+  // handleDragEnd,
   isCollapsed,
   // onClockClick,
   // onDrag,
 }) => {
 
-  // toggle form
   const handleInputClick = (fieldName) => {
-    console.log(fieldName, 'clicked')
     onInputClick(taskData, fieldName)
   }
 
@@ -43,13 +42,11 @@ export const TimeBlock = ({
   }
 
   const handleSave = ({ title, desc }, finished = true) => {
-    // update the information
     onSave({
       ...taskData,
       title,
       desc
     }, finished)
-    // toggle display view
   }
 
   const handleSubmitClock = (clockData) => {
@@ -60,25 +57,14 @@ export const TimeBlock = ({
     })
   }
 
-  // const onSubmit = (timeData) => {
-  //   console.log('submitting this time data:', timeData, 'and other data:', taskData)
-  //
-  //   if(timeData) {
-  //     onSave({
-  //       ...taskData,
-  //       ...timeData
-  //     })
-  //   }
-  // }
-
   return (
     <StyledTimeBlock
       className="time-block-container"
       style={{position: 'relative'}}
-      draggable={true}
       id={taskData.id}
-      onDragStart={(event) => handleDragStart(event, taskData.id)}
-      onDragEnd={(event) => handleDragEnd(event)}
+      // draggable={true}
+      // onDragStart={(event) => handleDragStart(event, taskData.id)}
+      // onDragEnd={(event) => handleDragEnd(event)}
     >
 
       {taskData.duration && (
@@ -139,7 +125,7 @@ export const TimeBlock = ({
                 onCancel={onCancel}
               />
             </div>
-            <div className="drag-icon-container" onDrag={(e) => console.log('dragging event:', e)}>
+            <div className="drag-icon-container" >
               <span className="icon drag-icon">
                 <Grid size={20} color={bulmaColors.black}  />
               </span>

@@ -1,9 +1,10 @@
 // src/components/Timeblocking/Timeblocking.jsx
 
 // library imports
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 // import moment from 'moment'
 
 // import components
@@ -14,8 +15,7 @@ import { ErrorText } from '../ErrorText'
 import { Timer } from './Timer'
 import { AddButton } from '../Buttons'
 import { NewBlock } from '../Blocks'
-import { Trash2, Save } from 'react-feather'
-import { DragDropContext, Droppable } from 'react-beautiful-dnd'
+import { DragIconBar } from './DragIconBar'
 
 // import redux actions
 import { addTask, updateTask, removeTask } from '../../store/Tasks'
@@ -30,7 +30,7 @@ import { bulmaColors } from '../../styles/bulma.colors'
 const Timeblocking = ({
   timerState,
   tasks: {
-    tasks,
+    tasks: tasksStore,
     tasksLoading: loading,
     tasksErrors: errors
   },
@@ -49,6 +49,16 @@ const Timeblocking = ({
   const [isDragging, setIsDragging] = useState(false)
   const [dropId, setDropId] = useState(undefined)
 
+  const [tasks, setTasks] = useState(tasksStore)
+
+  useEffect(() => {
+    setTasks(
+      tasksStore.map((task, index) => ({
+        ...task,
+        index
+      }))
+    )
+  }, [tasksStore])
 
   const handleAddToggle = () => {
     // clean up previous editing state
@@ -168,101 +178,126 @@ const Timeblocking = ({
     }
   }
 
-  const onDragStart = (e) => {
+  const onDragStart = (start) => {
+    console.log('on drag start')
 
   }
-  const onDragUpdate = (e) => {
-    
+  const onDragUpdate = (update) => {
+    console.log('on drag update')
+
   }
-  const onDragEnd = (e) => {
-    
+  const onDragEnd = (result) => {
+    console.log('on drag end. result:', result)
+    // new index: result.destination.index / droppableId
+    // old index: result.source.index / droppableId
+    const { destination, source, draggableId, type } = result;
+
+    if(!destination)
+      return;
+
+    if(destination.droppableId === source.droppableId && destination.index === source.index)
+      return;
+
+    if(type === 'day') {
+      console.log("it's a day")
+      const newTasksOrder = Array.from(tasks);
+      newTasksOrder.splice(source.index, 1)
+      const foundTask = tasks.find(task => task.id === draggableId)
+      newTasksOrder.splice(destination.index, 0, foundTask)
+      console.log('new tasks order:', newTasksOrder)
+
+      setTasks(newTasksOrder)
+      return;
+    }
   }
 
   return (
     <StyledTimeblocking className="idle-time-page container" style={{position:'relative'}}>
+      <DragDropContext
+        onDragStart={onDragStart}
+        onDragUpdate={onDragUpdate}
+        onDragEnd={onDragEnd}
+      >
+        {/* After inline-styles, make its own styled-component called TrashStyled */}
+        {isDragging === true && (
+          <DragIconBar
 
-      {/* After inline-styles, make its own styled-component called TrashStyled */}
-      {isDragging === true && (
-        <div className="icon-bar-container" style={{position:'absolute', right: 0, bottom: 0, zIndex:1100, marginRight: 12, marginBottom: 12}}>
-          <div className="icon-container" id="trashIcon"
-            onDragOver={e => e.preventDefault()}
-            onDragEnter={e => {
-              console.log('current:', e.currentTarget)
-              if(e.currentTarget)
-                e.currentTarget.classList.add('hovered')
-            }}
-            onDragExit={e => {
-              if(e.currentTarget)
-                e.currentTarget.classList.remove('hovered')
-            }}
-            onDrop={e => {
-              handleDrop(e, 'trash')
-            }}
-          >
-            <span className="icon trash-icon">
-              <Trash2 color={bulmaColors.danger} size={32} />
-            </span>
-          </div>
-          <div className="icon-container" id="saveIcon"
-            onDragOver={e => e.preventDefault()}
-            onDrop={e => handleDrop(e, 'save')}
-          >
-            <span className="icon trash-icon">
-              <Save color={bulmaColors.success} size={32} />
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* Content-Left */}
-      <div className="section-left">
-
-        {/* Timeline */}
-        <div className="timeline">
-          <Timeline
-            timer={timer}
           />
+        )}
+
+        {/* Content-Left */}
+        <div className="section-left">
+
+          {/* Timeline */}
+          <div className="timeline">
+            <Timeline
+              timer={timer}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Content-Right */}
-      <div className="section-right">
+        {/* Content-Right */}
+        <div className="section-right">
 
-        {/* Toolbar */}
-        <Toolbar
-          height={pageOptions.toolbarHeight}
-          timer={timer}
-          startTimer={() => timer.startTimer()}
-          pauseTimer={() => timer.pauseTimer()}
-          stopTimer={() => timer.stopTimer()}
-          areTasksCollapsed={areTasksCollapsed}
-          handleCollapse={() => setAreTasksCollapsed(!areTasksCollapsed)}
-        />
+          {/* Toolbar */}
+          <Toolbar
+            height={pageOptions.toolbarHeight}
+            timer={timer}
+            startTimer={() => timer.startTimer()}
+            pauseTimer={() => timer.pauseTimer()}
+            stopTimer={() => timer.stopTimer()}
+            areTasksCollapsed={areTasksCollapsed}
+            handleCollapse={() => setAreTasksCollapsed(!areTasksCollapsed)}
+          />
 
-        <div className="section-right-inner">
+          <div className="section-right-inner">
           
-          <DragDropContext
-            onDragStart={onDragStart}
-            onDragUpdate={onDragUpdate}
-            onDragEnd={onDragEnd}
-          >
-        
             {/* Task Cards */}
             <div className="task-cards">
-              {tasks.length > 0 && tasks.map((task, index) => (
-                <TimeBlock
-                  key={index}
-                  taskData={task}
-                  activeField={activeTask ? activeTask.activeField : undefined}
-                  isEditing={activeTask && task.id === activeTask.id}
-                  onInputClick={onInputClick}
-                  onSave={onSave}
-                  onCancel={onCancel}
-                  handleDragStart={dragStart}
-                  handleDragEnd={dragEnd}
-                  isCollapsed={areTasksCollapsed}
-                />
-              ))}
+
+              <Droppable
+                droppableId={"monday"} // todo: get the day from "new Date()" using moment
+                direction="vertical"
+                type="day"
+              >
+                {(provided, snapshot) => (
+                  <div
+                    className="task-cards-inner"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {tasks.length > 0 && tasks.map((task, index) => (
+                      <Draggable
+                        key={task.id}
+                        draggableId={task.id}
+                        type="timeblock"
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                            <TimeBlock
+                              // dragging props
+                              isDragging={snapshot.isDragging}
+                              // other props
+                              taskData={task}
+                              activeField={activeTask ? activeTask.activeField : undefined}
+                              isEditing={activeTask && task.id === activeTask.id}
+                              onInputClick={onInputClick}
+                              onSave={onSave}
+                              onCancel={onCancel}
+                              handleDragStart={dragStart}
+                              handleDragEnd={dragEnd}
+                              isCollapsed={areTasksCollapsed}
+                              
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
 
               {formErrors && <ErrorText message={formErrors} />}
               
@@ -274,18 +309,15 @@ const Timeblocking = ({
               )}
             </div>
 
-          </DragDropContext>
-
-          {/* Add Task / Submit Task Button */}
-          {!isAdding && (
-            <div className="add-button-container">
-              <AddButton handleClick={handleAddToggle} />
-            </div>
-          )}
+            {/* Add Task / Submit Task Button */}
+            {!isAdding && (
+              <div className="add-button-container">
+                <AddButton handleClick={handleAddToggle} />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* <BottomBar /> */}
+      </DragDropContext>
     </StyledTimeblocking>
   )
 }
@@ -310,35 +342,6 @@ const StyledTimeblocking = styled.div`
   // padding-top: 16px;
   // padding-bottom: -16px;
   // height: calc(100vh - 85px - 16px - 56px); // 85px for topbar, 16px for top padding, 56px for bottom bar
-
-  .icon-bar-container {
-    display: flex;
-
-    .icon-container {
-      padding: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-      background-color: inherit;
-      transition: background-color .2s ease-in-out;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        background-color: rgba(0,0,0,.05);
-        transition: background-color .2s ease-in-out;
-      }
-      &.hovered {
-        background-color: rgba(0,0,0,.05);
-        transition: background-color .2s ease-in-out;
-      }
-
-      .trash-icon {
-        flex: 1;
-        // background-color: inherit;
-      }
-    }
-  }
 
   .section-left {
     width: ${pageOptions.timelineWidth};

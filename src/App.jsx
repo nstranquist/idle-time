@@ -18,7 +18,6 @@ const App = ({
 }) => {
   return (
     <StyledApp>
-      {/* Sidebar */}
       <Sidebar
         pageStyles={{
           width: pageOptions.sidebarWidth,
@@ -30,7 +29,6 @@ const App = ({
 
       {/* Main Section */}
       <div className="content" style={{marginLeft: sidebarOpen ? pageOptions.sidebarWidth : pageOptions.sidebarWidthClosed}}>
-        {/* TopBar */}
         <TopBar
           sidebarOpen={sidebarOpen}
           openSidebar={openSidebar}
@@ -88,8 +86,6 @@ const App = ({
             </Switch>
           </Suspense>
         </main>
-
-        {/* BottomBar */}
       </div>
     </StyledApp>
   );

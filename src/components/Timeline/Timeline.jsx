@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
-// import { UnstyledLink } from '../../styles/components/link.styled'
+import { Link } from 'react-router-dom'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
 import { selectActiveItem, selectUpcomingTasks, selectDots } from '../../store/selectors'
@@ -11,6 +10,8 @@ import { selectActiveItem, selectUpcomingTasks, selectDots } from '../../store/s
 // then, need that blue line to update with the timer
 // and update the dots
 
+// I think... best to wait until redux is managing the timer state,
+// before implementing the timer functionality here
 
 const startingDotSettings = {
   colors: ['green', 'blue', 'yellow', 'red'],
@@ -29,12 +30,8 @@ export const Timeline = ({
   const [dotSettings, setDotSettings] = useState(startingDotSettings)
   const [isHovering, setIsHovering] = useState(undefined)
   const [dotHoverData, setDotHoverData] = useState(undefined)
-  const [time, setTime] = useState(0)
-
-  useEffect(() => {
-    console.log("timer time changed to:", timer.getTime())
-    setTime(timer.getTime())
-  }, [timer.time])
+  const [time, setTime] = useState(timer.getTime())
+  const [timerId, setTimerId] = useState(undefined)
 
   useEffect(() => {
     if(isHovering) {
