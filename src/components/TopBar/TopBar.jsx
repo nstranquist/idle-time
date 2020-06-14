@@ -38,15 +38,45 @@ export const TopBar = ({
           <button name="day" className={activeDisplay === "day" ? "button is-info has-text-white" : "button info-inactive"}>
             D</button>
         </div>
-        <div className="icon-container"
-          onClick={() => setShowNotifMenu(!showNotifMenu)}>
-          <Bell size={26} />
-          {/* include red-circle "snack" top-right of Bell icon? */}
+        <div className="dropdown is-right is-hoverable">
+          <div className="icon-container dropdown-trigger" aria-haspopup="true" aria-controls="dropdown-menu-notifications"
+            onClick={() => setShowNotifMenu(!showNotifMenu)}>
+            {/* include red-circle "snack" top-right of Bell icon? */}
+            <Bell size={26}  className="dropdown" />
+          </div>
+          <div className="dropdown-menu" role="menu">
+            <div className="dropdown-content">
+              <div className="dropdown-item">
+                <p>An Item That is Dropped Down</p>
+              </div>
+              <div style={{padding: 12}}>
+                Other content :)
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="icon-container"
-          onClick={() => setShowUserMenu(!showUserMenu)}>
-          <User size={26} />
-          {/* include chevron-down next to User icon? */}
+        <div className="dropdown is-right is-hoverable">
+          <div className="icon-container dropdown-trigger" aria-haspopup="true" aria-controls="dropdown-menu-notifications"
+            onClick={() => setShowUserMenu(!showUserMenu)}>
+            {/* include chevron-down next to User icon? */}
+            <User size={26} />
+          </div>
+          <div className="dropdown-menu" role="menu">
+            <div className="dropdown-content">
+              <div className="dropdown-item">
+                <p className="hoverboard-item">Profile</p>
+              </div>
+              <div className="dropdown-item">
+                <p className="hoverboard-item">Settings</p>
+              </div>
+              <div className="dropdown-item">
+                <p className="hoverboard-item">Delete your account</p>
+              </div>
+              <div style={{padding: 12}}>
+                Other content :)
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </StyledTopbar>
@@ -61,6 +91,22 @@ const StyledTopbar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  .dropdown-menu {
+    border: 1px solid rgba(22,22,22,.1);
+  }
+
+  .dropdown-item {
+    cursor: pointer;
+    background-color: #fff;
+    transition: .12s ease-in-out;
+
+    &:hover {
+      background-color: ${bulmaColors.light};
+      transition: .2s ease-in-out;
+    }
+  }
+  // .hoverboard-item {  }
 
   .topbar-left {
     display: flex;
