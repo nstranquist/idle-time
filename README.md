@@ -9,7 +9,7 @@ With Idle Time, you can click the "Play" button and all of your time blocks will
 
 There are many, many more features in this app!  
 
-To name a few:
+Features:
 - Drag n Drop time blocks
 - Expand / Collapsed view for timeblocks
 - Save blocks as preset, and customize as you'd like
