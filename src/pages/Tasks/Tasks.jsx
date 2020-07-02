@@ -1,19 +1,35 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { selectTasks } from '../../store/selectors/tasks'
+import { selectTasks, selectTasksLoading, selectTasksErrors } from '../../store/selectors/tasks'
+import { getTasks, addTask, updateTask, removeTask, } from '../../store/Tasks'
+import { ErrorText } from '../../components/ErrorText'
 
 export const Tasks = ({
-  tasks
+  tasks,
+  loading,
+  errors,
+  getTasks,
+  addTask,
+  updateTask,
+  removeTask,
 }) => {
   return (
     <StyledTasks>
       <header className="tasks-header">
         <h3>Your Tasks</h3>
+        {errors && (
+          <ErrorText message={errors} />
+        )}
       </header>
       <div className="tasks-inner">
         <section className="tasks-section current-tasks">
           <h5>Today's Tasks</h5>
+          {loading && (
+            <div style={{display:'flex', justifyContent:'center',alignItems:'center',minHeight:50,textAlign:'center'}}>
+              <p style={{marginBottom: 0, textAlign:'center',alignSelf:'center'}}>Loading...</p>
+            </div>
+          )}
           {tasks.length > 0 ? tasks.map((task, index) => (
             <div className="task-item">
               task here
@@ -39,12 +55,14 @@ export const Tasks = ({
 
 const mapStateToProps = (state) => ({
   tasks: selectTasks(state),
+  loading: selectTasksLoading(state),
+  errors: selectTasksErrors(state),
   // ...
 })
 
 export const ConnectedTasks = connect(
   mapStateToProps,
-  {  }
+  { getTasks, addTask, updateTask, removeTask }
 )(Tasks)
 
 const StyledTasks = styled.div`
