@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
 import { selectActiveItem, selectUpcomingTasks, selectDots } from '../../store/selectors'
+import { selectTasks, selectTasksErrors, selectTasksLoading } from '../../store/selectors/tasks'
 
 // note: get static image asset for hours / numbers display
 // then, need that blue line to update with the timer
@@ -21,7 +22,9 @@ const startingDotSettings = {
 export const Timeline = ({
   dots,
   timer,
-  tasksState,
+  tasks,
+  loading,
+  errors,
   upcomingTasks,
   activeTask
 }) => {
@@ -37,7 +40,7 @@ export const Timeline = ({
     if(isHovering) {
       // get the new hovering data
       const dotId = isHovering;
-      const dot = tasksState.tasks.find(task => task.id === dotId)
+      const dot = tasks.find(task => task.id === dotId)
       if(dot)
         setDotHoverData(dot)
     }
@@ -52,7 +55,7 @@ export const Timeline = ({
 
   // const handleDotHover = async taskId => {
   //   // set the necessary data for dot hover
-  //   const dotData = tasksState.tasks.find(task => task.id === taskId)
+  //   const dotData = tasks.find(task => task.id === taskId)
   // }
 
   const handleMouseOver = (e) => {
@@ -99,7 +102,9 @@ export const Timeline = ({
 
 const mapStateToProps = (state) => ({
   dots: selectDots(state),
-  tasksState: state.tasks,
+  tasks: selectTasks(state),
+  errors: selectTasksErrors(state),
+  loading: selectTasksLoading(state),
   upcomingTasks: selectUpcomingTasks(state),
   activeTask: selectActiveItem(state),
 })

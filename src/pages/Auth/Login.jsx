@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { ErrorText } from '../../components/ErrorText'
 import { Link } from 'react-router-dom'
+import { ErrorText } from '../../components/ErrorText'
+import { selectAuthErrors, selectAuthLoading, selectIsSignedIn } from '../../store/selectors/auth'
 
 const emptyLoginForm = {
   username: "",
@@ -10,11 +11,9 @@ const emptyLoginForm = {
 }
 
 const Login = ({
-  auth: {
-    signedIn,
-    loading,
-    errors
-  }
+  signedIn,
+  loading,
+  errors
 }) => {
   const [formData, setFormData] = useState(emptyLoginForm)
   const [rememberMe, setRememberMe] = useState(false)
@@ -105,7 +104,9 @@ const Login = ({
 }
 
 const mapStateToProps = (state) => ({
-  auth: state.auth
+  isSignedIn: selectIsSignedIn(state),
+  errors: selectAuthErrors(state),
+  loading: selectAuthLoading(state),
 })
 
 const ConnectedLogin = connect(

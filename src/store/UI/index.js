@@ -5,6 +5,9 @@ const CLOSE_SIDEBAR = "CLOSE_SIDEBAR"
 
 const SET_TIMEFRAME = 'SET_TIMEFRAME'
 
+const SET_ERRORS = 'SET_ERRORS'
+const SET_LOADING = 'SET_LOADING'
+
 
 
 export const openSidebar = () => ({
@@ -23,7 +26,9 @@ export const setTimeframe = (timeframe) => ({
 
 const initialState = {
   sidebarOpen: true,
-  timeframe: "W"
+  timeframe: "W",
+  loading: false,
+  errors: null,
 }
 
 export default (
@@ -45,6 +50,17 @@ export default (
       return {
         ...state,
         timeframe: action.timeframe
+      }
+    case SET_ERRORS:
+      return {
+        ...state,
+        loading: false,
+        errors: action.err
+      }
+    case SET_LOADING:
+      return {
+        ...state,
+        loading: true,
       }
     default:
       return state;

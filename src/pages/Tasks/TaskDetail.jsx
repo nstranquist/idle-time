@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
+import { selectTasks } from '../../store/selectors/tasks'
 
 const TaskDetail = ({
   route,
@@ -42,7 +43,7 @@ const TaskDetail = ({
 }
 
 const mapStateToProps = (state) => ({
-  tasks: state.tasks.tasks,
+  tasks: selectTasks(state),
 })
 
 export const ConnectedTaskDetail = connect(

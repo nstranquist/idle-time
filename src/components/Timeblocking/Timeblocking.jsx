@@ -25,13 +25,13 @@ import { selectOrderedTasks } from '../../store/selectors'
 import { pageOptions } from '../../styles/pageOptions'
 import { boxShadows } from '../../styles/shadows.style'
 import { bulmaColors } from '../../styles/bulma.colors'
+import { selectTasksLoading, selectTasksErrors } from '../../store/selectors/tasks'
 // import { emptyNewTask } from '../../constants'
 
 
 const Timeblocking = ({
   tasks,
   loading,
-  sortingTasks,
   errors,
   addTask,
   updateTask,
@@ -309,11 +309,9 @@ const Timeblocking = ({
 }
 
 const mapStateToProps = (state) => ({
-  timerState: state.timer,
   tasks: selectOrderedTasks(state),
-  loading: state.tasks.loading,
-  sortingTasks: state.tasks.sortingTasks,
-  errors: state.tasks.errors,
+  loading: selectTasksLoading(state),
+  errors: selectTasksErrors(state),
 })
 
 export const ConnectedTimeblocking = connect(

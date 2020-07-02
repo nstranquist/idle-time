@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { ErrorText } from '../../components/ErrorText'
 import { Link } from 'react-router-dom'
+import { selectAuthErrors, selectAuthLoading } from '../../store/selectors/auth'
 
 const emptySignupForm = {
   username: "",
@@ -103,8 +104,8 @@ const SignUp = ({
 }
 
 const mapStateToProps = (state) => ({
-  loading: state.auth.loading,
-  errors: state.auth.errors,
+  loading: selectAuthLoading(state),
+  errors: selectAuthErrors(state),
 })
 
 export const ConnectedSignUp = connect(

@@ -5,6 +5,8 @@ const ADD_PRESET = 'ADD_PRESET'
 const UPDATE_PRESET = 'UPDATE_PRESET'
 const REMOVE_PRESET = 'REMOVE_PRESET'
 
+
+const SET_LOADING = 'SET_LOADING'
 const SET_ERROR = 'SET_ERROR'
 const CLEAR_ERRORS = 'CLEAR_ERRORS'
 
@@ -50,14 +52,20 @@ export const removePreset = (presetName, presetType = 'blocks') => (dispatch) =>
   })
 }
 
-export const setError = (err) => (dispatch) => dispatch({ type: SET_ERROR, err })
-export const clearErrors = (err) => (dispatch) => dispatch({ type: CLEAR_ERRORS })
+export const setError = (err) => ({
+  type: SET_ERROR,
+  err
+})
+export const clearErrors = () => ({
+  type: CLEAR_ERRORS
+})
 
 
 const initialState = {
   blocks: [],
   timeshift: [],
   schedules: [], // with field: (type: 'week' or 'day')
+  loading: false,
   errors: null,
 }
 
@@ -74,6 +82,7 @@ export default (
           ...state[action.presetType],
           action.presetData
         ],
+        loading: false,
         errors: null,
       }
     // case UPDATE_PRESET:
@@ -81,17 +90,25 @@ export default (
       return {
         ...state,
         [action.presetType]: state[action.presetType].filter(preset => preset.name !== action.presetName),
+        loading: false,
         errors: null,
       }
     case SET_ERROR:
       return {
         ...state,
+        loading: false,
         errors: action.err
       }
     case CLEAR_ERRORS:
       return {
         ...state,
+        loading: false,
         errors: null
+      }
+    case SET_LOADING:
+      return {
+        ...state,
+        loading: true,
       }
     default:
       return state;

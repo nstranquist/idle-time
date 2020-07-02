@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
+import { selectTasks } from '../../store/selectors/tasks'
 
 export const Tasks = ({
   tasks
@@ -37,7 +38,8 @@ export const Tasks = ({
 }
 
 const mapStateToProps = (state) => ({
-  tasks: state.tasks
+  tasks: selectTasks(state),
+  // ...
 })
 
 export const ConnectedTasks = connect(

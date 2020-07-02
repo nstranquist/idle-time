@@ -1,11 +1,7 @@
 // src/store/selectors.js
 
 import { createSelector } from 'reselect'
-
-
-export const selectTasks = state => state.tasks.tasks;
-
-export const selectSidebarOpen = state => state.ui.sidebarOpen;
+import { selectTasks } from './selectors/tasks'
 
 export const selectDots = createSelector(
   selectTasks,

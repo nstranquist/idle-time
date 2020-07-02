@@ -8,7 +8,7 @@ import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
 import { openSidebar, closeSidebar } from "./store/UI";
 import { pageOptions } from './styles/pageOptions'
-import { selectSidebarOpen } from "./store/selectors";
+import { selectSidebarOpen } from "./store/selectors/ui";
 
 // Perhaps: put sidebar and layout container code here
 
@@ -91,7 +91,7 @@ const App = ({
 
             </Switch>
           </Suspense>
-        </main>m
+        </main>
       </div>
     </StyledApp>
   );
@@ -101,10 +101,10 @@ const mapStateToProps = (state) => ({
   sidebarOpen: selectSidebarOpen(state),
 });
 
-export const ConnectedApp = connect(mapStateToProps, {
-  openSidebar,
-  closeSidebar,
-})(App);
+export const ConnectedApp = connect(
+  mapStateToProps,
+  { openSidebar, closeSidebar },
+)(App);
 
 export default ConnectedApp;
 

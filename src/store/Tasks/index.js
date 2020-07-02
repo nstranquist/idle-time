@@ -62,8 +62,8 @@ export const setTaskIndex = (taskId, sourceIndex, destinationIndex) => (dispatch
 
 const initialState = {
   tasks: startingTasks,
-  loading: false,
   sortingTasks: false,
+  loading: false,
   errors: null,
 }
 
