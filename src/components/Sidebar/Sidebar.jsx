@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { useLocation } from 'react-router-dom'
-import { Home, CheckSquare, Bookmark } from 'react-feather'
+import { Home, CheckSquare, Bookmark, Clock } from 'react-feather'
 import { UnstyledLink } from '../../styles/components/link.styled'
 import { bulmaColors } from '../../styles/bulma.colors'
 
@@ -28,6 +28,9 @@ export const Sidebar = ({
           </UnstyledLink>
           <UnstyledLink to="/tasks" className={location.pathname === "/tasks" ? "nav-item active" : "nav-item"}>
             <CheckSquare size={iconSize} />
+          </UnstyledLink>
+          <UnstyledLink to="/time-tracking" className={location.pathname === "/time-tracking" ? "nav-item active" : "nav-item"}>
+            <Clock size={iconSize} />
           </UnstyledLink>
           <UnstyledLink to="/presets" className={location.pathname === "/presets" ? "nav-item active" : "nav-item"}>
             <Bookmark size={iconSize} />

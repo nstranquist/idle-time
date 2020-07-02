@@ -3,20 +3,25 @@
 import { createSelector } from 'reselect'
 
 
-export const selectDots = state => {
-  return state.tasks.tasks.map(task => {
-    return {
-      id: task.id,
-      priority: task.priority,
-    }
-  })
-}
+export const selectTasks = state => state.tasks.tasks;
 
-const tasksSelector = state => state.tasks.tasks;
+export const selectSidebarOpen = state => state.ui.sidebarOpen;
+
+export const selectDots = createSelector(
+  selectTasks,
+  (tasks) => {
+    return tasks.map(task => {
+      return {
+        id: task.id,
+        priority: task.priority,
+      }
+    })
+  }
+)
 
 // sort tasks in ascending order by index
 export const selectOrderedTasks = createSelector(
-  tasksSelector,
+  selectTasks,
   (tasks) => {
     const myTasks = tasks.sort((a, b) => a.index - b.index)
     console.log('sorted tasks:', myTasks)

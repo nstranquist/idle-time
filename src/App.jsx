@@ -8,6 +8,7 @@ import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
 import { openSidebar, closeSidebar } from "./store/UI";
 import { pageOptions } from './styles/pageOptions'
+import { selectSidebarOpen } from "./store/selectors";
 
 // Perhaps: put sidebar and layout container code here
 
@@ -51,6 +52,11 @@ const App = ({
               />
               <Route
                 exact
+                path="/time-tracking"
+                component={lazy(() => import("./pages/TimeTracking"))}
+              />
+              <Route
+                exact
                 path="/tasks"
                 component={lazy(() => import("./pages/Tasks"))}
               />
@@ -85,14 +91,14 @@ const App = ({
 
             </Switch>
           </Suspense>
-        </main>
+        </main>m
       </div>
     </StyledApp>
   );
 };
 
 const mapStateToProps = (state) => ({
-  sidebarOpen: state.ui.sidebarOpen,
+  sidebarOpen: selectSidebarOpen(state),
 });
 
 export const ConnectedApp = connect(mapStateToProps, {
