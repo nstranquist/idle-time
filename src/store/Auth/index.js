@@ -1,6 +1,6 @@
 /* src/store/Auth/index.js */
 
-// import { apiConfig } from '../../utils/api.config'
+const BASE_URL = ""
 
 // Auth Types
 const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS'
@@ -52,26 +52,47 @@ export const login = (username, password) => (dispatch) => {
   // dispatch({ type: LOGIN_SUCCESS })
 }
 
-export const signup = (username, password) => (dispatch) => {
+export const signup = (email, password) => (dispatch) => {
   dispatch({ type: SIGNUP_LOADING })
 
+  const userObject = {
+    email,
+    password
+  }
+
   // run api call, to validate login
-  // fetch(apiConfig.baseURL + '/signup', {
-  //   method : 'POST',
-  //   headers: {'Content-Type':'application/x-www-form-urlencoded'},
-  //   body: 'user=' + username.toString() + '&' + 'pass=' + password.toString()
-  // })
-  //   .then(res => {
-  //     console.log('made it to res:', res)
-  //     if(res.status < 400)
-  //       dispatch({ type: SIGNUP_SUCCESS })
-  //     else
-  //       dispatch({ type: SIGNUP_FAILURE, err: `${res.status} error code` })
-  //   })
-  //   .catch(err => {
-  //     // console.log('error:', err.stringify())
-  //     dispatch({ type: SIGNUP_FAILURE, err: "error signing up from server" })
-  //   })
+  fetch(BASE_URL + '/api/auth/register_login', {
+    method : 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(userObject)
+  })
+    .then(res => res.json())
+    .then(resData => {
+      console.log('data from server /signup:', data)
+      const data = JSON.stringify(resData)
+      if(data.status) {
+        if(data.status < 400)
+          dispatch({ type: SIGNUP_SUCCESS })
+        else
+          dispatch({ type: SIGNUP_FAILURE, err: `${data.status} error code` })
+      }
+      else {
+        dispatch({ type: SIGNUP_SUCCESS })
+        // but we still need a token...
+      }
+    })
+    .catch(err => {
+      console.log('error:', JSON.stringify(err))
+      dispatch({ type: SIGNUP_FAILURE, err: "error signing up from server" })
+    })
+}
+
+export const resetPassword = (email, password) => (dispatch) => {
+  console.log('resetting password')
+
 }
 
 export const logout = () => ({

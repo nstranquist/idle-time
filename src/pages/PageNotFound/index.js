@@ -1,5 +1,7 @@
-import { PageNotFound } from './PageNotFound'
+import { AuthPageNotFound } from './AuthPageNotFound'
+import { GuestPageNotFound } from './GuestPageNotFound'
 
 export {
-  PageNotFound, 
+  AuthPageNotFound,
+  GuestPageNotFound,
 }

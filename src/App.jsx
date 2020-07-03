@@ -2,21 +2,56 @@ import React, { Suspense, lazy } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { Route, Switch } from "react-router-dom";
-import { PageNotFound } from "./pages/PageNotFound";
+import { GuestPageNotFound, AuthPageNotFound } from "./pages/PageNotFound";
 // component imports
 import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
 import { openSidebar, closeSidebar } from "./store/UI";
+import { bulmaColors } from './styles/bulma.colors'
 import { pageOptions } from './styles/pageOptions'
 import { selectSidebarOpen } from "./store/selectors/ui";
+import { selectIsSignedIn } from "./store/selectors/auth";
+
+import { Login, SignUp, ResetPassword } from './pages/Auth'
 
 // Perhaps: put sidebar and layout container code here
 
 const App = ({ 
+  isSignedIn,
   sidebarOpen,
   openSidebar,
   closeSidebar
 }) => {
+
+  if(isSignedIn === false) {
+    return (
+      <GuestApp>
+        <Switch>
+          <Route
+            exact
+            path="/"
+            component={Login}
+          />
+          <Route
+            exact
+            path="/login"
+            component={Login}
+          />
+          <Route
+            exact
+            path="/signup"
+            component={SignUp}
+          />
+          <Route
+            exact
+            path="/reset-password"
+            component={ResetPassword}
+          />
+          <Route path="/" component={GuestPageNotFound} />
+        </Switch>
+      </GuestApp>
+    )
+  }
   return (
     <StyledApp>
       <Sidebar
@@ -69,26 +104,7 @@ const App = ({
                 path="/presets"
                 component={lazy(() => import("./pages/Presets"))}
               />
-
-              {/* Auth Routes */}
-              <Route
-                exact
-                path="/login"
-                component={lazy(() => import("./pages/Auth/Login"))}
-              />
-              <Route
-                exact
-                path="/signup"
-                component={lazy(() => import("./pages/Auth/SignUp"))}
-              />
-              <Route
-                exact
-                path="/reset-password"
-                component={lazy(() => import("./pages/Auth/ResetPassword"))}
-              />
-
-              <Route path="/" component={PageNotFound} />
-
+              <Route path="/" component={AuthPageNotFound} />
             </Switch>
           </Suspense>
         </main>
@@ -98,6 +114,7 @@ const App = ({
 };
 
 const mapStateToProps = (state) => ({
+  isSignedIn: selectIsSignedIn(state),
   sidebarOpen: selectSidebarOpen(state),
 });
 
@@ -107,6 +124,14 @@ export const ConnectedApp = connect(
 )(App);
 
 export default ConnectedApp;
+
+const GuestApp = styled.div`
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: ${bulmaColors.light};
+`
 
 const StyledApp = styled.div`
   min-height: 100vh;

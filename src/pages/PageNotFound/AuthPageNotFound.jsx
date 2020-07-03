@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 
-export const PageNotFound = () => {
+export const AuthPageNotFound = () => {
   return (
     <StyledPage>
       <div className="page-not-found-inner">
