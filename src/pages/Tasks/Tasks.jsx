@@ -15,12 +15,10 @@ export const Tasks = ({
   removeTask,
 }) => {
   return (
-    <StyledTasks>
-      <header className="tasks-header">
-        <h3>Your Tasks</h3>
-        {errors && (
-          <ErrorText message={errors} />
-        )}
+    <StyledTasks className="section-container">
+      <header className="section-header tasks-header">
+        <h3 className="header-text is-size-3">Your Tasks</h3>
+        {errors && <ErrorText message={errors} /> }
       </header>
       <div className="tasks-inner">
         <section className="tasks-section current-tasks">
@@ -66,10 +64,7 @@ export const ConnectedTasks = connect(
 )(Tasks)
 
 const StyledTasks = styled.div`
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-top: 16px;
-
+  
 
   .tasks-header {
 

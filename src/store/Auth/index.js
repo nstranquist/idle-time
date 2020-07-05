@@ -14,6 +14,10 @@ const LOGIN_LOADING = 'LOGIN_LOADING'
 const LOGOUT = 'LOGOUT'
 const CLEAR_ERRORS = 'CLEAR_ERRORS'
 
+const USER_LOADING = "USER_LOADING"
+const USER_SUCCESS = 'USER_SUCCESS'
+const USER_ERROR = "USER_ERROR"
+
 const RESET_SIGNUP_SUCCESS = 'RESET_SIGNUP_SUCCESS'
 
 const loginError = (err) => ({
@@ -92,6 +96,42 @@ export const resetPassword = (email, password) => (dispatch) => {
 
 }
 
+export const updateName = (newName) => (dispatch) => {
+  console.log('updating name to new name:', newName);
+  dispatch({ type: USER_LOADING })
+
+  fetch(BASE_URL + '/auth/updateName', {
+    method: 'PUT',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({newName})
+  })
+    .then(async (res) =>{
+      return {data: await res.json(), status: res.status }
+    })
+    .then(object => {
+      const { data, status } = object;
+      console.log('response data:', object)
+
+      // TODO: add in error status codes
+      if(data.type && data.type==='success') {
+        dispatch({ type: USER_SUCCESS, data: data.data })
+      }
+      else {
+        if(data.status && data.message)
+          dispatch({ type: USER_ERROR, err: `${data.status} error: ${data.message}`})
+        else
+          dispatch({ type: USER_ERROR, err: 'error updating user'})
+      }
+    })
+    .catch(err => {
+      console.log('error:', err)
+      dispatch({ type: USER_ERROR, err: err.message || "error updating user name"})
+    })
+}
+
 export const logout = () => ({
   type: LOGOUT
 })
@@ -118,7 +158,7 @@ export default (
   action
 ) => {
   switch(action.type) {
-    case SIGNUP_LOADING || LOGIN_LOADING:
+    case SIGNUP_LOADING || LOGIN_LOADING || USER_LOADING:
       return {
         ...state,
         loading: true

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
-import { Lock, Mail, Eye, EyeOff, CheckCircle } from 'react-feather'
+import { Lock, Mail, Eye, EyeOff, CheckCircle, User } from 'react-feather'
 import { ErrorText } from '../../components/ErrorText'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { selectAuthErrors, selectAuthLoading } from '../../store/selectors/auth'
@@ -95,13 +95,14 @@ const SignUp = ({
       </header>
       <div>
         <form onSubmit={handleSubmit}>
-          {formErrors && <ErrorText message={formErrors} />}
-          {errors && <ErrorText message={errors} />}
+          {formErrors ? <ErrorText message={formErrors} />
+          : errors && <ErrorText message={errors} />}
 
           <div className="field">
             <label className="label" htmlFor="name">Name</label>
             <div className="control has-icons-left has-icons-right">
               <input
+                autoFocus
                 className="input" // is-danger for incorrect input elements
                 type="text"
                 required
@@ -111,7 +112,7 @@ const SignUp = ({
                 onChange={handleChange}
               />
               <span className="icon is-small is-left">
-                <Mail size={20} />
+                <User size={20} />
               </span>
             </div>
             {/* <p className="help is-danger">This email is invalid</p> */}

@@ -7,8 +7,10 @@ export const TimeTracking = ({
   tasks,
 }) => {
   return (
-    <div>
-      Timetracking
+    <div className="section-container">
+      <header className="section-header">
+        <h3 className="header-text is-size-3">Timetracking</h3>
+      </header>
     </div>
   )
 }
@@ -21,3 +23,7 @@ export const ConnectedTimeTracking = connect(
   mapStateToProps,
   {  }
 )(TimeTracking)
+
+const StyledTimetracking = styled.div`
+
+`

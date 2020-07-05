@@ -24,7 +24,7 @@ const TaskDetail = ({
   }, [match.params.taskId])
 
   return (
-    <TaskDetailStyled>
+    <TaskDetailStyled className="section-container large-padding">
       {taskData ? (
         <div className="">
           <header className="task-header">
@@ -54,7 +54,6 @@ export const ConnectedTaskDetail = connect(
 export default ConnectedTaskDetail
 
 const TaskDetailStyled = styled.main`
-  padding: 4% 10%;
   text-align: left;
 
   .task-header {

@@ -19,19 +19,15 @@ export const Presets = ({
   // Needs a way to sort between types of preset... Maybe a top sorting bar?
 
   return (
-    <StyledPresets>
-      <header className="page-header">
-        <h3>Presets</h3>
-        {errors && (
-          <ErrorText message={errors} />
-        )}
+    <StyledPresets className="section-container">
+      <header className="section-header">
+        <h3 className="header-text is-size-3">Presets</h3>
+        {errors && <ErrorText message={errors} /> }
       </header>
       <div className="presets-inner">
         <div className="custom-blocks">
           <h5>Your Time Blocks</h5>
-          {loading && (
-            <LoadingContainer />
-          )}
+          {loading && <LoadingContainer />}
         </div>
       </div>
     </StyledPresets>
@@ -52,9 +48,5 @@ export const ConnectedPresets = connect(
 )(Presets)
 
 const StyledPresets = styled.div`
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-top: 16px;
-
-  
+    
 `

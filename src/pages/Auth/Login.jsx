@@ -74,12 +74,13 @@ const Login = ({
       </header>
       <div>
         <form onSubmit={handleSubmit}>
-          {formErrors && <ErrorText message={formErrors} />}
-          {errors && <ErrorText message={errors} />}
+          {formErrors ? <ErrorText message={formErrors} />
+          : errors && <ErrorText message={errors} />}
           <div className="field">
             <label className="label" htmlFor="email">Email</label>
             <div className="control has-icons-left has-icons-right">
               <input
+                autoFocus
                 className="input" // is-danger for incorrect input elements
                 type="email"
                 required

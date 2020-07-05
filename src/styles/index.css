@@ -92,3 +92,10 @@ i {
   border: 1px solid rgba(0,0,0,.33);
   border-radius: 50%;
 }
+
+.section-container {
+  padding: 3%;
+}
+.section-container.large-padding {
+  padding: 4% 10%;
+}

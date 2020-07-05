@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import styled from 'styled-components'
 import { Menu, Bell, User } from 'react-feather'
+import { UnstyledLink } from '../../styles/components/link.styled'
+import { logout } from '../../store/Auth'
 import { bulmaColors } from '../../styles/bulma.colors'
 
 export const TopBar = ({
@@ -11,6 +14,10 @@ export const TopBar = ({
   const [activeDisplay, setActiveDisplay] = useState("day")
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifMenu, setShowNotifMenu] = useState(false)
+
+  const dispatch = useDispatch();
+
+  const handleLogout = () => dispatch(logout())
 
   const handleToggleSidebar = () => {
     // If open, close it. If closed, open it
@@ -64,17 +71,21 @@ export const TopBar = ({
           <div className="dropdown-menu" role="menu">
             <div className="dropdown-content">
               <div className="dropdown-item">
-                <p className="hoverboard-item">Profile</p>
+                <p className="hoverboard-item"><UnstyledLink to="/profile">Profile</UnstyledLink></p>
               </div>
               <div className="dropdown-item">
-                <p className="hoverboard-item">Settings</p>
+                <p className="hoverboard-item">
+                  <UnstyledLink to="/settings">Settings</UnstyledLink>
+                </p>
               </div>
               <div className="dropdown-item">
-                <p className="hoverboard-item">Delete your account</p>
+                <p className="hoverboard-item" style={{cursor:'pointer'}} onClick={handleLogout}>
+                  Logout
+                </p>
               </div>
-              <div style={{padding: 12}}>
+              {/* <div style={{padding: 12}}>
                 Other content :)
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

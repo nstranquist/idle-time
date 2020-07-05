@@ -27,12 +27,10 @@ export const ResetPassword = () => {
       setFormErrors("email cannot be empty")
     else {
       // submit reset password
-      // dispatch(resetPassword)
+      dispatch(resetPassword())
 
       // resetForm()
     }
-    
-    resetForm()
   }
   
   const resetForm = () => {
@@ -46,12 +44,16 @@ export const ResetPassword = () => {
       <header className="form-header">
         <h3 className="form-header-text is-size-3">Reset Password</h3>
       </header>
+
+      <p className="text-center">We will email you a link to reset your password</p>
+
       <form onSubmit={handleSubmit} style={{marginTop:30}}>
         {formErrors && <ErrorText message={formErrors} />}
 
         <div className="field">
           <div className="control has-icons-left has-icons-right">
             <input
+              autoFocus
               className="input" // is-danger for incorrect input elements
               type="email"
               required

@@ -20,7 +20,7 @@ const App = ({
   isSignedIn,
   sidebarOpen,
   openSidebar,
-  closeSidebar
+  closeSidebar,
 }) => {
 
   if(isSignedIn === false) {
@@ -108,6 +108,16 @@ const App = ({
                 exact
                 path="/presets"
                 component={lazy(() => import("./pages/Presets"))}
+              />
+              <Route
+                exact
+                path="/profile"
+                component={lazy(() => import("./pages/Profile"))}
+              />
+              <Route
+                exact
+                path="/settings"
+                component={lazy(() => import("./pages/Settings"))}
               />
               <Route path="/" component={AuthPageNotFound} />
             </Switch>
