@@ -47,7 +47,7 @@ export const ResetPassword = () => {
         <h3 className="form-header-text is-size-3">Reset Password</h3>
       </header>
       <form onSubmit={handleSubmit} style={{marginTop:30}}>
-        {formErrors && <ErrorText text={formErrors} />}
+        {formErrors && <ErrorText message={formErrors} />}
 
         <div className="field">
           <div className="control has-icons-left has-icons-right">

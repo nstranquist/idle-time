@@ -1,6 +1,6 @@
 /* src/store/Auth/index.js */
 
-const BASE_URL = ""
+const BASE_URL = "http://localhost:8080"
 
 // Auth Types
 const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS'
@@ -14,6 +14,8 @@ const LOGIN_LOADING = 'LOGIN_LOADING'
 const LOGOUT = 'LOGOUT'
 const CLEAR_ERRORS = 'CLEAR_ERRORS'
 
+const RESET_SIGNUP_SUCCESS = 'RESET_SIGNUP_SUCCESS'
+
 const loginError = (err) => ({
   type: LOGIN_FAILURE,
   err,
@@ -25,68 +27,63 @@ const signupError = (err) => ({
 })
 
 // Auth Action Creators
-export const login = (username, password) => (dispatch) => {
+export const login = (email, password) => (dispatch) => {
   dispatch({ type: LOGIN_LOADING })
 
   // run api call, to validate login
-  // fetch(apiConfig.baseURL + '/login', {
-  //   method : 'POST',
-  //   headers: {'Content-Type':'application/x-www-form-urlencoded'},
-  //   body: 'user=' + username.toString() + '&' + 'pass=' + password.toString()
-  // })
-  //   .then(res => {
-  //     console.log('made it to res', res)
-  //     if(res.status < 400)
-  //       return res.json()
-  //     else
-  //       dispatch({ type: SIGNUP_FAILURE, err: `${res.status} error code` })
-  //   })
-  //   .then(data => {
-  //     console.log('username in response:', data.user)
-  //     dispatch({ type: LOGIN_SUCCESS, username: data.user })
-  //   })
-  //   .catch(err => {
-  //     dispatch({ type: LOGIN_FAILURE, err: "error logging in from server" })
-  //   })
-
-  // dispatch({ type: LOGIN_SUCCESS })
-}
-
-export const signup = (email, password) => (dispatch) => {
-  dispatch({ type: SIGNUP_LOADING })
-
-  const userObject = {
-    email,
-    password
-  }
-
-  // run api call, to validate login
-  fetch(BASE_URL + '/api/auth/register_login', {
+  fetch(BASE_URL + '/auth/login', {
     method : 'POST',
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type':'application/x-www-form-urlencoded'
     },
-    body: JSON.stringify(userObject)
+    body: `email=${email}&password=${password}`
   })
-    .then(res => res.json())
-    .then(resData => {
-      console.log('data from server /signup:', data)
-      const data = JSON.stringify(resData)
-      if(data.status) {
-        if(data.status < 400)
-          dispatch({ type: SIGNUP_SUCCESS })
-        else
-          dispatch({ type: SIGNUP_FAILURE, err: `${data.status} error code` })
-      }
-      else {
-        dispatch({ type: SIGNUP_SUCCESS })
-        // but we still need a token...
-      }
+    .then(async (res) => {
+      return {data: await res.json(), status: res.status }
+    })
+    .then((object) => {
+      const { data, status } = object;
+      console.log('response data:', object)
+      if(data.type === "success" || status < 400)
+        dispatch({ type: LOGIN_SUCCESS, userData: data.data.user, token: data.data.token })
+      else
+        dispatch({ type: LOGIN_FAILURE, err: `${status} error: ${data.message}` })
+      // should be: user, token
     })
     .catch(err => {
-      console.log('error:', JSON.stringify(err))
-      dispatch({ type: SIGNUP_FAILURE, err: "error signing up from server" })
+      console.log('error logging in:', err)
+      dispatch({ type: LOGIN_FAILURE, err: err.message || "error logging in from server" })
+    })
+}
+
+export const signup = (name, email, password) => (dispatch) => {
+  dispatch({ type: SIGNUP_LOADING })
+
+  // run api call, to validate login
+  fetch(BASE_URL + '/auth/signup', {
+    method : 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: `name=${name}&email=${email}&password=${password}`
+  })
+    .then(async (res) =>{
+      return {data: await res.json(), status: res.status }
+    })
+    .then((object) => {
+      const { data, status } = object;
+      console.log('response data:', object)
+      // const data = JSON.stringify(resData)
+      if(data.type && data.type==="success")
+        dispatch({ type: SIGNUP_SUCCESS })
+      else
+        dispatch({ type: SIGNUP_FAILURE, err: `${status} error: ${data.message}` })
+    })
+    .catch(err => {
+      console.log('error:', err)
+      dispatch({ type: SIGNUP_FAILURE, err: err.message || "error signing up from server" })
     })
 }
 
@@ -101,13 +98,19 @@ export const logout = () => ({
 export const clearErrors = () => ({
   type: CLEAR_ERRORS
 })
+export const resetSignupSuccess = () => ({
+  type: RESET_SIGNUP_SUCCESS
+})
 
 
 // Auth Reducer
 const initialState = {
   signedIn: false,
+  userData: null,
+  token: null,
   loading: false,
-  errors: null
+  errors: null,
+  signupSuccess: false,
 }
 
 export default (
@@ -124,6 +127,8 @@ export default (
       return {
         ...state,
         signedIn: true,
+        userData: action.userData,
+        token: action.token,
         loading: false,
         errors: null
       }
@@ -136,7 +141,7 @@ export default (
     case SIGNUP_SUCCESS:
       return {
         ...state,
-        signedIn: true,
+        signupSuccess: true,
         loading: false,
         errors: null
       }
@@ -152,6 +157,11 @@ export default (
         signedIn: false,
         loading: false,
         errors: null
+      }
+    case RESET_SIGNUP_SUCCESS:
+      return {
+        ...state,
+        signupSuccess: false,
       }
     case CLEAR_ERRORS:
       return {

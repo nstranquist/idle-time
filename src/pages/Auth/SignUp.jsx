@@ -2,21 +2,26 @@ import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
-import { Lock, Mail, Eye, EyeOff } from 'react-feather'
+import { Lock, Mail, Eye, EyeOff, CheckCircle } from 'react-feather'
 import { ErrorText } from '../../components/ErrorText'
+import { bulmaColors } from '../../styles/bulma.colors'
 import { selectAuthErrors, selectAuthLoading } from '../../store/selectors/auth'
-import { signup } from '../../store/Auth'
+import { signup, resetSignupSuccess, clearErrors } from '../../store/Auth'
 
 const emptySignupForm = {
-  email: "",
-  password: "",
-  confirmPassword: ""
+  name: "Kati",
+  email: "gabbardkk@gmail.com",
+  password: "sugarbear3",
+  confirmPassword: "sugarbear3"
 }
 
 const SignUp = ({
+  signupSuccess,
   loading,
   errors,
   signup,
+  clearErrors,
+  resetSignupSuccess,
 }) => {
   const [formData, setFormData] = useState(emptySignupForm)
   const [showPassword, setShowPassword] = useState(false)
@@ -25,7 +30,12 @@ const SignUp = ({
   useEffect(() => {
     // check local storage for cookies
 
-    return () => resetForm();
+    return () => {
+      resetForm()
+      clearErrors();
+      if(signupSuccess)
+        resetSignupSuccess()
+    };
   }, [])
 
   const handleChange = (e) => {
@@ -38,7 +48,7 @@ const SignUp = ({
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const { email, password, confirmPassword } = formData
+    const { name, email, password, confirmPassword } = formData
 
     // submit form data
     if(password.length < 6)
@@ -47,20 +57,37 @@ const SignUp = ({
       setFormErrors("passwords must match")
     else {
       // sign up user
-      signup(email, password);
-      
+      console.log('submitting data to signup:', name, email, password)
+      signup(name, email, password);
+  
       // resetForm()
     }
-    
-    resetForm()
   }
 
   const resetForm = () => {
     setFormData(emptySignupForm)
     setFormErrors(null)
-    // dispatch(clearErrors())
   }
   
+  if(signupSuccess) {
+    return (
+      <StyledSignup className="box">
+        <header className="form-header">
+          <h3 className="form-header-text is-size-2">
+            <span className="icon is-large">
+              <CheckCircle size={32} color={bulmaColors.success} />
+            </span>
+            Success!
+          </h3>
+        </header>
+        <div style={{flex: 1, display:'flex', height: 200, minHeight: 200, justifyContent: 'center', alignItems: 'center'}}>
+          <p style={{textAlign:'center'}}>
+            Please <Link to="/login">Login</Link> to begin!
+          </p>
+        </div>
+      </StyledSignup>
+    )
+  }
   return (
     <StyledSignup className="box">
       <header className="form-header">
@@ -68,9 +95,27 @@ const SignUp = ({
       </header>
       <div>
         <form onSubmit={handleSubmit}>
-          {formErrors && <ErrorText text={formErrors} />}
-          {errors && <ErrorText text={errors} />}
+          {formErrors && <ErrorText message={formErrors} />}
+          {errors && <ErrorText message={errors} />}
 
+          <div className="field">
+            <label className="label" htmlFor="name">Name</label>
+            <div className="control has-icons-left has-icons-right">
+              <input
+                className="input" // is-danger for incorrect input elements
+                type="text"
+                required
+                placeholder="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+              <span className="icon is-small is-left">
+                <Mail size={20} />
+              </span>
+            </div>
+            {/* <p className="help is-danger">This email is invalid</p> */}
+          </div>
           <div className="field">
             <label className="label" htmlFor="email">Email</label>
             <div className="control has-icons-left has-icons-right">
@@ -154,13 +199,15 @@ const SignUp = ({
 }
 
 const mapStateToProps = (state) => ({
+  // token: selectAuthToken(state), // select token to see if it's still there??-
+  signupSuccess: state.auth.signupSuccess,
   loading: selectAuthLoading(state),
   errors: selectAuthErrors(state),
 })
 
 export const ConnectedSignUp = connect(
   mapStateToProps,
-  { signup }
+  { signup, resetSignupSuccess, clearErrors }
 )(SignUp)
 
 export default ConnectedSignUp

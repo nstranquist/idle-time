@@ -56,7 +56,7 @@ export const ClockModal = ({
   return (
     <ClockModalStyled>
       <form onSubmit={handleSubmit}>
-        {formErrors && <ErrorText text={formErrors} />}
+        {formErrors && <ErrorText message={formErrors} />}
         <p className="form-item">
           <label htmlFor="date">Date</label>
           <input

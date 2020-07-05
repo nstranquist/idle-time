@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import { Mail, AlertTriangle, Lock, Eye, EyeOff, LogIn } from 'react-feather'
 import { ErrorText } from '../../components/ErrorText'
 import { selectAuthErrors, selectAuthLoading, selectIsSignedIn } from '../../store/selectors/auth'
-import { login } from '../../store/Auth'
+import { login, clearErrors, } from '../../store/Auth'
 
 const emptyLoginForm = {
   email: "",
@@ -17,6 +17,7 @@ const Login = ({
   loading,
   errors,
   login,
+  clearErrors,
 }) => {
   const [formData, setFormData] = useState(emptyLoginForm)
   const [showPassword, setShowPassword] = useState(false)
@@ -26,7 +27,10 @@ const Login = ({
   useEffect(() => {
     // check local storage for login creds, setRememberMe
     
-    return () => resetForm()
+    return () => {
+      resetForm()
+      clearErrors();
+    }
   }, [])
 
   const handleChange = (e) => {
@@ -39,18 +43,19 @@ const Login = ({
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const { email, password } = formData
-    
-    // submit form data
-    if(email.length < 1 || password.length < 1)
-      setFormErrors("email and/or password cannot be empty")
-    else {
-      // submit login data
-      // login(email, password)
-      // resetForm()
+    if(!loading) {
+      const { email, password } = formData
+      
+      // submit form data
+      if(email.length < 1 || password.length < 1)
+        setFormErrors("email and/or password cannot be empty")
+      else {
+        // submit login data
+        console.log('submitting login with data:', email, password)
+        login(email, password)
+        // resetForm()
+      }
     }
-    
-    resetForm()
   }
 
   const resetForm = () => {
@@ -59,6 +64,9 @@ const Login = ({
     setRememberMe(false)
   }
 
+  if(signedIn) {
+    return <Redirect to="/home" />
+  }
   return (
     <StyledLogin className="box">
       <header className="form-header">
@@ -66,8 +74,8 @@ const Login = ({
       </header>
       <div>
         <form onSubmit={handleSubmit}>
-          {formErrors && <ErrorText text={formErrors} />}
-          {errors && <ErrorText text={errors} />}
+          {formErrors && <ErrorText message={formErrors} />}
+          {errors && <ErrorText message={errors} />}
           <div className="field">
             <label className="label" htmlFor="email">Email</label>
             <div className="control has-icons-left has-icons-right">
@@ -75,6 +83,7 @@ const Login = ({
                 className="input" // is-danger for incorrect input elements
                 type="email"
                 required
+                disabled={loading}
                 placeholder="Email"
                 name="email"
                 value={formData.email}
@@ -93,6 +102,7 @@ const Login = ({
                 className="input" // is-danger for incorrect input elements
                 type={showPassword ? "text" : "password"}
                 required
+                disabled={loading}
                 placeholder="Password"
                 name="password"
                 value={formData.password}
@@ -110,7 +120,7 @@ const Login = ({
           </div>
           <div className="field">
             <div className="control">
-              <label className="checkbox noselect" htmlFor="rememberMe" onClick={() => setRememberMe(!rememberMe)}>
+              <label className="checkbox noselect" htmlFor="rememberMe" onClick={() => !loading && setRememberMe(!rememberMe)}>
                 <input type="checkbox" name="rememberMe" checked={rememberMe} onChange={() => undefined} style={{marginRight:5}} />
                 Remember login?
               </label>
@@ -119,7 +129,7 @@ const Login = ({
 
           {/* can use 'is-loading' className for when it's loading */}
           <div className="" style={{textAlign:'center',marginBottom:10,marginTop:30}}>
-            <button type="submit" className="button is-rounded is-success">
+            <button type="submit" disabled={loading} className="button is-rounded is-success">
               <span className="icon is-small">
                 <LogIn size={20} />
               </span>
@@ -137,14 +147,14 @@ const Login = ({
 }
 
 const mapStateToProps = (state) => ({
-  isSignedIn: selectIsSignedIn(state),
+  signedIn: selectIsSignedIn(state),
   errors: selectAuthErrors(state),
   loading: selectAuthLoading(state),
 })
 
 const ConnectedLogin = connect(
   mapStateToProps,
-  { login }
+  { login, clearErrors }
 )(Login)
 
 export {

@@ -9,7 +9,7 @@ export const configureStore = () => {
   const store = createStore(
     rootReducer,
     compose(
-      applyMiddleware(...middlewares), // make sure this is the right order
+      applyMiddleware(...middlewares),
       window.__REDUX_DEVTOOLS_EXTENSION__
         ? window.__REDUX_DEVTOOLS_EXTENSION__()
         : f => f // IF DEV ONLY

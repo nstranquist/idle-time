@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 import { GuestPageNotFound, AuthPageNotFound } from "./pages/PageNotFound";
 // component imports
 import { TopBar } from "./components/TopBar";
@@ -84,6 +84,11 @@ const App = ({
                 exact
                 path="/home"
                 component={lazy(() => import("./pages/Home"))}
+              />
+              <Route
+                exact
+                path="/login"
+                component={() => <Redirect to="/home" />}
               />
               <Route
                 exact
