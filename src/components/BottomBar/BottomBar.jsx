@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+// import { bulmaColors } from '../../styles/bulma.colors'
 
 export const BottomBar = () => {
   const [showTime, setShowTime] = useState(true)
@@ -8,18 +9,18 @@ export const BottomBar = () => {
   const [selectedText, setSelectedText] = useState(undefined)
 
   return (
-    <StyledBottomBar className="bottom-bar bar container">
+    <StyledBottomBar className="bottom-bar bar container container-left">
       <div className="bar-left">
-        {showTime && <p className="time-text no-select">8:20 am</p>}
-        <p className="checkbox-with-text" style={{marginLeft:8}}
+        {/* {showTime && timeText && <p className="time-text no-select">{timeText}</p>} */}
+        <p className="checkbox-with-text time-toggle" style={{marginLeft:8}}
           onClick={() => setShowTime(!showTime)}>
-          <input
+          {/* <input
             type="checkbox"
             checked={showTime}
             onChange={() => setShowTime(!showTime)}  
-          />
-          <span className="no-select" style={{marginLeft:8}}>
-            show time
+          /> */}
+          <span className="no-select time-toggle-text">
+            {showTime ? "hide time" : "show time"}
           </span>
         </p>
       </div>
@@ -76,6 +77,19 @@ const StyledBottomBar = styled.div`
 
     input {
       cursor: pointer;
+    }
+
+    &.time-toggle {
+      opacity: .9;
+
+      .time-toggle-text {
+        font-size: 1rem;
+        letter-spacing: 0;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 

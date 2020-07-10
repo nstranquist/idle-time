@@ -9,7 +9,6 @@ const SET_ERRORS = 'SET_ERRORS'
 const SET_LOADING = 'SET_LOADING'
 
 
-
 export const openSidebar = () => ({
   type: OPEN_SIDEBAR
 })
@@ -23,10 +22,9 @@ export const setTimeframe = (timeframe) => ({
 })
 
 
-
 const initialState = {
   sidebarOpen: true,
-  timeframe: "W",
+  timeframe: "day",
   loading: false,
   errors: null,
 }

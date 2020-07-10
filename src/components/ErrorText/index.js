@@ -1,5 +1,7 @@
+import { ErrorNotification } from './ErrorNotification'
 import { ErrorText } from './ErrorText'
 
 export {
-  ErrorText, 
+  ErrorNotification,
+  ErrorText
 }

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { Lock, Mail, Eye, EyeOff, CheckCircle, User } from 'react-feather'
-import { ErrorText } from '../../components/ErrorText'
+import { ErrorText, ErrorNotification } from '../../components/ErrorText'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { selectAuthErrors, selectAuthLoading } from '../../store/selectors/auth'
 import { signup, resetSignupSuccess, clearErrors } from '../../store/Auth'
@@ -95,8 +95,8 @@ const SignUp = ({
       </header>
       <div>
         <form onSubmit={handleSubmit}>
-          {formErrors ? <ErrorText message={formErrors} />
-          : errors && <ErrorText message={errors} />}
+          {formErrors ? <ErrorText message={formErrors} clearErrors={() => setFormErrors(null)} />
+          : errors && <ErrorNotification message={errors} clearErrors={clearErrors} />}
 
           <div className="field">
             <label className="label" htmlFor="name">Name</label>

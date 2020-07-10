@@ -48,7 +48,8 @@ export const ResetPassword = () => {
       <p className="text-center">We will email you a link to reset your password</p>
 
       <form onSubmit={handleSubmit} style={{marginTop:30}}>
-        {formErrors && <ErrorText message={formErrors} />}
+        {/* {errors && <ErrorText message={errors} /> } */}
+        {formErrors && <ErrorText message={formErrors} clearErrors={() => setFormErrors(null)} />}
 
         <div className="field">
           <div className="control has-icons-left has-icons-right">

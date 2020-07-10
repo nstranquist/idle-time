@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { TimeBlockForm } from '../Forms'
-import { Grid } from 'react-feather'
+import { MoreVertical } from 'react-feather'
 import TimeBlockDisplay from './TimeBlockDisplay'
 import { OutsideAlerter } from '../../hoc/OutsideAlerter'
 import { ClockInput } from '../../components/Inputs'
 import { bulmaColors } from '../../styles/bulma.colors'
+import { boxShadows } from '../../styles/shadows.style'
 
 // <Icon name="more-vertical" /> another good alternative to place on the top-right of the cards. show all the time
 // <Icon name="maximize-2" />  is a good shortcut for going to item page view. Position absolute top-right, show onHover
@@ -17,17 +18,40 @@ import { bulmaColors } from '../../styles/bulma.colors'
 
 // [x] I like... "Fit to Screen" and "Show to scale" checkbox feature to toggle display settings
 
+const colorOptions = [
+  {
+    code : "#3273DC", // blue
+    priority: 4,
+  },
+  {
+    code: "#48C774", // green
+    priority: 3,
+  },
+  {
+    code: "#FFDD57", // yellow
+    priority: 2,
+  },
+  {
+    code: "#FF3860", // danger
+    priority: 1,
+  },
+]
+
 export const TimeBlock = ({
-  taskData, // Title, Desc, startTime, duration, endTime
+  taskData, // Title, Desc, startTime, duration, priority
   isEditing,
   activeField = "title",
   onInputClick,
   onSave,
   onCancel,
+  onDelete,
+  onUpdatePriority,
   // dragHandleProps,
   isCollapsed,
   // onClockClick,
 }) => {
+  const [showColors, setShowColors] = useState(false)
+  const [showOptions, setShowOptions] = useState(false)
 
   const handleInputClick = (fieldName) => {
     onInputClick(taskData, fieldName)
@@ -52,6 +76,16 @@ export const TimeBlock = ({
       ...taskData,
       ...clockData,
     })
+  }
+
+  const handleSelectColor = (priority) => {
+    // update task with the new priority
+    onUpdatePriority(priority, taskData.id)
+  }
+
+  const handleDelete = () => {
+    onDelete(taskData.id);
+    setShowOptions(false);
   }
 
   return (
@@ -106,7 +140,7 @@ export const TimeBlock = ({
             )}
           </div>
           <div className="block-right">
-            <div className="" style={{position: 'relative', marginRight:2}}>
+            {/* <div className="" style={{position: 'relative', marginRight:2}}>
               <ClockInput
                 timeData={{
                   startTime: taskData.startTime,
@@ -116,12 +150,44 @@ export const TimeBlock = ({
                 onSave={handleSubmitClock}
                 onCancel={onCancel}
               />
+            </div> */}
+            
+            {/* Color Picker / Priority Picker */}
+            <div style={{position: 'relative'}}>
+              <div className="color-picker-container" onClick={() => setShowColors(true)}>
+                <PriorityColor priority={taskData.priority} className="icon circle"></PriorityColor>
+              </div>
+              
+              {showColors && (
+                <OutsideAlerter handleOutsideClick={() => setShowColors(false)}>
+                  <ColorPicker className="color-picker">
+                    {colorOptions.map(color => (
+                      <ColorOption color={color.code} onClick={() => handleSelectColor(color.priority)}>
+
+                      </ColorOption>
+                    ))}
+                  </ColorPicker>
+                </OutsideAlerter>
+              )}
             </div>
-            <div className="drag-icon-container" >
-              <span className="icon drag-icon">
-                <Grid size={20} color={bulmaColors.black}  />
-              </span>
-            </div>
+
+
+            <BlockMenu style={{position:'relative'}}>
+              <div style={{position:'relative'}} className="drag-icon-container" onClick={() => setShowOptions(true)}>
+                <span className="icon drag-icon">
+                  <MoreVertical size={20} color={bulmaColors.black}  />
+                </span>
+              {showOptions && (
+                <OutsideAlerter handleOutsideClick={() => setShowOptions(false)}>
+                  <div className="options-menu">
+                    <p className="option" onClick={handleDelete}>Delete</p>
+                    <p className="option">Add Below</p>
+                  </div>
+                </OutsideAlerter>
+              )}
+              </div>
+
+            </BlockMenu>
           </div>
         </div>
       </BlockSpacer>
@@ -129,6 +195,83 @@ export const TimeBlock = ({
   )
 }
 
+const BlockMenu = styled.div`
+  position: relative;
+  z-index: 11000;
+
+  .options-menu {
+    text-align: center;
+    position: absolute;
+    left: calc(-100% - 3rem - 17px);
+    // left: -300%;
+    top: 0;
+    min-width: 100px;
+    background: #fff;
+    color: #000;
+    z-index: 1010;
+    // border: 1px solid rgba(0,0,0,.04);
+    border-radius: 2px;
+    box-shadow: ${boxShadows.shadow2};
+    color: ${bulmaColors.dark};
+
+    .option {
+      padding-left: 10px;
+      padding-right: 10px;
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-top: .666em;
+      padding-bottom: .666em;
+      // margin-top: 
+      cursor: pointer;
+
+      &:hover {
+        background: ${bulmaColors.light};
+        border
+      }
+    }
+  }
+  
+`
+const ColorPicker = styled.div`
+  position: absolute;
+  // bottom: -30px;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  background: #fff;
+  box-shadow: 
+`
+const ColorOption = styled.div`
+  background: ${props => props.color};
+  width: 1.3rem;
+  height: 1.3rem;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 50%;
+  cursor: pointer;
+  // z-index: 12001;
+
+  &:hover {
+    border: 1px solid rgba(0,0,0,.7);
+  }
+`
+const PriorityColor = styled.div`
+  background: ${props => {
+    switch(props.priority) {
+      case 1:
+        return bulmaColors.danger;
+      case 2:
+        return bulmaColors.warning;
+      case 3:
+        return bulmaColors.success;
+      case 4:
+        return bulmaColors.link;
+      default:
+        return "#AAA";
+    }
+  }}
+`
 const BlockSpacer = styled.div`
   height: initial;
   min-height: 51px;
@@ -217,6 +360,28 @@ const StyledTimeBlock = styled.div`
     align-items: center;
 
   }
+  .color-picker-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: inherit;
+    transition: background-color .2s ease-in-out;
+
+    &:hover {
+      background-color: rgba(0,0,0,.06);
+      transition: background-color .2s ease-in-out;
+    }
+
+    .circle {
+      flex: 1;
+      border-radius: 50%;
+      background-color: black;
+    }
+  }
 
   .drag-icon-container {
     display: flex;
@@ -232,13 +397,7 @@ const StyledTimeBlock = styled.div`
       background-color: rgba(0,0,0,.06);
       transition: background-color .2s ease-in-out;
     }
-
-    .drag-icon {
-      flex: 1;
-    }
   }
-
-  
 `
 
 const DurationText = styled.div`

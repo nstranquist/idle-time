@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { selectTasks, selectTasksLoading, selectTasksErrors } from '../../store/selectors/tasks'
-import { getTasks, addTask, updateTask, removeTask, } from '../../store/Tasks'
+import { selectAuthToken } from '../../store/selectors/auth'
+import { getTasks, addTask, updateTask, removeTask, clearErrors } from '../../store/Tasks'
 import { ErrorText } from '../../components/ErrorText'
 
 export const Tasks = ({
+  token,
   tasks,
   loading,
   errors,
@@ -13,25 +15,38 @@ export const Tasks = ({
   addTask,
   updateTask,
   removeTask,
+  clearErrors
 }) => {
+
+  useEffect(() => {
+    fetchTasks()
+  }, [])
+
+  const fetchTasks = () => -getTasks(token);
+
   return (
     <StyledTasks className="section-container">
       <header className="section-header tasks-header">
         <h3 className="header-text is-size-3">Your Tasks</h3>
-        {errors && <ErrorText message={errors} /> }
+        {errors && <ErrorText message={errors} clearErrors={clearErrors} /> }
       </header>
       <div className="tasks-inner">
         <section className="tasks-section current-tasks">
-          <h5>Today's Tasks</h5>
+          <h5 className="is-size-5">Today's Tasks:</h5>
           {loading && (
             <div style={{display:'flex', justifyContent:'center',alignItems:'center',minHeight:50,textAlign:'center'}}>
               <p style={{marginBottom: 0, textAlign:'center',alignSelf:'center'}}>Loading...</p>
             </div>
           )}
-          {tasks.length > 0 ? tasks.map((task, index) => (
-            <div className="task-item">
-              task here
-            </div>
+          {tasks.length > 0 ? tasks.map(task => (
+            <TaskItem className="task-item" key={task.id}>
+              <p className="task-text task-title">{task.title}</p>
+              {task.desc && <p className="task-text task-title">{task.desc}</p>}
+              <p className="task-text task-duration">duration: {task.duration}</p>
+              <p className="task-text task-priority">priority: {task.priority}</p>
+              <p className="task-text task-order">order: {task.index}</p>
+              {task.startTime && <p className="task-text task-start-time">{task.startTime}</p>}
+            </TaskItem>
           )) : (
             <p style={{padding:8}}>No tasks to show</p>
           )}
@@ -52,7 +67,8 @@ export const Tasks = ({
 }
 
 const mapStateToProps = (state) => ({
-  tasks: selectTasks(state),
+  token: selectAuthToken(state),
+  tasks: selectTasks(state), // note: select the tasks in order
   loading: selectTasksLoading(state),
   errors: selectTasksErrors(state),
   // ...
@@ -60,11 +76,27 @@ const mapStateToProps = (state) => ({
 
 export const ConnectedTasks = connect(
   mapStateToProps,
-  { getTasks, addTask, updateTask, removeTask }
+  { getTasks, addTask, updateTask, removeTask, clearErrors }
 )(Tasks)
 
+const TaskItem = styled.div`
+  &.task-item {
+    padding-top: .7rem;
+    padding-bottom: .7rem;
+    border-bottom: 1px solid rgba(0,0,0,.1);
+
+    .task-text {
+      margin-top: .333em;
+      margin-bottom: .333em;
+    }
+  }
+`
 const StyledTasks = styled.div`
-  
+  overflow-y: auto;
+  // max-height: 100%;
+  // position: relative;
+  position: initial;
+  height: 100%;
 
   .tasks-header {
 
@@ -79,8 +111,5 @@ const StyledTasks = styled.div`
     h5 {
       margin-bottom: 4px;
     }
-  }
-  .task-item {
-
   }
 `

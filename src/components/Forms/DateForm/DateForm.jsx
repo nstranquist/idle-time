@@ -109,7 +109,7 @@ export const DateForm = ({
       {/* Should have a Clock Icon, that when clicked, opens by default to the startTime selector,
           but duration and other fields can be selected as well
       */}
-      {errors && <ErrorText message={errors} />}
+      {errors && <ErrorText message={errors} clearErrors={() => setErrors(null)} />}
       <div className="form-item date-form-item" style={{marginTop: errors ? 0 : 'initial', paddingTop: errors ? 0 : 'initial'}}>
         <div className="form-field" >
           <label htmlFor="duration">duration:</label>

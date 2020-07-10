@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -6,6 +6,8 @@ import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
 import { selectActiveItem, selectUpcomingTasks, selectDots } from '../../store/selectors'
 import { selectTasks, selectTasksErrors, selectTasksLoading } from '../../store/selectors/tasks'
+
+import TimerContext from '../../context/IdleTimer'
 
 // note: get static image asset for hours / numbers display
 // then, need that blue line to update with the timer
@@ -28,6 +30,8 @@ export const Timeline = ({
   upcomingTasks,
   activeTask
 }) => {
+  const timerContext = useContext(TimerContext)
+
   // const [viewHeight, setViewHeight] = useState("0px");
   // const [dots, setDots] = useState(startingDots)
   const [dotSettings, setDotSettings] = useState(startingDotSettings)
@@ -44,13 +48,16 @@ export const Timeline = ({
       if(dot)
         setDotHoverData(dot)
     }
+    if(timerContext || timerContext.time)
+      console.log("time from context:", timerContext.time/*'timerContext:', timerContext, */)
+    else
+      console.log('timer context is undefined')
   }, [isHovering])
 
   // const drawDotsOnTimeline = () => {
   //   // can draw either colored or transparent <span> every 20 minutes (20px)
   //   // 20px * 3 = 60px/hour 60*24 = 1440px;
   //   // 60px * 12 = 720px;
-
   // }
 
   // const handleDotHover = async taskId => {

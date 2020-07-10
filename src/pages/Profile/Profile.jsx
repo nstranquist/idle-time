@@ -17,7 +17,7 @@ const Profile = ({
       <header className="section-header">
         <h3 className="header-text is-size-3 text-center">Profile</h3>
       </header>
-      <div className="content">
+      <div className="">
         <p>Name: {name}</p>
         <p>Email: {email}</p>
       </div>

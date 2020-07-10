@@ -37,6 +37,8 @@ export const NewBlock = ({
       title,
       desc
     })
+    if(finished)
+      handleSubmit()
   }
 
   // const handleDateChange = (date, fieldName=null) => {

@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { Link, Redirect } from 'react-router-dom'
-import { Mail, AlertTriangle, Lock, Eye, EyeOff, LogIn } from 'react-feather'
-import { ErrorText } from '../../components/ErrorText'
-import { selectAuthErrors, selectAuthLoading, selectIsSignedIn } from '../../store/selectors/auth'
+import { Link } from 'react-router-dom'
+import { Mail, Lock, Eye, EyeOff, LogIn } from 'react-feather'
+import { ErrorText, ErrorNotification } from '../../components/ErrorText'
+import { selectAuthErrors, selectAuthLoading, selectIsSignedIn, selectAuthToken } from '../../store/selectors/auth'
 import { login, clearErrors, } from '../../store/Auth'
+import { getTasks } from '../../store/Tasks'
 
 const emptyLoginForm = {
   email: "",
   password: ""
 }
 
+// Note: Would be cool to have a top bar with "IdleTime" written on it
+
 const Login = ({
+  token,
   signedIn,
   loading,
   errors,
   login,
   clearErrors,
+  getTasks,
 }) => {
   const [formData, setFormData] = useState(emptyLoginForm)
   const [showPassword, setShowPassword] = useState(false)
@@ -26,12 +31,45 @@ const Login = ({
 
   useEffect(() => {
     // check local storage for login creds, setRememberMe
-    
+    const rememberMe = localStorage.getItem('idleTimeRememberLogin')
+    if(rememberMe) {
+      const storedEmail = localStorage.getItem('idleTimeEmail')
+      const storedPassword = localStorage.getItem('idleTimePassword')
+
+      if(storedEmail && storedPassword)
+        setFormData({ email: storedEmail, password: storedPassword })
+    }
+
     return () => {
+      handleSavedData(formData.email, formData.password)
       resetForm()
       clearErrors();
     }
   }, [])
+
+  useEffect(() => {
+    if(signedIn && token) {
+      // dispatch redux actions to get user data
+      getTasks();
+      //getUserData();
+      //getUserSettings();
+    }
+  }, [signedIn, token])
+
+  const handleSavedData = (email, password) => {
+    // called on unmount
+    if(rememberMe) {
+      // set the local data
+      localStorage.setItem('idleTimeRememberLogin', false)
+      localStorage.setItem('idleTimeEmail', email)
+      localStorage.setItem('idleTimePassword', password)
+    }
+    else {
+      localStorage.setItem('idleTimeRememberLogin', true)
+      localStorage.removeItem('idleTimeEmail')
+      localStorage.removeItem('idleTimePassword')
+    }
+  }
 
   const handleChange = (e) => {
     setFormData({
@@ -43,17 +81,22 @@ const Login = ({
   const handleSubmit = (e) => {
     e.preventDefault()
 
+
     if(!loading) {
+      setFormErrors(null)
+      
       const { email, password } = formData
       
       // submit form data
       if(email.length < 1 || password.length < 1)
         setFormErrors("email and/or password cannot be empty")
+      else if(password.length < 6)
+        setFormErrors("password must be greater than 6 characters")
       else {
         // submit login data
         console.log('submitting login with data:', email, password)
         login(email, password)
-        // resetForm()
+        setFormData(emptyLoginForm)
       }
     }
   }
@@ -64,9 +107,6 @@ const Login = ({
     setRememberMe(false)
   }
 
-  if(signedIn) {
-    return <Redirect to="/home" />
-  }
   return (
     <StyledLogin className="box">
       <header className="form-header">
@@ -74,8 +114,8 @@ const Login = ({
       </header>
       <div>
         <form onSubmit={handleSubmit}>
-          {formErrors ? <ErrorText message={formErrors} />
-          : errors && <ErrorText message={errors} />}
+          {formErrors ? <ErrorText message={formErrors} clearErrors={() => setFormErrors(null)} />
+          : errors && <ErrorNotification message={errors} clearErrors={clearErrors} />}
           <div className="field">
             <label className="label" htmlFor="email">Email</label>
             <div className="control has-icons-left has-icons-right">
@@ -148,6 +188,7 @@ const Login = ({
 }
 
 const mapStateToProps = (state) => ({
+  token: selectAuthToken(state),
   signedIn: selectIsSignedIn(state),
   errors: selectAuthErrors(state),
   loading: selectAuthLoading(state),
@@ -155,7 +196,7 @@ const mapStateToProps = (state) => ({
 
 const ConnectedLogin = connect(
   mapStateToProps,
-  { login, clearErrors }
+  { login, clearErrors, getTasks, } // add more actions here
 )(Login)
 
 export {

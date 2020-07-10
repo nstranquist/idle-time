@@ -18,7 +18,7 @@ import { NewBlock } from '../Blocks'
 import { DragIconBar } from './DragIconBar'
 
 // import redux actions
-import { addTask, updateTask, removeTask, setTaskIndex } from '../../store/Tasks'
+import { getTasks, addTask, updateTask, removeTask, updateTasksOrder } from '../../store/Tasks'
 import { selectOrderedTasks } from '../../store/selectors'
 
 // import styles, other components
@@ -26,20 +26,22 @@ import { pageOptions } from '../../styles/pageOptions'
 import { boxShadows } from '../../styles/shadows.style'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { selectTasksLoading, selectTasksErrors } from '../../store/selectors/tasks'
+import { selectAuthToken } from '../../store/selectors/auth'
 // import { emptyNewTask } from '../../constants'
 
+const timer = new Timer();
 
 const Timeblocking = ({
+  token,
   tasks,
   loading,
   errors,
+  getTasks,
   addTask,
   updateTask,
   removeTask,
-  setTaskIndex,
+  updateTasksOrder,
 }) => {
-
-  const [timer, setTimer] = useState(new Timer())
   const [isAdding, setIsAdding] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [formErrors, setFormErrors] = useState(null)
@@ -47,50 +49,48 @@ const Timeblocking = ({
   const [areTasksCollapsed, setAreTasksCollapsed] = useState(true)
 
   const [isDragging, setIsDragging] = useState(false)
-  const [dropId, setDropId] = useState(undefined)
 
   useEffect(() => {
-    console.log('tasks updated:', tasks)
-  }, [tasks])
+    fetchTasks();
+  }, [])
+
+  const fetchTasks = () => getTasks(token)
 
   const handleAddToggle = () => {
     // clean up previous editing state
-    if(isEditing) {
+    if (isEditing) {
       onSave(activeTask)
       setIsEditing(false)
     }
     setActiveTask(undefined)
-
-    // then toggle the adding block
     setIsAdding(true)
   }
 
+  const handleAddAutoTask = (newTaskData) => {
+    newTaskData.order = tasks.length;
+
+    addTask(token, newTaskData)
+  }
+
   const handleAddSubmit = (newTaskData) => { // submits new task
-    console.log('new task:', newTaskData)
-    if(newTaskData) {
-      console.log('new task:', newTaskData, 'id:', tasks.length.toString())
-      // add task
-      addTask({
-        ...newTaskData,
-        id: tasks.length.toString()
-      })
+    if (newTaskData) {
+      console.log('new task submitted:', newTaskData)
+      addTask(token, newTaskData)
       setIsAdding(false)
     }
   }
 
   const handleAddCancel = () => {
-    console.log('add cancelled')
     setFormErrors(null)
     setIsAdding(false)
   }
 
-  const startTimer = () => {
-    // start timer and adjust / align time blocks
-    timer.startTimer();
+  const handleDelete = (taskId) => {
+    removeTask(token, taskId)
   }
-  
+
   const onInputClick = (taskData, fieldName) => {
-    if(isEditing && taskData)
+    if (isEditing && taskData)
       // submit existing form, switch active editing id
       onSave(activeTask)
     else
@@ -105,10 +105,10 @@ const Timeblocking = ({
   const onSave = (taskData = undefined, finished = true) => {
     console.log('called onSave')
     // save data in the state
-    if(taskData)
-      updateTask(taskData)
+    if (taskData)
+      updateTask(token, taskData.id, taskData)
 
-    if(finished) {
+    if (finished) {
       setIsEditing(false)
       setActiveTask(undefined)
     }
@@ -119,87 +119,38 @@ const Timeblocking = ({
     setActiveTask(undefined)
   }
 
-  const dragStart = (event, id) => {
-    // set isDragging to true
-    setIsDragging(true)
-    event.originalEvent.dataTransfer.effectAllowed = 'move'
-    event.originalEvent.dataTransfer.setData('text/plain', id)
-    console.log('drag has started with event:', event, 'currentTarget:', event.currentTarget.id)
+  const onUpdatePriority = (priority, taskId) => {
+    updateTask(token, taskId, priority)
   }
 
-  const dragEnd = (event) => {
-    // set isDragging to true
-    console.log('drag has stopped with event:', event, 'target:', event.target, 'id:', event.target.id, 'currentTarget id:', event.currentTarget.id)
-    console.log('event srcElement:', event.srcElement)
+  const onDragStart = (start) => console.log('on drag start:', start)
+  const onDragUpdate = (update) => console.log('on drag update:', update)
 
-    if(dropId) {
-      const elementId = event.target.id;
-
-      console.log('target id:', elementId, 'currentTarget id:', event.currentTarget.id)
-
-      if(elementId) {
-        // if(elementId === "trashIcon") {
-          // delete the item with id
-          removeTask(elementId);
-        // }
-        // else if(elementId === 'saveIcon') {
-          // add to archives or some shit
-          // console.log('attempted to save the element')
-        // }
-      }
-    }
-    else
-      console.log('drop id was undefined, so no action was taken')
-
-    setIsDragging(false)
-
-  }
-
-  const handleDrop = (e, action) => {
-    const id = e.dataTransfer.getData("id")
-
-    if(action === 'trash') {
-      console.log('id to remove:', id)
-      removeTask(id)
-    }
-    else if(action === 'save') {
-      console.log('save item with id', id, 'to presets')
-    }
-  }
-
-  const onDragStart = (start) => {
-    console.log('on drag start')
-
-  }
-  const onDragUpdate = (update) => {
-    console.log('on drag update')
-
-  }
   const onDragEnd = (result) => {
     console.log('on drag end. result:', result)
     // new index: result.destination.index / droppableId
     // old index: result.source.index / droppableId
     const { destination, source, draggableId, type } = result;
 
-    if(!destination)
+    if (!destination)
       return;
 
-    if(destination.droppableId === source.droppableId && destination.index === source.index)
+    if (destination.droppableId === source.droppableId && destination.index === source.index)
       return;
 
-    if(type === 'day') {
+    if (type === 'day') {
       // const newTasksOrder = Array.from(tasks);
       // newTasksOrder.splice(source.index, 1)
       // const foundTask = tasks.find(task => task.id === draggableId)
       // newTasksOrder.splice(destination.index, 0, foundTask)
 
-      setTaskIndex(draggableId, source.index, destination.index)
+      updateTasksOrder(token, draggableId, source.index, destination.index)
       return;
     }
   }
 
   return (
-    <StyledTimeblocking className="idle-time-page container" style={{position:'relative'}}>
+    <StyledTimeblocking className="idle-time-page container container-left" style={{ position: 'relative' }}>
       <DragDropContext
         onDragStart={onDragStart}
         onDragUpdate={onDragUpdate}
@@ -233,12 +184,13 @@ const Timeblocking = ({
             startTimer={() => timer.startTimer()}
             pauseTimer={() => timer.pauseTimer()}
             stopTimer={() => timer.stopTimer()}
+            handleAddTask={handleAddAutoTask}
             areTasksCollapsed={areTasksCollapsed}
             handleCollapse={() => setAreTasksCollapsed(!areTasksCollapsed)}
           />
 
           <div className="section-right-inner">
-          
+
             {/* Task Cards */}
             <div className="task-cards">
 
@@ -253,6 +205,7 @@ const Timeblocking = ({
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                   >
+                    {loading && <div><p>loading tasks...</p></div>}
                     {tasks.length > 0 && tasks.map((task, index) => (
                       <Draggable
                         key={task.id}
@@ -272,8 +225,8 @@ const Timeblocking = ({
                               onInputClick={onInputClick}
                               onSave={onSave}
                               onCancel={onCancel}
-                              handleDragStart={dragStart}
-                              handleDragEnd={dragEnd}
+                              onDelete={handleDelete}
+                              onUpdatePriority={onUpdatePriority}
                               isCollapsed={areTasksCollapsed}
                             />
                           </div>
@@ -285,8 +238,8 @@ const Timeblocking = ({
                 )}
               </Droppable>
 
-              {formErrors && <ErrorText message={formErrors} />}
-              
+              {formErrors && <ErrorText message={formErrors} clearErrors={() => setFormErrors(null)} />}
+
               {isAdding && (
                 <NewBlock
                   onSubmit={handleAddSubmit}
@@ -309,6 +262,7 @@ const Timeblocking = ({
 }
 
 const mapStateToProps = (state) => ({
+  token: selectAuthToken(state),
   tasks: selectOrderedTasks(state),
   loading: selectTasksLoading(state),
   errors: selectTasksErrors(state),
@@ -316,7 +270,7 @@ const mapStateToProps = (state) => ({
 
 export const ConnectedTimeblocking = connect(
   mapStateToProps,
-  { addTask, updateTask, removeTask, setTaskIndex }
+  { getTasks, addTask, updateTask, removeTask, updateTasksOrder }
 )(Timeblocking)
 
 const StyledTaskCard = styled.div`
@@ -440,9 +394,6 @@ const StyledTimeblocking = styled.div`
     &.container {
       border-left: 1px solid rgba(0,0,0,.09);
       border-right: 1px solid rgba(0,0,0,.09);
-
-      .timeline {
-        border-left: 1px solid rgba(0,0,0,.09);
-      }
+    }
   }
 `

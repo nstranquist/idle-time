@@ -47,19 +47,14 @@ export const TimeBlockForm = ({
   // }, [activeField])
 
   const handleChange = (e) => {
-    if(e.target.name === 'title') {
+    if(e.target.name === 'title')
       setTitle(e.target.value)
-      console.log('saving title value:', e.target.value)
-    }
+
     else if(e.target.name === 'desc')
       setDesc(e.target.value)
 
-    if(e.target.name === "title" && e.target.value.length < 1)
-      console.log('title is empty, not saving data yet')
-    else
+    if(!(e.target.name === "title" && e.target.value.length < 1))
       handleSave({ title, desc }, false)
-
-    console.log('title:', title, "desc:", desc)
   }
 
   const setSaveDesc = (descValue) => {
@@ -146,7 +141,7 @@ export const TimeBlockForm = ({
             />
           </span>
         ) : (
-          <AddFormItem labelText="Add Duration" handleClick={() => startingFormData.desc ? setSaveDesc(startingFormData.desc) : setSaveDesc("")} />
+          <AddFormItem labelText="Add Description" handleClick={() => startingFormData.desc ? setSaveDesc(startingFormData.desc) : setSaveDesc("")} />
         )}
       </FormItemStyled>
     </TimeBlockFormStyled>

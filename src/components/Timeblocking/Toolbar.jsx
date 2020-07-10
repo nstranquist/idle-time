@@ -5,13 +5,13 @@ import { Play, Pause, Square, Plus, Clock, Maximize2, Minimize2, Settings } from
 import { bulmaColors } from '../../styles/bulma.colors'
 
 
-
 export const Toolbar = ({
   height,
   timer,
   startTimer,
   pauseTimer,
   stopTimer,
+  handleAddTask,
   areTasksCollapsed,
   handleCollapse,
 }) => {
@@ -31,14 +31,19 @@ export const Toolbar = ({
     setTimerId(newTimerId)
   }
 
-  const addNewEvent = () => {
-    console.log('user wants to create a new event')
+  const addNewTask = () => {
+    console.log('user wants to create a new task')
     // auto-create a new event, position it at index: 0 (top of list)
-    
+    const newTaskData = {
+      title: "New Task",
+      duration: 10, // set to the newTask default settings
+      priority: 3,
+      // need to set order to tasks.length
+    }
     // default setting is 'isEditing={true}' with the title text highlighted and the description text 'undefined'
 
     // defaults to 5, 15, 30, or 60 minutes. Todo: Change this option in settings (clock settings or regular settings??)
-
+    handleAddTask(newTaskData);
   }
 
   const handleStartTimer = () => {
@@ -107,7 +112,7 @@ export const Toolbar = ({
         )}
       </div>
       <div className="bar-right">
-        <span className="icon toolbar-icon" onClick={addNewEvent}>
+        <span className="icon toolbar-icon" onClick={addNewTask}>
           <Plus size={24} />
         </span>
 

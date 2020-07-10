@@ -44,7 +44,7 @@ export const ClockInput = ({
 }
 
 const ClockInputStyled = styled.div`
-  position: relative;
+  // position: relative;
   // border: 1px solid rgba(0,0,0,.12);
 
   // &:hover {

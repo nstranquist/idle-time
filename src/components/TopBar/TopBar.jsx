@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { Menu, Bell, User } from 'react-feather'
 import { UnstyledLink } from '../../styles/components/link.styled'
 import { logout } from '../../store/Auth'
+import { setTimeframe } from '../../store/UI'
 import { bulmaColors } from '../../styles/bulma.colors'
 
 export const TopBar = ({
@@ -11,7 +12,9 @@ export const TopBar = ({
   openSidebar,
   closeSidebar,
 }) => {
-  const [activeDisplay, setActiveDisplay] = useState("day")
+  // "day" or "week"
+  const timeframe = useSelector(state => state.ui.timeframe)
+
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifMenu, setShowNotifMenu] = useState(false)
 
@@ -27,6 +30,14 @@ export const TopBar = ({
       openSidebar()
   }
 
+  const handleDisplayChange = (e) => {
+    // update redux
+    if(timeframe === 'week')
+      dispatch(setTimeframe('day'))
+    if(timeframe === 'day')
+      dispatch(setTimeframe('week'))
+  }
+
   return (
     <StyledTopbar className="top-bar bar">
       <div className="topbar-left">
@@ -38,11 +49,12 @@ export const TopBar = ({
       </div>
       <div className="topbar-right">
         {/* Week/Day Toggle */}
-        <div className="week-day-toggle" onClick={(e) => setActiveDisplay(e.target.name)}>
+        <div className="week-day-toggle" onClick={handleDisplayChange}>
           {/* NOTE: if active, keep as is, but if not, leave background white, with color coming in on hover */}
-          <button name="week" className={activeDisplay === "week" ? "button is-primary has-text-white" : "button primary-inactive"}>
+          {/* can add tooltip here too */}
+          <button name="week" className={timeframe === "week" ? "button is-primary has-text-white" : "button primary-inactive"}>
             W</button>
-          <button name="day" className={activeDisplay === "day" ? "button is-info has-text-white" : "button info-inactive"}>
+          <button name="day" className={timeframe === "day" ? "button is-info has-text-white" : "button info-inactive"}>
             D</button>
         </div>
         <div className="dropdown is-right is-hoverable">
@@ -71,12 +83,10 @@ export const TopBar = ({
           <div className="dropdown-menu" role="menu">
             <div className="dropdown-content">
               <div className="dropdown-item">
-                <p className="hoverboard-item"><UnstyledLink to="/profile">Profile</UnstyledLink></p>
+                <UnstyledLink to="/profile" className="hoverboard-item" style={{flex:1,display:'block'}}>Profile</UnstyledLink>
               </div>
               <div className="dropdown-item">
-                <p className="hoverboard-item">
-                  <UnstyledLink to="/settings">Settings</UnstyledLink>
-                </p>
+                <UnstyledLink to="/settings" className="hoverboard-item" style={{flex:1,display:'block'}}>Settings</UnstyledLink>
               </div>
               <div className="dropdown-item">
                 <p className="hoverboard-item" style={{cursor:'pointer'}} onClick={handleLogout}>

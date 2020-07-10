@@ -1,7 +1,7 @@
 // src/store/selectors.js
 
 import { createSelector } from 'reselect'
-import { selectTasks } from './selectors/tasks'
+import { selectTasks, selectTasksOrder } from './selectors/tasks'
 
 export const selectDots = createSelector(
   selectTasks,
@@ -15,15 +15,74 @@ export const selectDots = createSelector(
   }
 )
 
-// sort tasks in ascending order by index
 export const selectOrderedTasks = createSelector(
   selectTasks,
-  (tasks) => {
-    const myTasks = tasks.sort((a, b) => a.index - b.index)
-    console.log('sorted tasks:', myTasks)
-    return myTasks;
+  selectTasksOrder, // an array of ordered task ids
+  (tasks, tasksOrder) => {
+    console.log('tasks length:', tasks.length)
+    // const tasksWithOrder = tasks.map((task, index) => {
+    //   if(task) {
+    //     const order = tasksOrder.indexOf(task.id)
+    //     if(order >= 0)
+    //       task.order = order;
+    //     else
+    //       task.order = 0;
+    //   }
+    //   else console.log('task at index:', index, 'is undefined')
+
+    //   return task;
+    // })
+
+    // const sortedTasks = tasksWithOrder.sort((a, b) => a.order - b.order);
+
+    return tasks;
   }
 )
+
+// sort tasks in ascending order by index
+export const selectOrderedTasksOld = createSelector(
+  selectTasks,
+  selectTasksOrder,
+  (tasks, tasksOrder) => {
+    const fullTasks = tasks.map((task, index) => {
+      const order = tasksOrder.indexOf(task.id)
+      if(order < 0)
+        console.log('error: task with id:', task.id, 'not found, so cannot be ordered')
+      
+      task.order = order;
+      return task;
+    })
+
+    const sortedTasks = fullTasks.sort((a, b) => a.order - b.order);
+
+    console.log('sorted tasks:', sortedTasks);
+    return sortedTasks;
+  }
+)
+    // first sort the tasksOrder
+    // const myTasksOrder = tasksOrder.sort((a, b) => a - b)
+
+    // console.log('sorted tasks order:', myTasksOrder)
+
+    // then render it in the same order...
+    // const myOrderedTaskIds = Object.keys(myTasksOrder);
+
+    // map through tasksOrder, get index and order for reach iteration
+    // const myTasks = myOrderedTaskIds.map((id, index) => { // where index is the order, since it's already ordered
+    //   const currentTask = tasks.find(task => task.id === id)
+    //   currentTask.order = index;
+    //   return currentTask;
+    // })
+
+    // const tasksIteration = tasks.map((task, index) => {
+    //   const taskOrder = tasksOrder.find(id => task.id === id)
+    // })
+
+    // const myOrderedTasks = myTasks.sort((a, b) => a.order - b.order)
+    // console.log('sorted tasks:', myOrderedTasks)
+    // return myOrderedTasks;
+//   }
+// )
 
 export const selectActiveItem = state => {
   // find item in state.example.items, using the 'activeId' in state.example.activeId

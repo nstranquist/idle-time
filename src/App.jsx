@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { connect } from "react-redux";
+import { TimerProvider } from './context/IdleTimer'
 import styled from "styled-components";
 import { Route, Switch, Redirect } from "react-router-dom";
 import { GuestPageNotFound, AuthPageNotFound } from "./pages/PageNotFound";
@@ -64,66 +65,68 @@ const App = ({
       />
 
       {/* Main Section */}
-      <div className="content" style={{marginLeft: sidebarOpen ? pageOptions.sidebarWidth : pageOptions.sidebarWidthClosed}}>
-        <TopBar
-          sidebarOpen={sidebarOpen}
-          openSidebar={openSidebar}
-          closeSidebar={closeSidebar}
-        />
+      <TimerProvider>
+        <div className="content" style={{marginLeft: sidebarOpen ? pageOptions.sidebarWidth : pageOptions.sidebarWidthClosed}}>
+          <TopBar
+            sidebarOpen={sidebarOpen}
+            openSidebar={openSidebar}
+            closeSidebar={closeSidebar}
+          />
 
-        {/* Content View */}
-        <main className="page-inner">
-          <Suspense fallback={<></>}>
-            <Switch>
-              <Route
-                exact
-                path="/"
-                component={lazy(() => import("./pages/Home"))}
-              />
-              <Route
-                exact
-                path="/home"
-                component={lazy(() => import("./pages/Home"))}
-              />
-              <Route
-                exact
-                path="/login"
-                component={() => <Redirect to="/home" />}
-              />
-              <Route
-                exact
-                path="/time-tracking"
-                component={lazy(() => import("./pages/TimeTracking"))}
-              />
-              <Route
-                exact
-                path="/tasks"
-                component={lazy(() => import("./pages/Tasks"))}
-              />
-              <Route
-                path="/tasks/:taskId"
-                component={lazy(() => import("./pages/Tasks/TaskDetail"))}
-              />
-              <Route
-                exact
-                path="/presets"
-                component={lazy(() => import("./pages/Presets"))}
-              />
-              <Route
-                exact
-                path="/profile"
-                component={lazy(() => import("./pages/Profile"))}
-              />
-              <Route
-                exact
-                path="/settings"
-                component={lazy(() => import("./pages/Settings"))}
-              />
-              <Route path="/" component={AuthPageNotFound} />
-            </Switch>
-          </Suspense>
-        </main>
-      </div>
+          {/* Content View */}
+          <main className="page-inner">
+            <Suspense fallback={<></>}>
+              <Switch>
+                <Route
+                  exact
+                  path="/"
+                  component={lazy(() => import("./pages/Home"))}
+                />
+                <Route
+                  exact
+                  path="/home"
+                  component={lazy(() => import("./pages/Home"))}
+                />
+                <Route
+                  exact
+                  path="/login"
+                  component={() => <Redirect to="/home" />}
+                />
+                <Route
+                  exact
+                  path="/time-tracking"
+                  component={lazy(() => import("./pages/TimeTracking"))}
+                />
+                <Route
+                  exact
+                  path="/tasks"
+                  component={lazy(() => import("./pages/Tasks"))}
+                />
+                <Route
+                  path="/tasks/:taskId"
+                  component={lazy(() => import("./pages/Tasks/TaskDetail"))}
+                />
+                <Route
+                  exact
+                  path="/presets"
+                  component={lazy(() => import("./pages/Presets"))}
+                />
+                <Route
+                  exact
+                  path="/profile"
+                  component={lazy(() => import("./pages/Profile"))}
+                />
+                <Route
+                  exact
+                  path="/settings"
+                  component={lazy(() => import("./pages/Settings"))}
+                />
+                <Route path="/" component={AuthPageNotFound} />
+              </Switch>
+            </Suspense>
+          </main>
+        </div>
+      </TimerProvider>
     </StyledApp>
   );
 };
@@ -149,17 +152,19 @@ const GuestApp = styled.div`
 `
 
 const StyledApp = styled.div`
-  min-height: 100vh;
+  // min-height: 100vh;
 
   .content {
-    height: 100vh;
+    // height: 100vh;
     transition: 0.2s ease-in-out;
 
     .page-inner {
-      height: calc(100% - 85px);
-      max-height: calc(100% - 85px);
+      // height: calc(100% - 85px);
+      // max-height: calc(100% - 85px);
       // padding-top: 16px;
       // padding-bottom: ${pageOptions.bottombarHeight}; // makes room for bottom bar
+      overflow-y: auto;
+      min-height: 100%;
     }
   }
 

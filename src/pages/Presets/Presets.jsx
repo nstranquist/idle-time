@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { addPreset, removePreset } from '../../store/Presets'
 import { selectPresetBlocks, selectPresetTimeshift, selectPresetSchedules, selectPresetLoading, selectPresetErrors } from '../../store/selectors/presets'
-import { ErrorText } from '../../components/ErrorText'
+import { ErrorNotification } from '../../components/ErrorText'
 import { LoadingContainer } from '../../components/LoadingContainer'
 
 export const Presets = ({
@@ -14,6 +14,7 @@ export const Presets = ({
   errors,
   addPreset,
   removePreset,
+  //clearErrors
 }) => {
 
   // Needs a way to sort between types of preset... Maybe a top sorting bar?
@@ -22,7 +23,7 @@ export const Presets = ({
     <StyledPresets className="section-container">
       <header className="section-header">
         <h3 className="header-text is-size-3">Presets</h3>
-        {errors && <ErrorText message={errors} /> }
+        {errors && <ErrorNotification message={errors} /> }
       </header>
       <div className="presets-inner">
         <div className="custom-blocks">
