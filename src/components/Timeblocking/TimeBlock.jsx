@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
+import { pure } from 'recompose'
 import styled from 'styled-components'
-import { TimeBlockForm } from '../Forms'
 import { MoreVertical } from 'react-feather'
+import { TimeBlockForm } from './TimeBlockForm'
 import TimeBlockDisplay from './TimeBlockDisplay'
 import { OutsideAlerter } from '../../hoc/OutsideAlerter'
 import { ClockInput } from '../../components/Inputs'
@@ -20,7 +21,7 @@ import { boxShadows } from '../../styles/shadows.style'
 
 const colorOptions = [
   {
-    code : "#3273DC", // blue
+    code : "#fff", // white (or blue)
     priority: 4,
   },
   {
@@ -36,8 +37,16 @@ const colorOptions = [
     priority: 1,
   },
 ]
+const colorOptionsObject = {
+  1: "#FF3860",
+  2: "#FFDD57",
+  3: "#48C774",
+  4: "#FFF"
+}
 
-export const TimeBlock = ({
+// how to optimize?
+
+const TimeBlockUI = ({
   taskData, // Title, Desc, startTime, duration, priority
   isEditing,
   activeField = "title",
@@ -64,7 +73,7 @@ export const TimeBlock = ({
 
   const handleSave = ({ title, desc }, finished = true) => {
     onSave({
-      ...taskData,
+      _id: taskData._id,
       title,
       desc
     }, finished)
@@ -80,19 +89,24 @@ export const TimeBlock = ({
 
   const handleSelectColor = (priority) => {
     // update task with the new priority
-    onUpdatePriority(priority, taskData.id)
+    onUpdatePriority(priority, taskData._id)
+    setShowColors(false)
   }
 
   const handleDelete = () => {
-    onDelete(taskData.id);
+    onDelete(taskData._id);
     setShowOptions(false);
+  }
+
+  const handleSaveAsPreset = () => {
+    
   }
 
   return (
     <StyledTimeBlock
       className="time-block-container noselect"
       style={{position: 'relative'}}
-      id={taskData.id}
+      id={taskData._id}
     >
 
       {taskData.duration && (
@@ -119,18 +133,16 @@ export const TimeBlock = ({
           </div> */}
           <div className="block-body" style={{paddingLeft:8}}>
             {isEditing ? (
-              <OutsideAlerter handleOutsideClick={handleOutsideClick}>
-                <TimeBlockForm
-                  timeData={{
-                    title: taskData.title,
-                    desc: (taskData.desc ? taskData.desc : null)
-                    // other form options... like a ToDo list
-                  }}
-                  activeField={activeField}
-                  handleSave={handleSave}
-                  handleCancel={onCancel}
-                />
-              </OutsideAlerter>
+              <TimeBlockForm
+                timeData={{
+                  title: taskData.title,
+                  desc: (taskData.desc ? taskData.desc : null)
+                  // other form options... like a ToDo list
+                }}
+                activeField={activeField}
+                handleSave={handleSave}
+                handleCancel={onCancel}
+              />
             ) : (
               <TimeBlockDisplay
                 title={taskData.title}
@@ -154,17 +166,15 @@ export const TimeBlock = ({
             
             {/* Color Picker / Priority Picker */}
             <div style={{position: 'relative'}}>
-              <div className="color-picker-container" onClick={() => setShowColors(true)}>
-                <PriorityColor priority={taskData.priority} className="icon circle"></PriorityColor>
-              </div>
+              <ColorPickerContainer className="color-picker-container" onClick={() => setShowColors(true)}>
+                <PriorityColor color={colorOptionsObject[taskData.priority]} className="icon circle"></PriorityColor>
+              </ColorPickerContainer>
               
               {showColors && (
                 <OutsideAlerter handleOutsideClick={() => setShowColors(false)}>
                   <ColorPicker className="color-picker">
                     {colorOptions.map(color => (
-                      <ColorOption color={color.code} onClick={() => handleSelectColor(color.priority)}>
-
-                      </ColorOption>
+                      <ColorOption kye={color.priority} color={color.code} onClick={() => handleSelectColor(color.priority)} />
                     ))}
                   </ColorPicker>
                 </OutsideAlerter>
@@ -181,6 +191,7 @@ export const TimeBlock = ({
                 <OutsideAlerter handleOutsideClick={() => setShowOptions(false)}>
                   <div className="options-menu">
                     <p className="option" onClick={handleDelete}>Delete</p>
+                    <p className="option" onClick={handleSaveAsPreset}>Save as Preset</p>
                     <p className="option">Add Below</p>
                   </div>
                 </OutsideAlerter>
@@ -195,6 +206,35 @@ export const TimeBlock = ({
   )
 }
 
+export const TimeBlock = pure(TimeBlockUI)
+
+const ColorPickerContainer = styled.div`
+  &.color-picker-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 50%;
+    cursor: pointer;
+    background-color: inherit;
+    transition: background-color .2s ease-in-out;
+
+    &:hover {
+      background-color: rgba(0,0,0,.06);
+      transition: background-color .2s ease-in-out;
+    }
+
+    .circle {
+      flex: 1;
+      border-radius: 50%;
+      background-color: ${props => props.color};
+      border-width: 1px;
+      border-style: solid;
+      border-color: rgba(0,0,0,.14);
+    }
+  }
+`
 const BlockMenu = styled.div`
   position: relative;
   z-index: 11000;
@@ -233,13 +273,19 @@ const BlockMenu = styled.div`
   
 `
 const ColorPicker = styled.div`
+&.color-picker {
   position: absolute;
-  // bottom: -30px;
-  left: 0;
-  right: 0;
-  padding: 10px;
-  background: #fff;
-  box-shadow: 
+  left: 3px;
+  right: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 4px;
+  background: #f9f9f9;
+  text-align: center;
+  box-shadow: ${boxShadows.shadow3};
+  z-index: 1000;
+}
 `
 const ColorOption = styled.div`
   background: ${props => props.color};
@@ -257,20 +303,7 @@ const ColorOption = styled.div`
   }
 `
 const PriorityColor = styled.div`
-  background: ${props => {
-    switch(props.priority) {
-      case 1:
-        return bulmaColors.danger;
-      case 2:
-        return bulmaColors.warning;
-      case 3:
-        return bulmaColors.success;
-      case 4:
-        return bulmaColors.link;
-      default:
-        return "#AAA";
-    }
-  }}
+  background: ${props => props.color};
 `
 const BlockSpacer = styled.div`
   height: initial;
@@ -360,28 +393,7 @@ const StyledTimeBlock = styled.div`
     align-items: center;
 
   }
-  .color-picker-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 6px;
-    border-radius: 50%;
-    cursor: pointer;
-    background-color: inherit;
-    transition: background-color .2s ease-in-out;
-
-    &:hover {
-      background-color: rgba(0,0,0,.06);
-      transition: background-color .2s ease-in-out;
-    }
-
-    .circle {
-      flex: 1;
-      border-radius: 50%;
-      background-color: black;
-    }
-  }
+  
 
   .drag-icon-container {
     display: flex;

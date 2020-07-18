@@ -1,0 +1,28 @@
+import { createSelector } from 'reselect'
+
+export const selectPresets = state => state.presets.presets;
+
+export const selectPresetTasks = createSelector(
+  selectPresets,
+  (presets) => {
+    return presets.filter(preset => preset.category === 'task')
+  }
+)
+
+export const selectPresetTimeshift = createSelector(
+  selectPresets,
+  (presets) => {
+    return presets.filter(preset => preset.category === 'timeshift')
+  }
+)
+
+export const selectPresetSchedule = createSelector(
+  selectPresets,
+  (presets) => {
+    return presets.filter(preset => preset.category === 'schedule')
+  }
+)
+
+export const selectPresetErrors = state => state.presets.errors;
+
+export const selectPresetLoading = state => state.presets.loading;

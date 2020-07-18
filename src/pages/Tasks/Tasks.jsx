@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { selectTasks, selectTasksLoading, selectTasksErrors } from '../../store/selectors/tasks'
-import { selectAuthToken } from '../../store/selectors/auth'
-import { getTasks, addTask, updateTask, removeTask, clearErrors } from '../../store/Tasks'
+import { selectTasks, selectTasksLoading, selectTasksErrors } from '../../store/Tasks/selectors'
+import { selectAuthToken } from '../../store/Auth/selectors'
+import { getTasks, addTask, updateTask, removeTask, clearTaskErrors } from '../../store/Tasks'
 import { ErrorText } from '../../components/ErrorText'
 
 export const Tasks = ({
@@ -15,7 +15,7 @@ export const Tasks = ({
   addTask,
   updateTask,
   removeTask,
-  clearErrors
+  clearTaskErrors
 }) => {
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export const Tasks = ({
     <StyledTasks className="section-container">
       <header className="section-header tasks-header">
         <h3 className="header-text is-size-3">Your Tasks</h3>
-        {errors && <ErrorText message={errors} clearErrors={clearErrors} /> }
+        {errors && <ErrorText message={errors} clearErrors={clearTaskErrors} /> }
       </header>
       <div className="tasks-inner">
         <section className="tasks-section current-tasks">
@@ -39,7 +39,7 @@ export const Tasks = ({
             </div>
           )}
           {tasks.length > 0 ? tasks.map(task => (
-            <TaskItem className="task-item" key={task.id}>
+            <TaskItem className="task-item" key={task._id}>
               <p className="task-text task-title">{task.title}</p>
               {task.desc && <p className="task-text task-title">{task.desc}</p>}
               <p className="task-text task-duration">duration: {task.duration}</p>
@@ -76,7 +76,7 @@ const mapStateToProps = (state) => ({
 
 export const ConnectedTasks = connect(
   mapStateToProps,
-  { getTasks, addTask, updateTask, removeTask, clearErrors }
+  { getTasks, addTask, updateTask, removeTask, clearTaskErrors }
 )(Tasks)
 
 const TaskItem = styled.div`

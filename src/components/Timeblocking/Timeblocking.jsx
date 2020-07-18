@@ -1,10 +1,11 @@
 // src/components/Timeblocking/Timeblocking.jsx
 
 // library imports
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import TimerContext from '../../context/IdleTimer'
 // import moment from 'moment'
 
 // import components
@@ -12,23 +13,25 @@ import { Toolbar } from './Toolbar'
 import { ConnectedTimeline as Timeline } from '../Timeline'
 import { TimeBlock } from './TimeBlock'
 import { ErrorText } from '../ErrorText'
-import { Timer } from './Timer'
 import { AddButton } from '../Buttons'
 import { NewBlock } from '../Blocks'
 import { DragIconBar } from './DragIconBar'
 
 // import redux actions
-import { getTasks, addTask, updateTask, removeTask, updateTasksOrder } from '../../store/Tasks'
+import { getTasks, addTask, updateTask, removeTask, updateTasksOrder, clearTaskErrors } from '../../store/Tasks'
 import { selectOrderedTasks } from '../../store/selectors'
+import { Timer } from './Timer'
 
 // import styles, other components
 import { pageOptions } from '../../styles/pageOptions'
 import { boxShadows } from '../../styles/shadows.style'
 import { bulmaColors } from '../../styles/bulma.colors'
-import { selectTasksLoading, selectTasksErrors } from '../../store/selectors/tasks'
-import { selectAuthToken } from '../../store/selectors/auth'
+import { selectTasksLoading, selectTasksErrors } from '../../store/Tasks/selectors'
+import { selectAuthToken } from '../../store/Auth/selectors'
+import { selectWorkSettings } from '../../store/Settings/selectors'
 // import { emptyNewTask } from '../../constants'
 
+// todo: replace with IdleTimer hoc
 const timer = new Timer();
 
 const Timeblocking = ({
@@ -36,12 +39,18 @@ const Timeblocking = ({
   tasks,
   loading,
   errors,
+  workSettings,
   getTasks,
   addTask,
   updateTask,
   removeTask,
   updateTasksOrder,
+  clearTaskErrors,
 }) => {
+  const timerContext = useContext(TimerContext);
+  const { time } = timerContext;
+  const { applyTimeshift, addAlarm, updateAlarm, removeAlarm } = timerContext;
+
   const [isAdding, setIsAdding] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [formErrors, setFormErrors] = useState(null)
@@ -51,10 +60,8 @@ const Timeblocking = ({
   const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
-    fetchTasks();
-  }, [])
-
-  const fetchTasks = () => getTasks(token)
+    if(token) getTasks(token)
+  }, [token])
 
   const handleAddToggle = () => {
     // clean up previous editing state
@@ -67,8 +74,6 @@ const Timeblocking = ({
   }
 
   const handleAddAutoTask = (newTaskData) => {
-    newTaskData.order = tasks.length;
-
     addTask(token, newTaskData)
   }
 
@@ -87,6 +92,8 @@ const Timeblocking = ({
 
   const handleDelete = (taskId) => {
     removeTask(token, taskId)
+    // calculate time remaining
+    
   }
 
   const onInputClick = (taskData, fieldName) => {
@@ -105,9 +112,11 @@ const Timeblocking = ({
   const onSave = (taskData = undefined, finished = true) => {
     console.log('called onSave')
     // save data in the state
-    if (taskData)
-      updateTask(token, taskData.id, taskData)
-
+    if (taskData) {
+      console.log('we have task data:', taskData)
+      updateTask(token, taskData._id, taskData)
+    }
+    else console.log('task data is undefined. not saving')
     if (finished) {
       setIsEditing(false)
       setActiveTask(undefined)
@@ -120,7 +129,7 @@ const Timeblocking = ({
   }
 
   const onUpdatePriority = (priority, taskId) => {
-    updateTask(token, taskId, priority)
+    updateTask(token, taskId, {priority})
   }
 
   const onDragStart = (start) => console.log('on drag start:', start)
@@ -141,7 +150,7 @@ const Timeblocking = ({
     if (type === 'day') {
       // const newTasksOrder = Array.from(tasks);
       // newTasksOrder.splice(source.index, 1)
-      // const foundTask = tasks.find(task => task.id === draggableId)
+      // const foundTask = tasks.find(task => task._id === draggableId)
       // newTasksOrder.splice(destination.index, 0, foundTask)
 
       updateTasksOrder(token, draggableId, source.index, destination.index)
@@ -150,7 +159,7 @@ const Timeblocking = ({
   }
 
   return (
-    <StyledTimeblocking className="idle-time-page container container-left" style={{ position: 'relative' }}>
+    <StyledTimeblocking className="idle-time-page container container-left">
       <DragDropContext
         onDragStart={onDragStart}
         onDragUpdate={onDragUpdate}
@@ -191,6 +200,8 @@ const Timeblocking = ({
 
           <div className="section-right-inner">
 
+            {errors && <ErrorText message={errors} clearErrors={clearTaskErrors} />}
+
             {/* Task Cards */}
             <div className="task-cards">
 
@@ -208,8 +219,8 @@ const Timeblocking = ({
                     {loading && <div><p>loading tasks...</p></div>}
                     {tasks.length > 0 && tasks.map((task, index) => (
                       <Draggable
-                        key={task.id}
-                        draggableId={task.id}
+                        key={task._id}
+                        draggableId={task._id}
                         type="timeblock"
                         index={index}
                       >
@@ -221,7 +232,7 @@ const Timeblocking = ({
                               // other props
                               taskData={task}
                               activeField={activeTask ? activeTask.activeField : undefined}
-                              isEditing={activeTask && task.id === activeTask.id}
+                              isEditing={activeTask && task._id === activeTask._id}
                               onInputClick={onInputClick}
                               onSave={onSave}
                               onCancel={onCancel}
@@ -266,11 +277,12 @@ const mapStateToProps = (state) => ({
   tasks: selectOrderedTasks(state),
   loading: selectTasksLoading(state),
   errors: selectTasksErrors(state),
+  workSettings: selectWorkSettings(state),
 })
 
 export const ConnectedTimeblocking = connect(
   mapStateToProps,
-  { getTasks, addTask, updateTask, removeTask, updateTasksOrder }
+  { getTasks, addTask, updateTask, removeTask, updateTasksOrder, clearTaskErrors }
 )(Timeblocking)
 
 const StyledTaskCard = styled.div`
@@ -278,7 +290,8 @@ const StyledTaskCard = styled.div`
 
 const StyledTimeblocking = styled.div`
   position: relative;
-  height: calc(100% - 56px);
+  height: 100%;
+  // height: calc(100% - 56px);
   // overflow-y: auto;
   // padding-top: 16px;
   // padding-bottom: -16px;
@@ -300,7 +313,7 @@ const StyledTimeblocking = styled.div`
       padding-left: 20px;
       padding-right: 20px; // remove if using overflow side-scroll for kanban
       padding-top: 6px;
-      height: calc(100vh - 85px - 40px - 56px); // topbar, toolbar, bottombar
+      height: calc(100vh - 85px - 40px); // topbar, toolbar, //bottombar
       overflow-y: auto;
     }
     
@@ -374,7 +387,7 @@ const StyledTimeblocking = styled.div`
     .add-button-container,
     .submit-button-container {
       padding-top: 6px;
-      margin-bottom: 6px;
+      margin-bottom: 16px;
       text-align: center;
 
       .add-task-button,

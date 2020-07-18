@@ -8,7 +8,7 @@ export const Home = () => {
   return (
     <HomePage>
       <Timeblocking />
-      <BottomBar />
+      {/* <BottomBar /> */}
     </HomePage>
   )
 }
@@ -16,6 +16,6 @@ export const Home = () => {
 const HomePage = styled.div`
   position: relative;
   height: 100%;
-  height: calc(100% - 85px);
-  max-height: calc(100% - 85px);
+  // height: calc(100% - 85px);
+  // max-height: calc(100% - 85px);
 `

@@ -7,11 +7,11 @@ import { GuestPageNotFound, AuthPageNotFound } from "./pages/PageNotFound";
 // component imports
 import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
-import { openSidebar, closeSidebar } from "./store/UI";
 import { bulmaColors } from './styles/bulma.colors'
 import { pageOptions } from './styles/pageOptions'
-import { selectSidebarOpen } from "./store/selectors/ui";
-import { selectIsSignedIn } from "./store/selectors/auth";
+import { openSidebar, closeSidebar } from "./store/UI";
+import { selectSidebarOpen } from "./store/UI/selectors";
+import { selectIsSignedIn } from "./store/Auth/selectors";
 
 import { Login, SignUp, ResetPassword } from './pages/Auth'
 
@@ -71,6 +71,7 @@ const App = ({
             sidebarOpen={sidebarOpen}
             openSidebar={openSidebar}
             closeSidebar={closeSidebar}
+            // notifications={notifications}
           />
 
           {/* Content View */}

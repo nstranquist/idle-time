@@ -5,14 +5,14 @@ import { Link } from 'react-router-dom'
 import { Lock, Mail, Eye, EyeOff, CheckCircle, User } from 'react-feather'
 import { ErrorText, ErrorNotification } from '../../components/ErrorText'
 import { bulmaColors } from '../../styles/bulma.colors'
-import { selectAuthErrors, selectAuthLoading } from '../../store/selectors/auth'
+import { selectAuthErrors, selectAuthLoading } from '../../store/Auth/selectors'
 import { signup, resetSignupSuccess, clearErrors } from '../../store/Auth'
 
 const emptySignupForm = {
-  name: "Kati",
-  email: "gabbardkk@gmail.com",
-  password: "sugarbear3",
-  confirmPassword: "sugarbear3"
+  name: "Nico",
+  email: "nicostran@gmail.com",
+  password: "password",
+  confirmPassword: "password"
 }
 
 const SignUp = ({

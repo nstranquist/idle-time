@@ -7,15 +7,21 @@ class TimerProvider extends React.Component {
   intervalId;
 
   state = {
-    time: moment().format('hh:mm a'), // or object containing things
-    settings: [],
-    timeshift: [],
+    time: moment().format('h:mm a'), // or object containing things
+    // settings: {
+
+    // },
+    timeshiftActive: false,
+    timeshift: {
+      excludeDigits: [],
+      roundUpBy: 0, // or null
+    }, // or null
     alarms: [],
   };
 
   setTime = (newTime) => this.setState({ time: newTime })
-  setTimeshift = (timeshift) => this.setState({ timeshift })
-  setAlarms = (alarms) => this.setState({ alarms })
+  // setTimeshift = (timeshift) => this.setState({ timeshift })
+  // setAlarms = (alarms) => this.setState({ alarms })
 
   addAlarm = (newAlarm) => {
     this.setState((prevState) => ({ alarms: [...prevState.alarms, newAlarm ]}))
@@ -41,6 +47,8 @@ class TimerProvider extends React.Component {
     return timeshiftedTime;
   }
 
+  setTimeshift = (value, settings=null) => this.setState({ timeshiftActive: value, timeshift: null })
+
   // componentDidMount() {
   //   if(!this.intervalId)
   //     this.intervalId = setInterval(() => {
@@ -56,25 +64,20 @@ class TimerProvider extends React.Component {
     }
   }
 
-  checkTime(currentTime) {
-    // console.log('the time in IdleTimer is:', currentTime)
-  }
-
   render() {
-    const { children } = this.props
-    const { time, settings, alarms } = this.state
-    const { setTimer } = this
-
     return (
       <TimerContext.Provider
         value={{
-          time,
-          settings,
-          alarms,
-          setTimer,
+          time: this.state.time,
+          setTimeshift: this.setTimeshift,
+          applyTimeshift: this.applyTimeshift,
+          addAlarm: this.addAlarm,
+          updateAlarm: this.updateAlarm,
+          removeAlarm: this.removeAlarm,
+          // updateSettings: this.updateSettings,
         }}
       >
-        {children}
+        {this.props.children}
       </TimerContext.Provider>
     )
   }

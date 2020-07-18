@@ -1,14 +1,14 @@
 // src/store/selectors.js
 
 import { createSelector } from 'reselect'
-import { selectTasks, selectTasksOrder } from './selectors/tasks'
+import { selectTasks, selectTasksOrder } from './Tasks/selectors'
 
 export const selectDots = createSelector(
   selectTasks,
   (tasks) => {
     return tasks.map(task => {
       return {
-        id: task.id,
+        _id: task._id,
         priority: task.priority,
       }
     })
@@ -18,11 +18,11 @@ export const selectDots = createSelector(
 export const selectOrderedTasks = createSelector(
   selectTasks,
   selectTasksOrder, // an array of ordered task ids
-  (tasks, tasksOrder) => {
+  (tasks, order) => {
     console.log('tasks length:', tasks.length)
     // const tasksWithOrder = tasks.map((task, index) => {
     //   if(task) {
-    //     const order = tasksOrder.indexOf(task.id)
+    //     const order = order.indexOf(task._id)
     //     if(order >= 0)
     //       task.order = order;
     //     else
@@ -45,9 +45,9 @@ export const selectOrderedTasksOld = createSelector(
   selectTasksOrder,
   (tasks, tasksOrder) => {
     const fullTasks = tasks.map((task, index) => {
-      const order = tasksOrder.indexOf(task.id)
+      const order = tasksOrder.indexOf(task._id)
       if(order < 0)
-        console.log('error: task with id:', task.id, 'not found, so cannot be ordered')
+        console.log('error: task with id:', task._id, 'not found, so cannot be ordered')
       
       task.order = order;
       return task;
@@ -69,13 +69,13 @@ export const selectOrderedTasksOld = createSelector(
 
     // map through tasksOrder, get index and order for reach iteration
     // const myTasks = myOrderedTaskIds.map((id, index) => { // where index is the order, since it's already ordered
-    //   const currentTask = tasks.find(task => task.id === id)
+    //   const currentTask = tasks.find(task => task._id === id)
     //   currentTask.order = index;
     //   return currentTask;
     // })
 
     // const tasksIteration = tasks.map((task, index) => {
-    //   const taskOrder = tasksOrder.find(id => task.id === id)
+    //   const taskOrder = tasksOrder.find(id => task._id === id)
     // })
 
     // const myOrderedTasks = myTasks.sort((a, b) => a.order - b.order)

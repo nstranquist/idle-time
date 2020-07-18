@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react'
+import { pure } from 'recompose'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { getTimeLogs, addTimeLog, updateTimeLog, removeTimeLog, clearErrors } from '../../store/TimeTracking'
-import { selectTimeLogs, selectLoading, selectErrors } from '../../store/selectors/timetracking'
-import { selectAuthToken } from '../../store/selectors/auth'
+import { Settings } from 'react-feather'
 import { ErrorText } from '../../components/ErrorText'
+import { AddForm } from './AddForm'
+import { TimelogItem } from './LogItem'
+// redux
+import { getTimeLogs, addTimeLog, updateTimeLog, removeTimeLog, clearErrors } from '../../store/TimeTracking'
+import { selectTimeLogs, selectLoading, selectErrors } from '../../store/TimeTracking/selectors'
+import { selectTimetrackingSettings } from '../../store/Settings/selectors'
+import { selectAuthToken } from '../../store/Auth/selectors'
 
 
 // Allow user to generate a pdf or csv report of their time logs
@@ -17,56 +23,62 @@ export const TimeTracking = ({
   timelogs,
   loading,
   errors,
+  timetrackingSettings,
   getTimeLogs,
   addTimeLog,
   updateTimeLog,
   removeTimeLog,
   clearErrors
 }) => {
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [settingsData, setSettingsData] = useState(null)
 
   useEffect(() => {
     getTimeLogs(token)
   }, [])
 
-  const handleAddLog = () => {
-    const newLog = {
-      title: "New Log",
-      desc: "I worked a lot on IdleTime, made good progress with the Settings feature",
-      duration: 115
-    }
+  const handleAddLogDev = () => {
+    const newLog = { title: "New Log", desc: "I worked a lot on IdleTime, made good progress with the Settings feature", duration: 115 }
     addTimeLog(token, newLog)
   }
 
-  const handleRemoveLog = (id) => {
-    removeTimeLog(token, id)
+  const handleUpdateLog = (timelog) => console.log('timelog to update:', timelog)
+
+  const handleRemoveLog = (taskId) => removeTimeLog(token, taskId)
+
+  const submitLogForm = (timelogData) => {
+    addTimeLog(token, timelogData)
+    setShowAddForm(false)
   }
+
+  const handleCancel = () => setShowAddForm(false)
 
   return (
     <StyledTimetracking className="section-container">
       <header className="section-header">
-        <h3 className="header-text is-size-3">Timetracking</h3>
+        <h3 className="header-text is-size-3">
+          <span style={{flex: 1}}>Timetracking</span>
+          <span className="icon header-icon" onClick={() => setShowAddForm(true)}>
+            <Settings />
+          </span>
+        </h3>
       </header>
+
+      {showAddForm && <AddForm submitForm={submitLogForm} cancelForm={handleCancel} /> }
 
       {errors && <ErrorText message={errors} clearErrors={clearErrors} />}
 
-      <TimelogItem className="timelog-item noselect" style={{borderBottom:0}}>
-        <div className="log-text">{timelogs.length} timelogs were found</div>
-        <button className="button is-link" onClick={handleAddLog}>Add Log</button>
-      </TimelogItem>
+      <TimelogItemStyled className="timelog-item noselect" style={{borderBottom:0}}>
+        {!loading
+          ? <div className="log-text">{timelogs.length} timelogs were found</div>
+          : <div className="is-loading"></div>
+        }
+        <button className="button is-link" disabled={loading} onClick={submitLogForm}>Add Log</button>
+      </TimelogItemStyled>
 
       <div className="timelogs-container">
-        {timelogs && timelogs.map(log => (
-          <TimelogItem className="timelog-item" key={log.id}>
-            <div className="item-left">
-              <p className="log-text is-size-5" style={{marginBottom:'.2rem'}}>{log.title}</p>
-              { log.desc && <div className="log-text">{log.desc}</div> }
-            </div>
-            <div className="item-right">
-              <p className="log-text log-duration-text">{log.duration}</p>
-              <button className="button is-small-is-rounded is-outline is-danger is-light" onClick={() => removeTimeLog(token, log.id)}>delete</button>
-            </div>
-          </TimelogItem>
-        ))}
+        {timelogs && timelogs.map(log => <TimelogItem key={log._id} timelog={log} handleRemoveLog={handleRemoveLog} />)}
       </div>
     </StyledTimetracking>
   )
@@ -77,6 +89,7 @@ const mapStateToProps = (state) => ({
   timelogs: selectTimeLogs(state),
   loading: selectLoading(state),
   errors: selectErrors(state),
+  timetrackingSettings: selectTimetrackingSettings(state)
 })
 
 export const ConnectedTimeTracking = connect(
@@ -84,7 +97,8 @@ export const ConnectedTimeTracking = connect(
   { getTimeLogs, addTimeLog, updateTimeLog, removeTimeLog, clearErrors }
 )(TimeTracking)
 
-const TimelogItem = styled.div`
+
+export const TimelogItemStyled = styled.div`
   &.timelog-item {
     padding-top: 1rem;
     padding-bottom: 1rem;
@@ -111,8 +125,29 @@ const TimelogItem = styled.div`
   }
 `
 const StyledTimetracking = styled.div`
+  height: 100vh;
+  overflow-y: auto;
+
   .section-header {
     
+  }
+  .header-icon {
+    cursor: pointer;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: #fff;
+    transition: background-color .1s ease;
+
+    &:hover {
+      background-color: rgba(155,155,155,.12);
+      transition: background-color .1s ease;
+    }
+  }
+  .header-text {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   .timelogs-container {
 

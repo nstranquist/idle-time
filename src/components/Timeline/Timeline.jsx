@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
 import { selectActiveItem, selectUpcomingTasks, selectDots } from '../../store/selectors'
-import { selectTasks, selectTasksErrors, selectTasksLoading } from '../../store/selectors/tasks'
+import { selectTasks, selectTasksOrder, selectTasksErrors, selectTasksLoading } from '../../store/Tasks/selectors'
 
 import TimerContext from '../../context/IdleTimer'
 
@@ -16,15 +16,23 @@ import TimerContext from '../../context/IdleTimer'
 // I think... best to wait until redux is managing the timer state,
 // before implementing the timer functionality here
 
-const startingDotSettings = {
-  colors: ['green', 'blue', 'yellow', 'red'],
-  // ...
+// const startingDotSettings = {
+//   colors: ['white', 'blue', 'yellow', 'red'],
+//   // ...
+// }
+
+const colorOptions = {
+  1: "#FF3860", // danger
+  2: "#FFDD57", // warning
+  3: "#48C774", // success
+  4: "#FFF" // white
 }
 
 export const Timeline = ({
   dots,
   timer,
   tasks,
+  tasksOrder,
   loading,
   errors,
   upcomingTasks,
@@ -34,17 +42,17 @@ export const Timeline = ({
 
   // const [viewHeight, setViewHeight] = useState("0px");
   // const [dots, setDots] = useState(startingDots)
-  const [dotSettings, setDotSettings] = useState(startingDotSettings)
+  // const [dotSettings, setDotSettings] = useState(startingDotSettings) // to customize colors?
   const [isHovering, setIsHovering] = useState(undefined)
   const [dotHoverData, setDotHoverData] = useState(undefined)
-  const [time, setTime] = useState(timer.getTime())
-  const [timerId, setTimerId] = useState(undefined)
+  // const [time, setTime] = useState(timer.getTime())
+  // const [timerId, setTimerId] = useState(undefined)
 
   useEffect(() => {
     if(isHovering) {
       // get the new hovering data
       const dotId = isHovering;
-      const dot = tasks.find(task => task.id === dotId)
+      const dot = tasks.find(task => task._id === dotId)
       if(dot)
         setDotHoverData(dot)
     }
@@ -62,7 +70,7 @@ export const Timeline = ({
 
   // const handleDotHover = async taskId => {
   //   // set the necessary data for dot hover
-  //   const dotData = tasks.find(task => task.id === taskId)
+  //   const dotData = tasks.find(task => task._id === taskId)
   // }
 
   const handleMouseOver = (e) => {
@@ -84,14 +92,14 @@ export const Timeline = ({
   return (
     <StyledTimeline className="timeline-1">
 
-      <span className="timeline-time" style={{display:'flex',alignItems:"center",justifyContent:"center",height:40}}>{time}</span>
+      <span className="timeline-time" style={{display:'flex',alignItems:"center",justifyContent:"center",height:40}}>{timerContext.time}</span>
 
       <div className="timeline-line">
 
         <div className="dots-container" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
           {dots && dots.map((dot, index) => {
             return (
-              <Dot to={`/tasks/${dot.id}`} className="dot-item" key={index} priority={dot.priority} id={dot.id}>
+              <Dot to={`/tasks/${dot.id}`} className="dot-item" key={index} color={colorOptions[dot.priority]} id={dot.id}>
                 {isHovering === dot.id && dotHoverData && (
                   <DotHoverMenu className="dot-hover-menu">
                     <h3 style={{wordBreak:'keep-all',wordWrap:'normal',overflowWrap:'normal',}}>{dotHoverData.title}</h3>
@@ -110,6 +118,7 @@ export const Timeline = ({
 const mapStateToProps = (state) => ({
   dots: selectDots(state),
   tasks: selectTasks(state),
+  tasksOrder: selectTasksOrder(state),
   errors: selectTasksErrors(state),
   loading: selectTasksLoading(state),
   upcomingTasks: selectUpcomingTasks(state),
@@ -135,20 +144,7 @@ const DotHoverMenu = styled.div`
 `
 
 const Dot = styled(Link)`
-  background: ${props => {
-    switch(props.priority) {
-      case 1:
-        return bulmaColors.danger;
-      case 2:
-        return bulmaColors.warning;
-      case 3:
-        return bulmaColors.success;
-      case 4:
-        return bulmaColors.link;
-      default:
-        return "initial";
-    }
-  }};
+  background: ${props => props.color};
 
   // remove default link styles
   text-decoration: inherit;
@@ -176,7 +172,7 @@ const StyledTimeline = styled.div`
       width: 2px; // or 1px, test which one looks best
       // background: rgba(0,0,0,.88);
       background: #363636;
-      height: calc(100vh - 86px - 52px - 56px - 12px);
+      height: calc(100vh - 86px - 52px - 12px);
       z-index: 1012;
       margin-top: 12px;
       // height: 100%;

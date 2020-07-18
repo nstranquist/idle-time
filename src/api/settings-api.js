@@ -29,7 +29,7 @@ export const getSettingsApiCall = (token, onSuccess, onServerError, onError) => 
 }
 
 export const updateSettingsApiCall = (token, settingsData, onSuccess, onServerError, onError) => {
-  fetch(BASE_URL + '/settings/update', {
+  fetch(BASE_URL + '/settings', {
     method: 'PUT',
     headers: {
       'x-access-token': token,

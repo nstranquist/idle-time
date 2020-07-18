@@ -2,7 +2,7 @@ import { startingTasks, startingTasksOrder } from '../../data/tasks.data'
 
 export const createTaskIdsFromTasks = (tasks, tasksOrder) => {
   const unorderedIds = taskData.map(task => {
-    return task.id;
+    return task._id;
   })
 
   const orderedIds = unorderedIds;

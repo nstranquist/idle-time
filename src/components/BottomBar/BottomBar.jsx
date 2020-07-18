@@ -12,17 +12,17 @@ export const BottomBar = () => {
     <StyledBottomBar className="bottom-bar bar container container-left">
       <div className="bar-left">
         {/* {showTime && timeText && <p className="time-text no-select">{timeText}</p>} */}
-        <p className="checkbox-with-text time-toggle" style={{marginLeft:8}}
-          onClick={() => setShowTime(!showTime)}>
+        {/* <p className="checkbox-with-text time-toggle" style={{marginLeft:8}}
+          onClick={() => setShowTime(!showTime)}> */}
           {/* <input
             type="checkbox"
             checked={showTime}
             onChange={() => setShowTime(!showTime)}  
           /> */}
-          <span className="no-select time-toggle-text">
+          {/* <span className="no-select time-toggle-text">
             {showTime ? "hide time" : "show time"}
           </span>
-        </p>
+        </p> */}
       </div>
       <div className="bar-right">
         {selectedText && <p style={{marginBottom:0, marginRight:6}}>{selectedText}</p> }

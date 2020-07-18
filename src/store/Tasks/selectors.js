@@ -2,7 +2,7 @@
 
 export const selectTasks = state => state.tasks.tasks;
 
-export const selectTasksOrder = state => state.tasks.tasksOrder;
+export const selectTasksOrder = state => state.tasks.order;
 
 export const selectTasksLoading = state => state.tasks.loading;
 

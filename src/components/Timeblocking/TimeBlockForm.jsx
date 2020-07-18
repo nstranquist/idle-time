@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { MinusButton } from '../IconButtons'
-import { AddFormItem } from './AddFormItem'
+import { AddFormItem } from '../Forms/AddFormItem'
+import { OutsideAlerter } from '../../hoc/OutsideAlerter'
 import { defaultErrorsState, emptyNewTask as emptyTimeBlock } from '../../constants'
 import { FormItemStyled } from '../../styles/components'
 
@@ -20,17 +21,12 @@ export const TimeBlockForm = ({
   activeField = "title",
   // serverErrors,  // errors coming from outside of this component
 }) => {
-  // const [timeBlock, setTimeBlock] = useState(emptyTimeBlock)
-  // const [formData, setFormData] = useState(timeData)
-
   const [title, setTitle] = useState(timeData.title)
   const [desc, setDesc] = useState(timeData.desc)
+  const [saveDesc, setSaveDesc] = useState(timeData.desc ? true : false)
 
   const [errors, setErrors] = useState(defaultErrorsState)
   const [inputClasses, setInputClasses] = useState("form-input")
-
-  const [startingFormData, setStartingFormData] = useState(timeData)
-  
 
   useEffect(() => {
     if(errors.exists) {
@@ -38,13 +34,7 @@ export const TimeBlockForm = ({
       if(errors.fields.includes("title"))
         setInputClasses("form-input error-input")
     }
-
-    return () => resetForm()
   }, [errors.exists])
-
-  // useEffect(() => {
-    // this.element.focus() the active field
-  // }, [activeField])
 
   const handleChange = (e) => {
     if(e.target.name === 'title')
@@ -53,13 +43,9 @@ export const TimeBlockForm = ({
     else if(e.target.name === 'desc')
       setDesc(e.target.value)
 
-    if(!(e.target.name === "title" && e.target.value.length < 1))
-      handleSave({ title, desc }, false)
-  }
-
-  const setSaveDesc = (descValue) => {
-    setDesc(descValue)
-    handleSave({ title, desc: descValue }, false)
+    // what this do?
+    // if(!(e.target.name === "title" && e.target.value.length < 1))
+    //   handleSave({ title, desc }, false)
   }
 
   const handleSubmit = (e = null) => {
@@ -69,9 +55,8 @@ export const TimeBlockForm = ({
       createError("Title field cannot be empty", "title")
     else {
       console.log('submitting data: { title:', title, ", desc:",desc)
-      if(desc === undefined) handleSave({ title, desc: ""})
-      else handleSave({title, desc})
-      resetForm()
+      handleSave({title, desc: saveDesc ? desc : undefined})
+      // resetForm()
     }
   }
   
@@ -102,49 +87,51 @@ export const TimeBlockForm = ({
   }
 
   return (
-    <TimeBlockFormStyled
-      className="time-block-form"
-      onBlur={handleFormBlur}
-      onSubmit={handleSubmit}
-      onKeyDown={(e) => {
-        if(e.keyCode === 13)
-          handleSubmit();
-        if(e.keyCode === 27) {
-          setTitle("")
-          setDesc("")
-          handleSave(startingFormData)
-          handleCancel();
-        }
-      }}
-    >
-      <FormItemStyled className="form-item">
-        <input
-          autoFocus={activeField === "title"}
-          className={inputClasses + " form-h3"}
-          type="text"
-          name="title"
-          value={title}
-          onChange={handleChange}
-        />
-      </FormItemStyled>
-      <FormItemStyled className="form-item">
-        {(desc || desc === "") ? (
-          <span className="desc-container">
-            <MinusButton handleClick={() => setSaveDesc(undefined)} />
-            <input
-              autoFocus={activeField === "desc"}
-              className="form-input form-p is-size-6"
-              type="text"
-              name="desc"
-              value={desc}
-              onChange={handleChange}
-            />
-          </span>
-        ) : (
-          <AddFormItem labelText="Add Description" handleClick={() => startingFormData.desc ? setSaveDesc(startingFormData.desc) : setSaveDesc("")} />
-        )}
-      </FormItemStyled>
-    </TimeBlockFormStyled>
+    <OutsideAlerter handleOutsideClick={() => handleSubmit()}>
+      <TimeBlockFormStyled
+        className="time-block-form"
+        onBlur={handleFormBlur}
+        onSubmit={handleSubmit}
+        onKeyDown={(e) => {
+          if(e.keyCode === 13) // enter
+            handleSubmit();
+          if(e.keyCode === 27) { // esc
+            setTitle("")
+            setDesc("")
+            handleSave(timeData)
+            handleCancel();
+          }
+        }}
+      >
+        <FormItemStyled className="form-item">
+          <input
+            autoFocus={activeField === "title"}
+            className={inputClasses + " form-h3"}
+            type="text"
+            name="title"
+            value={title}
+            onChange={handleChange}
+          />
+        </FormItemStyled>
+        <FormItemStyled className="form-item">
+          {saveDesc ? (
+            <span className="desc-container">
+              <MinusButton handleClick={() => setSaveDesc(false)} />
+              <input
+                autoFocus={activeField === "desc"}
+                className="form-input form-p is-size-6"
+                type="text"
+                name="desc"
+                value={desc}
+                onChange={handleChange}
+              />
+            </span>
+          ) : (
+            <AddFormItem labelText="Add Description" handleClick={() => setSaveDesc(true)} />
+          )}
+        </FormItemStyled>
+      </TimeBlockFormStyled>
+    </OutsideAlerter>
   )
 }
 

@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'react-feather'
 import { ErrorText, ErrorNotification } from '../../components/ErrorText'
-import { selectAuthErrors, selectAuthLoading, selectIsSignedIn, selectAuthToken } from '../../store/selectors/auth'
-import { login, clearErrors, } from '../../store/Auth'
-import { getTasks } from '../../store/Tasks'
+import { onLoginSuccess, onLoginFailure, clearErrors, setLoginLoading } from '../../store/Auth'
+// import { getTasks } from '../../store/Tasks'
+import { setSettings } from '../../store/Settings'
+// import { setNewUser, setPaidMember } from '../../store/UI' // good place to have these?
+import { BASE_URL } from '../../api/api-utils'
+
 
 const emptyLoginForm = {
-  email: "",
-  password: ""
+  email: "nicostran@gmail.com",
+  password: "password"
 }
 
 // Note: Would be cool to have a top bar with "IdleTime" written on it
+const Login = () => {
+  const dispatch = useDispatch();
 
-const Login = ({
-  token,
-  signedIn,
-  loading,
-  errors,
-  login,
-  clearErrors,
-  getTasks,
-}) => {
+  const token = useSelector(state => state.auth.token)
+  const signedIn = useSelector(state => state.auth.signedIn);
+  const loading = useSelector(state => state.auth.loading);
+  const errors = useSelector(state => state.auth.errors);
+
   const [formData, setFormData] = useState(emptyLoginForm)
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(true) // change to false when out of dev mode
   const [rememberMe, setRememberMe] = useState(false)
   const [formErrors, setFormErrors] = useState(null)
 
@@ -43,18 +44,9 @@ const Login = ({
     return () => {
       handleSavedData(formData.email, formData.password)
       resetForm()
-      clearErrors();
+      dispatch(clearErrors());
     }
   }, [])
-
-  useEffect(() => {
-    if(signedIn && token) {
-      // dispatch redux actions to get user data
-      getTasks();
-      //getUserData();
-      //getUserSettings();
-    }
-  }, [signedIn, token])
 
   const handleSavedData = (email, password) => {
     // called on unmount
@@ -93,12 +85,51 @@ const Login = ({
       else if(password.length < 6)
         setFormErrors("password must be greater than 6 characters")
       else {
-        // submit login data
-        console.log('submitting login with data:', email, password)
-        login(email, password)
+        handleLogin(email, password)
         setFormData(emptyLoginForm)
       }
     }
+  }
+
+  const handleLogin = async (email, password) => {
+    dispatch(setLoginLoading())
+    fetch(BASE_URL + '/auth/login', {
+      method : 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type':'application/x-www-form-urlencoded'
+      },
+      body: `email=${email}&password=${password}`
+    })
+      .then(async (res) => {
+        return {data: await res.json(), status: res.status }
+      })
+      .then((object) => {
+        const { data, status } = object;
+        console.log('response data:', object)
+        if((status >= 200 && status < 300) || data.status === "success" ) {
+          const userData = data.data.userData;
+          const userSettings = data.data.userSettings;
+          const userStatus = data.data.userStatus;
+          const userToken = data.data.token;
+        
+          if(userData && userToken) {
+            dispatch(onLoginSuccess(userToken, userData))
+            if(userSettings) dispatch(setSettings(userSettings))
+            if(userStatus) {
+              if(userStatus.is_new) {
+                // launch the new user tutorial, and then update the user to is_new = false;
+                console.log('welcome, new user')
+              }
+              if(userStatus.is_member) console.log('welcome, idle time member')
+            }
+          }
+          else dispatch(onLoginFailure("server error: user data not returned from server"))
+        }
+        else
+          dispatch(onLoginFailure(`${status} error: ${data.message}`))
+      })
+      .catch(err => dispatch(onLoginFailure(err.message || "error logging in from server")))
   }
 
   const resetForm = () => {
@@ -113,9 +144,9 @@ const Login = ({
         <h3 className="form-header-text is-size-3">Login</h3>
       </header>
       <div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => loading ? undefined : handleSubmit(e)}>
           {formErrors ? <ErrorText message={formErrors} clearErrors={() => setFormErrors(null)} />
-          : errors && <ErrorNotification message={errors} clearErrors={clearErrors} />}
+          : errors && <ErrorNotification message={errors} clearErrors={() => dispatch(clearErrors())} />}
           <div className="field">
             <label className="label" htmlFor="email">Email</label>
             <div className="control has-icons-left has-icons-right">
@@ -170,12 +201,18 @@ const Login = ({
 
           {/* can use 'is-loading' className for when it's loading */}
           <div className="" style={{textAlign:'center',marginBottom:10,marginTop:30}}>
-            <button type="submit" disabled={loading} className="button is-rounded is-success">
-              <span className="icon is-small">
-                <LogIn size={20} />
-              </span>
-              <span>Login</span>
-            </button>
+            {!loading ? (
+              <button type="submit" className="button is-rounded is-success">
+                <span className="icon is-small">
+                  <LogIn size={20} />
+                </span>
+                <span>Login</span>
+              </button>
+            ) : (
+              <div disabled className="is-loading">
+              </div>
+            )}
+            
           </div>
         </form>
         <div className="form-action-buttons">
@@ -187,22 +224,7 @@ const Login = ({
   )
 }
 
-const mapStateToProps = (state) => ({
-  token: selectAuthToken(state),
-  signedIn: selectIsSignedIn(state),
-  errors: selectAuthErrors(state),
-  loading: selectAuthLoading(state),
-})
-
-const ConnectedLogin = connect(
-  mapStateToProps,
-  { login, clearErrors, getTasks, } // add more actions here
-)(Login)
-
-export {
-  ConnectedLogin,
-  ConnectedLogin as default
-}
+export default Login;
 
 const StyledLogin = styled.div`
   margin: 0 auto;

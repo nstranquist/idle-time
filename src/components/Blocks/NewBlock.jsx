@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 // import moment from 'moment'
-import { NewBlockForm, TimeBlockForm } from '../Forms'
+import { TimeBlockForm } from '../Timeblocking/TimeBlockForm'
+// import { NewBlockForm } from '../Forms'
 // import { FormItemStyled } from '../../styles/components'
 import { emptyNewTask as emptyNewBlock } from '../../constants'
 import { SubmitButton, CancelButton } from '../Buttons'
@@ -97,7 +98,7 @@ export const NewBlock = ({
 
   return (
     <>
-      {errors && <ErrorText message={errors} />}
+      {errors && <ErrorText message={errors} clearErrors={() => setErrors(null)} />}
 
       <StyledTimeBlock
         className="time-block-container"

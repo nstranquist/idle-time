@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import { selectTasks } from '../../store/selectors/tasks'
+import { selectTasks } from '../../store/Tasks/selectors'
 
 const TaskDetail = ({
   route,
@@ -15,7 +15,7 @@ const TaskDetail = ({
     async function findTaskById() {
       const taskId = match.params.taskId;
       if(taskId) {
-        const activeTask = await tasks.find(task => task.id === taskId)
+        const activeTask = await tasks.find(task => task._id === taskId)
         setTaskData(activeTask)
       }
     }

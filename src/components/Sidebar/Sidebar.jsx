@@ -23,17 +23,25 @@ export const Sidebar = ({
       </header>
       <div className="sidebar-body">
         <nav className="sidebar-nav" role="navigation">
-          <UnstyledLink to="/" className={(location.pathname === "/home" || location.pathname === "/") ? "nav-item active" : "nav-item"}>
+          <UnstyledLink to="/" className={`nav-item is-size-5 ${(location.pathname === "/home" || location.pathname === "/") ? "active" : ""}`}
+            style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
             <Home size={iconSize} />
+            {sidebarOpen && <span style={{marginLeft: ".2rem", flex:1}}>Home</span>}
           </UnstyledLink>
-          <UnstyledLink to="/tasks" className={location.pathname === "/tasks" ? "nav-item active" : "nav-item"}>
+          <UnstyledLink to="/tasks" className={`nav-item is-size-5 ${(location.pathname === "/tasks") ? "active" : ""}`}
+            style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
             <CheckSquare size={iconSize} />
+            {sidebarOpen && <span style={{marginLeft:".2rem", flex:1}}>Tasks</span>}
           </UnstyledLink>
-          <UnstyledLink to="/time-tracking" className={location.pathname === "/time-tracking" ? "nav-item active" : "nav-item"}>
+          <UnstyledLink to="/time-tracking" className={`nav-item is-size-5 ${(location.pathname === "/time-tracking") ? "active" : ""}`}
+            style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
             <Clock size={iconSize} />
+            {sidebarOpen && <span style={{marginLeft:".2rem", flex:1}}>Logs</span>}
           </UnstyledLink>
-          <UnstyledLink to="/presets" className={location.pathname === "/presets" ? "nav-item active" : "nav-item"}>
+          <UnstyledLink to="/presets" className={`nav-item is-size-5 ${(location.pathname === "/presets") ? "active" : ""}`}
+            style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
             <Bookmark size={iconSize} />
+            {sidebarOpen && <span style={{marginLeft:".2rem", flex:1}}>Presets</span>}
           </UnstyledLink>
         </nav>
       </div>

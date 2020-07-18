@@ -13,18 +13,21 @@ const SET_SORTING_ERROR = 'SET_SORTING_ERROR'
 
 const SET_LOADING = "SET_LOADING" // for use after adding / loading a task
 const SET_ERRORS = "SET_ERRORS"
-const CLEAR_ERRORS = "CLEAR_ERRORS"
+const CLEAR_TASK_ERRORS = "CLEAR_TASK_ERRORS"
 
 
 // Action Creators
-const setLoading = () => ({ type: SET_LOADING })
+const setLoadingTasks = () => ({ type: SET_LOADING })
 
-const setTasks = (tasks) => ({ type: SET_TASKS, tasks })
-const setTasksOrder = (tasksOrder) => ({ type: SET_TASKS_ORDER, tasksOrder })
+const setTasks = (tasks, order) => ({ type: SET_TASKS, tasks, order })
+const setTasksOrder = (order) => ({ type: SET_TASKS_ORDER, order })
 
-const addTaskAction = (task) => ({ type: ADD_TASK, taskData: task })
+const addTaskAction = (task, order) => ({ type: ADD_TASK, task, order })
 const updateTaskAction = (task) => ({ type: UPDATE_TASK, taskData: task })
-const removeTaskAction = (id) => ({ type: REMOVE_TASK, id })
+const removeTaskAction = (id, order) => ({ type: REMOVE_TASK, id, order })
+
+const setSortingError = (err) => ({ type: SET_SORTING_ERROR, err })
+export const clearTaskErrors = () => ({ type: CLEAR_TASK_ERRORS })
 
 
 // note: can add better logic for error handling here
@@ -35,14 +38,11 @@ export const setErrors = (err) => {
     err: err.toString()
   }
 }
-export const clearErrors = () => ({ type: CLEAR_ERRORS })
-
-const setSortingError = (err) => ({ type: SET_SORTING_ERROR, err })
 
 
 // Thunk Actions
 export const getTasks = (token) => (dispatch) => {
-  dispatch(setLoading())
+  dispatch(setLoadingTasks())
 
   fetch(BASE_URL + '/tasks', {
     method : 'GET',
@@ -132,12 +132,15 @@ export const addTask = (token, taskData, bottom=true) => (dispatch) => {
     .then(object => {
       console.log('response data:', object)
       const { data, status } = object;
-      console.log('taskData:', data.data.taskData)
+      console.log('taskData:', data.data.task)
       if(data.status === "success" || status < 400) {
-        if(data.data.taskData) {
-          console.log('task added successfully with response:', data.data.taskData);
-          dispatch(addTaskAction(data.data.taskData))        
+        const { task, order } = data.data;
+        if(task && order) {
+          console.log('task added successfully with response:', task);
+          dispatch(addTaskAction(task, order))
         }
+        else
+          dispatch(setErrors("task data and/or task order came back undefined"))
         // if(!bottom) {
         //   // update the tasksOrder
 
@@ -145,12 +148,10 @@ export const addTask = (token, taskData, bottom=true) => (dispatch) => {
 
         // }
         // else
-        else
-          dispatch(setErrors("task data came back undefined"))
       }
       else {
         dispatch(setErrors(`${status} error: ${data.message}` || "error adding task" ))
-        // dispatch(removeTaskAction(taskData.id))
+        // dispatch(removeTaskAction(taskData._id))
       }
     })
     .catch(err => {
@@ -159,44 +160,41 @@ export const addTask = (token, taskData, bottom=true) => (dispatch) => {
     })
 }
 
-export const updateTask = (token, taskId, taskData) => (dispatch) => {
-  dispatch(updateTaskAction(taskData))
+export const updateTask = (token, taskId, taskData) => (dispatch, getState) => {
+  // dispatch(updateTaskAction(taskData))
+  const ogtask = getState().tasks.tasks.find(task => task._id === taskId)
+  console.log('updating task with data:', taskData)
+  console.log('original task data:', ogtask)
 
-  fetch(BASE_URL + '/tasks/update/' + taskData.id, {
+  fetch(BASE_URL + '/tasks/' + taskId, {
     method: 'PUT',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'x-access-token': token
     },
-    body: JSON.stringify({taskData: taskData})
+    body: JSON.stringify({taskData: taskData}) // may not include the task id
   })
     .then(async res => ({ data: await res.json(), status: res.status }))
     .then(object => {
-      console.log('response object:', object)
+      console.log('response object in updateTask:', object)
       const { data, status } = object
 
-      if((data.status === 'success' || status < 400) && data.data.taskData )
+      if(data.status === 'success' || status < 400) {
+        console.log('data:', data.data.taskData, 'data:', data)
         dispatch(updateTaskAction(data.data.taskData))
-      else {
-        dispatch(setErrors(`${status} error: ${data.message}` || "error updating task"))
-        dispatch(updateTaskAction(taskData))
       }
-
+      else
+        dispatch(setErrors(`${status} error: ${data.message}` || "error updating task"))
     })
     .catch(err => {
       console.log('error updating task:', err)
       dispatch(setErrors(err.message || "error updating task" ))
-      dispatch(updateTaskAction(taskData))
     })
 }
 
-export const removeTask = (token, taskId) => (dispatch, getState) => {
-  const tempTask = getState().tasks.tasks.find(task => task.id === taskId);
-
-  dispatch(removeTaskAction(taskId))
-
-  fetch(BASE_URL + "/tasks/delete/" + taskId, {
+export const removeTask = (token, taskId) => (dispatch) => {
+  fetch(BASE_URL + "/tasks/" + taskId, {
     method: 'DELETE',
     headers: {
       'x-access-token': token,
@@ -211,21 +209,22 @@ export const removeTask = (token, taskId) => (dispatch, getState) => {
       console.log("response object:", object);
 
       if(data.status === "success" || status < 400) {
+        const order = data.data.order;
+        dispatch(removeTaskAction(taskId, order))
         // if(!data.data.taskId)
           // dispatch(setErrors('taskId from server undefined'))
         // else {
           // console.log('task deleted successfully by id:', data.data.taskId);
           // dispatch(removeTaskAction(data.data.taskId))
           // remove id from tasks array
-          // const newTasksOrder = getState().tasks.tasksOrder.filter(id => id !== data.data.taskId);
+          // const newTasksOrder = getState().tasks.order.filter(id => id !== data.data.taskId);
           // update local
           // dispatch(setTasksOrder(newTasksOrder))
         // }
-        console.log('success')
       }
       else {
         dispatch(setErrors(`${status} error:` || "error removing task" ))
-        if(tempTask) dispatch(addTaskAction(tempTask))
+        // if(tempTask) dispatch(addTaskAction(tempTask))
       }
     })
     .catch(err => {
@@ -238,7 +237,7 @@ export const updateTasksOrder = (token, taskId, sourceIndex, destinationIndex) =
   // todo: move the sorting code from the reducer, and use here to update the task on the server as well
   console.log('setting task index. source:', sourceIndex, 'destination:', destinationIndex)
   // const tasks = getState().tasks.tasks;
-  const tasksOrder = getState().tasks.tasksOrder;
+  const tasksOrder = getState().tasks.order;
   console.log('tasksOrder:', tasksOrder)
   // Steps to resolve:
   // need to update the index at taskId with action.destinationIndex;
@@ -298,7 +297,7 @@ export const updateTasksOrder = (token, taskId, sourceIndex, destinationIndex) =
 // Reducer
 const initialState = {
   tasks: [], // for one day only, for now(?)
-  tasksOrder: [], // an object/map of index:id (key:value) to order the tasks by
+  order: [], // an object/map of index:id (key:value) to order the tasks by
   loading: false,
   errors: null,
   sortingErrors: null,
@@ -319,23 +318,22 @@ export default (
         ...state,
         loading: false,
         tasks: action.tasks,
+        order: action.order
       }
     case ADD_TASK:
       return {
         ...state,
-        tasks: [
-          ...state.tasks,
-          action.taskData
-        ],
+        tasks: [...state.tasks, action.task],
+        order: action.order,
         loading: false,
         errors: null
       }
     case UPDATE_TASK:
-      console.log('taskData id:', action.taskData.id)
+      console.log('taskData id:', action.taskData._id)
       return {
         ...state,
         tasks: state.tasks.map(task => {
-          if(task.id === action.taskData.id)
+          if(task._id === action.taskData._id)
             task = action.taskData // note: may be more elegant to only change the modified fields
           return task;
         })
@@ -343,15 +341,16 @@ export default (
     case REMOVE_TASK:
       return {
         ...state,
-        tasks: state.tasks.filter(task => task.id !== action.id)
+        tasks: state.tasks.filter(task => task._id !== action.id),
+        order: action.order
       }
     case SET_TASKS_ORDER:
       return {
         ...state,
         loading: false,
-        tasksOrder: action.tasksOrder,
+        order: action.order,
       }
-    case CLEAR_ERRORS:
+    case CLEAR_TASK_ERRORS:
       return {
         ...state,
         errors: null
@@ -387,7 +386,7 @@ export default (
 //   else if(task.order < sourceIndex && task.order >= destinationIndex) {
 //     task.order++;
 //   }
-//   if(task.id === taskId) {
+//   if(task._id === taskId) {
 //     task.order = destinationIndex;
 //   }
 //   return task;

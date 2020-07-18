@@ -1,4 +1,4 @@
-import { ConnectedLogin as Login } from './Login'
+import Login from './Login'
 import { ConnectedSignUp as SignUp } from './SignUp'
 import { ResetPassword } from './ResetPassword'
 

@@ -20,49 +20,49 @@ const USER_ERROR = "USER_ERROR"
 
 const RESET_SIGNUP_SUCCESS = 'RESET_SIGNUP_SUCCESS'
 
-const loginError = (err) => ({
-  type: LOGIN_FAILURE,
-  err,
-})
+export const setLoginLoading = () => ({ type: LOGIN_LOADING });
+const setSignupLoading = () => ({ type: SIGNUP_LOADING });
 
-const signupError = (err) => ({
-  type: SIGNUP_FAILURE,
-  err,
-})
+export const onLoginSuccess = (token, userData) => ({ type: LOGIN_SUCCESS, userData, token })
+export const onLoginFailure = (err) => ({ type: LOGIN_FAILURE, err });
+
+export const logout = () => ({ type: LOGOUT });
+export const clearErrors = () => ({ type: CLEAR_ERRORS });
+export const resetSignupSuccess = () => ({ type: RESET_SIGNUP_SUCCESS });
 
 // Auth Action Creators
-export const login = (email, password) => (dispatch) => {
-  dispatch({ type: LOGIN_LOADING })
+// export const login = (email, password) => (dispatch) => {
+//   dispatch(setLoginLoading())
 
-  // run api call, to validate login
-  fetch(BASE_URL + '/auth/login', {
-    method : 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type':'application/x-www-form-urlencoded'
-    },
-    body: `email=${email}&password=${password}`
-  })
-    .then(async (res) => {
-      return {data: await res.json(), status: res.status }
-    })
-    .then((object) => {
-      const { data, status } = object;
-      console.log('response data:', object)
-      if(data.status === "success" || status < 400)
-        dispatch({ type: LOGIN_SUCCESS, userData: data.data.user, token: data.data.token })
-      else
-        dispatch({ type: LOGIN_FAILURE, err: `${status} error: ${data.message}` })
-      // should be: user, token
-    })
-    .catch(err => {
-      console.log('error logging in:', err)
-      dispatch({ type: LOGIN_FAILURE, err: err.message || "error logging in from server" })
-    })
-}
+//   // run api call, to validate login
+//   fetch(BASE_URL + '/auth/login', {
+//     method : 'POST',
+//     headers: {
+//       'Accept': 'application/json',
+//       'Content-Type':'application/x-www-form-urlencoded'
+//     },
+//     body: `email=${email}&password=${password}`
+//   })
+//     .then(async (res) => {
+//       return {data: await res.json(), status: res.status }
+//     })
+//     .then((object) => {
+//       const { data, status } = object;
+//       console.log('response data:', object)
+//       if(data.status === "success" || status < 400)
+//         dispatch({ type: LOGIN_SUCCESS, userData: data.data.user, token: data.data.token })
+//       else
+//         dispatch({ type: LOGIN_FAILURE, err: `${status} error: ${data.message}` })
+//       // should be: user, token
+//     })
+//     .catch(err => {
+//       console.log('error logging in:', err)
+//       dispatch({ type: LOGIN_FAILURE, err: err.message || "error logging in from server" })
+//     })
+// }
 
 export const signup = (name, email, password) => (dispatch) => {
-  dispatch({ type: SIGNUP_LOADING })
+  dispatch(setSignupLoading())
 
   // run api call, to validate login
   fetch(BASE_URL + '/auth/signup', {
@@ -132,16 +132,6 @@ export const updateName = (newName) => (dispatch) => {
     })
 }
 
-export const logout = () => ({
-  type: LOGOUT
-})
-export const clearErrors = () => ({
-  type: CLEAR_ERRORS
-})
-export const resetSignupSuccess = () => ({
-  type: RESET_SIGNUP_SUCCESS
-})
-
 
 // Auth Reducer
 const initialState = {
@@ -158,7 +148,7 @@ export default (
   action
 ) => {
   switch(action.type) {
-    case SIGNUP_LOADING || LOGIN_LOADING || USER_LOADING:
+    case SIGNUP_LOADING: case LOGIN_LOADING: case USER_LOADING:
       return {
         ...state,
         loading: true
@@ -195,6 +185,9 @@ export default (
       return {
         ...state,
         signedIn: false,
+        token: null,
+        userData: null,
+        signupSuccess: false,
         loading: false,
         errors: null
       }

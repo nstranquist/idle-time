@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 
-import { selectName, selectEmail } from '../../store/selectors/auth'
+import { selectName, selectEmail } from '../../store/Auth/selectors'
 import { updateName } from '../../store/Auth'
 
 const Profile = ({

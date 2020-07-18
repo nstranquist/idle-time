@@ -1,70 +1,120 @@
+import { BASE_URL } from '../../api/api-utils'
 
-
-const GET_PRESETS = 'GET_PRESETS'
+const SET_PRESETS = 'SET_PRESETS'
 const ADD_PRESET = 'ADD_PRESET'
 const UPDATE_PRESET = 'UPDATE_PRESET'
 const REMOVE_PRESET = 'REMOVE_PRESET'
 
 
-const SET_LOADING = 'SET_LOADING'
-const SET_ERROR = 'SET_ERROR'
-const CLEAR_ERRORS = 'CLEAR_ERRORS'
+const SET_PRESET_LOADING = 'SET_PRESET_LOADING'
+const SET_PRESET_ERROR = 'SET_PRESET_ERROR'
+const CLEAR_PRESET_ERRORS = 'CLEAR_PRESET_ERRORS'
 
+const setPresets = (presets) => ({ type: SET_PRESETS, presets })
+const addPresetAction = (preset) => ({ type: ADD_PRESET, preset })
+const updatePresetAction = (preset) => ({ type: UPDATE_PRESET, preset })
+const removePresetAction = (id) => ({ type: REMOVE_PRESET, id })
 
-// export const getPresets = (presets) => (dispatch) => dispatch({ type: GET_PRESETS, presets })
+const setLoading = () => ({ type: 'SET_PRESET_LOADING' })
+const setError = (err) => ({ type: 'SET_PRESET_ERROR', err })
+export const clearErrors = () => ({ type: CLEAR_PRESET_ERRORS })
 
-export const addPreset = (presetData, presetType = 'blocks') => (dispatch, getState) => {
-  const presets = getState()[presetType];
-  if(presets) {
-    console.log('preset chosen:', presetType, 'of length:', presets.length);
-    const item = presets.find(preset => preset.name === presetData.name)
-    if(!item) {
-      dispatch({
-        type: ADD_PRESET,
-        presetData,
-        presetType, // or 'category'
-      })
-    }
-    else {
-      console.log('Could not add preset. Preset with name', presetData.name, 'already exists.')
-      dispatch({
-        type: SET_ERROR,
-        err: "Could not add preset. Preset with name " + presetData.name + " already exists."
-      })
-    }
-  }
-  else {
-    console.log('preset', presetType, 'not found')
-    dispatch({
-      type: SET_ERROR,
-      err: "preset " + presetType + " not found"
+export const getPresets = (token) => async (dispatch) => {
+  dispatch(setLoading())
+  let result;
+  try {
+    console.log('we are trying to hit that sweet spot baby')
+    result = await fetch(BASE_URL + "/presets", {
+      method: "GET",
+      headers: {
+        'x-access-token': token
+      }
     })
+    console.log('result:', result, 'status:', result.status)
+    const jsonresult = await result.json();
+    if(result.status < 400 || jsonresult.status === "success") {
+      const presets = jsonresult.data.presets;
+      dispatch(setPresets(presets))
+    }
+    else dispatch(setError(result.message || "error getting your presets"))
+  } catch (error) {
+    console.log("error:", error);
+    dispatch(setError(error.toString()))
   }
 }
 
-// export const updatePreset = (presetData, presetType = 'blocks') => (dispatch) => dispatch({ type: UPDATE_PRESET, presetData, presetType })
-
-export const removePreset = (presetName, presetType = 'blocks') => (dispatch) => {
-  dispatch({
-    type: REMOVE_PRESET,
-    presetName,
-    presetType
-  })
+export const addPreset = (token, presetData) => async (dispatch) => {
+  console.log('preset data to submit:', presetData)
+  let result;
+  try {
+    result = await fetch(BASE_URL + '/presets', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'x-access-token': token,
+      },
+      body: JSON.stringify({ preset: presetData })
+    })
+    console.log('result:', result, 'status:', result.status)
+    const jsonresult = await result.json();
+    console.log('json result:', jsonresult)
+    if(result.status < 400 || jsonresult.status === "success") {
+      const preset = jsonresult.data.preset;
+      console.log('new preset added:', preset)
+      dispatch(addPresetAction(preset))
+    }
+    else dispatch(setError(jsonresult.message || "error adding preset"))
+  } catch (err) {
+    console.log('error adding preset:', err)
+    dispatch(setError(err.toString()))
+  }
 }
 
-export const setError = (err) => ({
-  type: SET_ERROR,
-  err
-})
-export const clearErrors = () => ({
-  type: CLEAR_ERRORS
-})
+export const updatePreset = (token, presetData) => async (dispatch) => {
+  let result;
+  try {
+    result = await fetch(BASE_URL + '/presets/' + presetData._id, {
+      method: 'PUT',
+      headers: { 'x-access-token': token },
+      body: JSON.stringify({ preset: presetData })
+    })
+    console.log('result:', result, 'status:', result.status)
+    const jsonresult = await result.json()
+    if(result.status < 400 || jsonresult.status === "success") {
+      console.log('received result:', jsonresult.data.preset)
+      dispatch(updatePresetAction(result.data.preset))
+    }
+    else dispatch(setError(jsonresult.message || "error updating preset"))
+  } catch (error) {
+    console.log('error:', error)
+    dispatch(setError(error.toString()))
+  }
+}
+
+export const removePreset = (token, id) => async (dispatch) => {
+  let result;
+  try {
+    result = await fetch(BASE_URL + '/presets/' + id, {
+      method: 'DELETE',
+      headers: { 'x-access-token': token }
+    })
+    console.log('result:', result, 'status:', result.status)
+    const jsonresult = await result.json();
+    if(result.status < 400 || jsonresult.status === "success") {
+      const id = jsonresult.data.id;
+      dispatch(removePresetAction(id))
+    }
+    else dispatch(setError(jsonresult.message || "error removing preset"))
+  } catch (err) {
+    console.log('error:', err)
+    dispatch(setError(err.toString()))
+  }
+}
 
 
 const initialState = {
-  blocks: [],
-  timeshift: [],
-  schedules: [], // with field: (type: 'week' or 'day')
+  presets: [],
   loading: false,
   errors: null,
 }
@@ -74,38 +124,48 @@ export default (
   action
 ) => {
   switch(action.type) {
-    // case GET_PRESETS:
+    case SET_PRESETS:
+      return {
+        ...state,
+        presets: action.presets,
+        loading: false
+      }
     case ADD_PRESET:
       return {
         ...state,
-        [action.presetType]: [
-          ...state[action.presetType],
-          action.presetData
+        presets: [
+          ...state.presets,
+          action.preset
         ],
-        loading: false,
         errors: null,
       }
-    // case UPDATE_PRESET:
+    case UPDATE_PRESET:
+      return {
+        ...state,
+        presets: state.presets.map(preset => {
+          if(preset._id === action.preset._id)
+            return {...preset, ...action.preset}
+          return preset;
+        })
+      }
     case REMOVE_PRESET:
       return {
         ...state,
-        [action.presetType]: state[action.presetType].filter(preset => preset.name !== action.presetName),
-        loading: false,
-        errors: null,
+        presets: state.presets.filter(preset => preset._id !== action.id),
       }
-    case SET_ERROR:
+    case SET_PRESET_ERROR:
       return {
         ...state,
         loading: false,
         errors: action.err
       }
-    case CLEAR_ERRORS:
+    case CLEAR_PRESET_ERRORS:
       return {
         ...state,
         loading: false,
         errors: null
       }
-    case SET_LOADING:
+    case SET_PRESET_LOADING:
       return {
         ...state,
         loading: true,
