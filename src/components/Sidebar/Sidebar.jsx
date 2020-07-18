@@ -33,6 +33,11 @@ export const Sidebar = ({
             <CheckSquare size={iconSize} />
             {sidebarOpen && <span style={{marginLeft:".2rem", flex:1}}>Tasks</span>}
           </UnstyledLink>
+          <UnstyledLink to="/projects" className={`nav-item is-size-5 ${(location.pathname === "/projects") ? "active" : ""}`}
+            style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
+            <CheckSquare size={iconSize} />
+            {sidebarOpen && <span style={{marginLeft:".2rem", flex:1}}>Projects</span>}
+          </UnstyledLink>
           <UnstyledLink to="/time-tracking" className={`nav-item is-size-5 ${(location.pathname === "/time-tracking") ? "active" : ""}`}
             style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
             <Clock size={iconSize} />

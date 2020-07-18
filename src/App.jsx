@@ -114,6 +114,11 @@ const App = ({
                 />
                 <Route
                   exact
+                  path="/projects"
+                  component={lazy(() => import("./pages/Projects"))}
+                />
+                <Route
+                  exact
                   path="/profile"
                   component={lazy(() => import("./pages/Profile"))}
                 />
