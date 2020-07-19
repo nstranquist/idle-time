@@ -1,6 +1,5 @@
 /* src/store/Auth/index.js */
-
-const BASE_URL = "http://localhost:8080"
+import { BASE_URL } from '../../api/api-utils'
 
 // Auth Types
 const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS'

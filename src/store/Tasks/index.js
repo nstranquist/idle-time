@@ -1,6 +1,6 @@
 // import { startingTasks, startingTasksOrder } from '../../data/tasks.data'
 
-const BASE_URL = "http://localhost:8080"
+import { BASE_URL } from '../../api/api-utils'
 
 // Action Types
 const SET_TASKS = "SET_TASKS"

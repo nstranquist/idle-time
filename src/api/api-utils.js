@@ -1,5 +1,5 @@
 
-export const BASE_URL = "http://localhost:8080"
+export const BASE_URL = "http://localhost:80"
 
 // other utils here
 // const onSuccess = (settingsData) => {
