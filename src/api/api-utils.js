@@ -1,5 +1,6 @@
 
-export const BASE_URL = "http://localhost:80"
+export const BASE_URL = process.env.API_CONN;
+// export const BASE_URL = "http://localhost:80"
 
 // other utils here
 // const onSuccess = (settingsData) => {
