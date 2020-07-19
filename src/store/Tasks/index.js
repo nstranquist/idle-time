@@ -11,13 +11,13 @@ const REMOVE_TASK = "REMOVE_TASK"
 const SET_TASKS_ORDER = "SET_TASKS_ORDER"
 const SET_SORTING_ERROR = 'SET_SORTING_ERROR'
 
-const SET_LOADING = "SET_LOADING" // for use after adding / loading a task
-const SET_ERRORS = "SET_ERRORS"
+const SET_TASKS_LOADING = "SET_TASKS_LOADING" // for use after adding / loading a task
+const SET_TASKS_ERRORS = "SET_TASKS_ERRORS"
 const CLEAR_TASK_ERRORS = "CLEAR_TASK_ERRORS"
 
 
 // Action Creators
-const setLoadingTasks = () => ({ type: SET_LOADING })
+const setLoadingTasks = () => ({ type: SET_TASKS_LOADING })
 
 const setTasks = (tasks, order) => ({ type: SET_TASKS, tasks, order })
 const setTasksOrder = (order) => ({ type: SET_TASKS_ORDER, order })
@@ -34,7 +34,7 @@ export const clearTaskErrors = () => ({ type: CLEAR_TASK_ERRORS })
 export const setErrors = (err) => {
   
   return {
-    type: SET_ERRORS,
+    type: SET_TASKS_ERRORS,
     err: err.toString()
   }
 }
@@ -308,7 +308,7 @@ export default (
   action
 ) => {
   switch(action.type) {
-    case SET_LOADING:
+    case SET_TASKS_LOADING:
       return {
         ...state,
         loading: true
@@ -355,7 +355,7 @@ export default (
         ...state,
         errors: null
       }
-    case SET_ERRORS:
+    case SET_TASKS_ERRORS:
       return {
         ...state,
         loading: false,

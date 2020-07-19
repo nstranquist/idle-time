@@ -5,21 +5,15 @@ const CLOSE_SIDEBAR = "CLOSE_SIDEBAR"
 
 const SET_TIMEFRAME = 'SET_TIMEFRAME'
 
-const SET_ERRORS = 'SET_ERRORS'
-const SET_LOADING = 'SET_LOADING'
+const SET_UI_ERRORS = 'SET_UI_ERRORS'
+const SET_UI_LOADING = 'SET_UI_LOADING'
 
 
-export const openSidebar = () => ({
-  type: OPEN_SIDEBAR
-})
-export const closeSidebar = () => ({
-  type: CLOSE_SIDEBAR
-})
-
-export const setTimeframe = (timeframe) => ({
-  type: SET_TIMEFRAME,
-  timeframe
-})
+const setLoading = () => ({ type: SET_UI_LOADING })
+const setErrors = (err) => ({ type: SET_UI_ERRORS, err })
+export const openSidebar = () => ({ type: OPEN_SIDEBAR })
+export const closeSidebar = () => ({ type: CLOSE_SIDEBAR })
+export const setTimeframe = (timeframe) => ({ type: SET_TIMEFRAME, timeframe })
 
 
 const initialState = {
@@ -49,13 +43,13 @@ export default (
         ...state,
         timeframe: action.timeframe
       }
-    case SET_ERRORS:
+    case SET_UI_ERRORS:
       return {
         ...state,
         loading: false,
         errors: action.err
       }
-    case SET_LOADING:
+    case SET_UI_LOADING:
       return {
         ...state,
         loading: true,

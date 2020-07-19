@@ -6,6 +6,7 @@ import { Settings } from 'react-feather'
 import { ErrorText } from '../../components/ErrorText'
 import { AddForm } from './AddForm'
 import { TimelogItem } from './LogItem'
+import { UnstyledLink } from '../../styles/components/link.styled'
 // redux
 import { getTimeLogs, addTimeLog, updateTimeLog, removeTimeLog, clearErrors } from '../../store/TimeTracking'
 import { selectTimeLogs, selectLoading, selectErrors } from '../../store/TimeTracking/selectors'
@@ -31,8 +32,6 @@ export const TimeTracking = ({
   clearErrors
 }) => {
   const [showAddForm, setShowAddForm] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
-  const [settingsData, setSettingsData] = useState(null)
 
   useEffect(() => {
     getTimeLogs(token)
@@ -59,9 +58,11 @@ export const TimeTracking = ({
       <header className="section-header">
         <h3 className="header-text is-size-3">
           <span style={{flex: 1}}>Timetracking</span>
-          <span className="icon header-icon" onClick={() => setShowAddForm(true)}>
-            <Settings />
-          </span>
+          <UnstyledLink to="/settings">
+            <span className="icon header-icon">
+              <Settings />
+            </span>
+          </UnstyledLink>
         </h3>
       </header>
 
@@ -74,7 +75,7 @@ export const TimeTracking = ({
           ? <div className="log-text">{timelogs.length} timelogs were found</div>
           : <div className="is-loading"></div>
         }
-        <button className="button is-link" disabled={loading} onClick={submitLogForm}>Add Log</button>
+        {!showAddForm && <button className="button is-link" disabled={loading} onClick={() => setShowAddForm(true)}>Add Log</button>}
       </TimelogItemStyled>
 
       <div className="timelogs-container">

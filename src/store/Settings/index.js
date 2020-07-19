@@ -6,23 +6,23 @@ const SET_SETTINGS_SECTION = 'SET_SETTINGS_SECTION'
 const SET_TIMESHIFT = 'SET_TIMESHIFT'
 
 const SET_SETTINGS_LOADING = 'SET_SETTINGS_LOADING'
-const SET_ERRORS = 'SET_ERRORS'
+const SET_SETTINGS_ERRORS = 'SET_SETTINGS_ERRORS'
 const CLEAR_ERRORS = 'CLEAR_ERRORS'
 const RESET_SETTINGS = 'RESET_SETTINGS'
 
 
-export const setSettings = (settingsData) => ({ type: SET_SETTINGS, settingsData })
+export const setSettings = (settings) => ({ type: SET_SETTINGS, settings })
 const setSettingsSection = (sectionName, settingsSection) => ({ type: SET_SETTINGS_SECTION, sectionName, settingsSection })
 
 const setLoading = () => ({ type: SET_SETTINGS_LOADING })
-const setErrors = (err) => ({ type: SET_ERRORS, err })
+const setErrors = (err) => ({ type: SET_SETTINGS_ERRORS, err })
 export const clearErrors = () => ({ type: CLEAR_ERRORS })
 export const applyTimeshift = (timeshiftData) => ({ type: SET_TIMESHIFT, timeshift: timeshiftData })
 
 export const getSettings = (token) => async (dispatch) => {
   let result;
   dispatch(setLoading())
-
+  console.log('getting settings')
   try {
     result = await fetch(BASE_URL + '/settings', {
       method: 'GET',
@@ -32,7 +32,7 @@ export const getSettings = (token) => async (dispatch) => {
     const jsonresult = await result.json()
     if(jsonresult.status === "success" || result.status < 400) {
       console.log('jsonresult:', jsonresult)
-      const settings = jsonresult.data.data.settings;
+      const settings = jsonresult.data.settings;
       dispatch(setSettings(settings))
     }
     else setErrors(jsonresult.message || "could not get settings")
@@ -97,7 +97,7 @@ export const updateAllSettings = (token, settingsData) => async (dispatch) => {
     })
     console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json()
-    if(result.status < 400 || jsonresult.status === "success") {
+    if(jsonresult.status === "success" || result.status < 400) {
       const settings = jsonresult.data.settings;
       dispatch(setSettings(settings))
     }
@@ -111,17 +111,13 @@ export const updateAllSettings = (token, settingsData) => async (dispatch) => {
 }
 
 
-const emptySettings = {
-  work: {},
-  timetracking: {},
-  timeshift: {},
-  general: {},
-  ui: {},
-}
-
 // Reducer
 const initialState = {
-  settings: emptySettings,
+  work: null,
+  timetracking: null,
+  timeshift: null,
+  general: null,
+  ui: null,
   loading: true,
   errors: null,
   // message: null, // to show ui-updates, toast text, etc.
@@ -134,10 +130,17 @@ export default (
   switch(action.type) {
     case SET_SETTINGS_LOADING: return { ...state, loading: true }
     case SET_SETTINGS:
+      console.log('settings in redux:', action.settings)
+      const { general, ui, timeshift, timetracking, work } = action.settings;
+      console.log('work settings:', work)
       return {
         ...state,
-        loading: false,
-        settings: action.settings,
+        work: action.settings.work,
+        timetracking,
+        timeshift,
+        general,
+        ui,
+        loading: false
       }
     case SET_SETTINGS_SECTION:
       const sectionName = action.sectionName;
@@ -160,7 +163,7 @@ export default (
           timeshift: action.timeshift
         }
       }
-    case SET_ERRORS:
+    case SET_SETTINGS_ERRORS:
       return {
         ...state,
         loading: false,

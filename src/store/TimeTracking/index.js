@@ -10,8 +10,8 @@ const REMOVE_LOG = 'REMOVE_LOG'
 
 // todo: look into enums for redux state
 const SET_TIMELOGS_LOADING = 'SET_TIMELOGS_LOADING'
-const SET_ERRORS = 'SET_ERRORS'
-const CLEAR_ERRORS = 'CLEAR_ERRORS'
+const SET_TIMELOGS_ERRORS = 'SET_TIMELOGS_ERRORS'
+const CLEAR_TIMELOGS_ERRORS = 'CLEAR_TIMELOGS_ERRORS'
 
 
 const setLogs = (timelogs) => ({ type: SET_LOGS, timelogs })
@@ -22,8 +22,8 @@ const updateLogAction = (timelogData) => ({ type: UPDATE_LOG, timelogData })
 const removeLogAction = (timelogId) => ({ type: REMOVE_LOG, timelogId })
 
 const setLoading = () => ({ type: SET_TIMELOGS_LOADING })
-const setErrors = (err) => ({ type: SET_ERRORS, err })
-export const clearErrors = () => ({ type: CLEAR_ERRORS })
+const setErrors = (err) => ({ type: SET_TIMELOGS_ERRORS, err })
+export const clearErrors = () => ({ type: CLEAR_TIMELOGS_ERRORS })
 
 // actions: all the above, setError, clear Error, setLoading,
 export const getTimeLogs = (token) => async (dispatch) => {
@@ -200,13 +200,13 @@ export default (
         ...state,
         logs: state.logs.filter(log => log.id !== action.timelogId)
       }
-    case SET_ERRORS:
+    case SET_TIMELOGS_ERRORS:
       return {
         ...state,
         loading: false,
         errors: action.err
       }
-    case CLEAR_ERRORS: { return { ...state, errors: null }}
+    case CLEAR_TIMELOGS_ERRORS: { return { ...state, errors: null }}
     default:
       return state;
   }

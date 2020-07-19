@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { getProjects, addProject, updateProject, deleteProject } from '../../store/Projects'
+import { ErrorNotification } from '../../components/ErrorText'
+import { getProjects, addProject, updateProject, deleteProject, clearErrors } from '../../store/Projects'
 import { selectProjects } from '../../store/Projects/selectors'
 import { selectAuthToken } from '../../store/Auth/selectors'
 
@@ -14,6 +15,7 @@ const Projects = ({
   addProject,
   updateProject,
   deleteProject,
+  clearErrors
 }) => {
   // const [updating, setUpdating] = useState(null) // null or string
   
@@ -53,7 +55,7 @@ const Projects = ({
   return (
     <div className="container">
       <h3 className="is-size-3">Projects</h3>
-      {errors && <p className="has-text-danger">{errors.toString()}</p>  }
+      {errors && <ErrorNotification message={errors.toString()} clearErrors={clearErrors} />  }
       <button onClick={handleAddProject} className="button is-link">Add Project</button>
       <ul className="list">
         {projects.length === 0 ? (
@@ -86,5 +88,5 @@ const mapStateToProps = (state) => ({
 
 export const ConnectedProjects = connect(
   mapStateToProps,
-  { getProjects, addProject, updateProject, deleteProject }
+  { getProjects, addProject, updateProject, deleteProject, clearErrors }
 )(Projects)
