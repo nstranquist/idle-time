@@ -1,6 +1,41 @@
 
-export const BASE_URL = process.env.API_CONN;
-// export const BASE_URL = "http://localhost:80"
+// export const BASE_URL = process.env.API_CONN;
+const BASE_URL = "http://localhost:8080"
+
+const fetchUtil = async (token, extension, method, body=undefined, bodyName=undefined) => {
+  let result;
+  
+  const options = {
+    method: method,
+    headers: { 'x-access-token': token }
+  }
+  if(method==="POST" || method==="PUT") {
+    options.headers['Content-Type'] = "application/json";
+    options.headers['Accept'] = "application/json";
+  }
+  if(body)
+    options.body = JSON.stringify({ [bodyName]: body })
+
+  try {
+    result = await fetch(BASE_URL + extension, options)
+    console.log('result:', result, 'status:', result.status)
+    const jsonresult = await result.json();
+    if(jsonresult.status ==="success" || result.status < 400) {
+      return { ok: true, jsonresult }
+    }
+    else {
+      return { ok: false, jsonresult }
+    }
+  } catch (error) {
+    console.log('error:', error)
+    throw Error("new error while getting projects") // requires error boundary
+  }
+}
+
+export {
+  BASE_URL,
+  fetchUtil
+}
 
 // other utils here
 // const onSuccess = (settingsData) => {

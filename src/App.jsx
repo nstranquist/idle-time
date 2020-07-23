@@ -9,8 +9,8 @@ import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
 import { bulmaColors } from './styles/bulma.colors'
 import { pageOptions } from './styles/pageOptions'
-import { openSidebar, closeSidebar } from "./store/UI";
-import { selectSidebarOpen } from "./store/UI/selectors";
+import { openSidebar, closeSidebar } from "./store/Settings";
+import { selectSidebarOpen } from "./store/Settings/selectors";
 import { selectIsSignedIn } from "./store/Auth/selectors";
 
 import { Login, SignUp, ResetPassword } from './pages/Auth'

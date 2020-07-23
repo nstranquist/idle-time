@@ -1,8 +1,9 @@
-import { BASE_URL } from '../../api/api-utils'
+import { BASE_URL, fetchUtil } from '../../api/api-utils'
 import { getSettingsApiCall, updateSettingsApiCall } from '../../api/settings-api'
 
 const SET_SETTINGS = 'SET_SETTINGS'
 const SET_SETTINGS_SECTION = 'SET_SETTINGS_SECTION'
+const SET_SETTINGS_ITEM = 'SET_SETTINGS_ITEM'
 const SET_TIMESHIFT = 'SET_TIMESHIFT'
 
 const SET_SETTINGS_LOADING = 'SET_SETTINGS_LOADING'
@@ -10,14 +11,21 @@ const SET_SETTINGS_ERRORS = 'SET_SETTINGS_ERRORS'
 const CLEAR_ERRORS = 'CLEAR_ERRORS'
 const RESET_SETTINGS = 'RESET_SETTINGS'
 
+const SET_SIDEBAR = 'SET_SIDEBAR'
+
 
 export const setSettings = (settings) => ({ type: SET_SETTINGS, settings })
 const setSettingsSection = (sectionName, settingsSection) => ({ type: SET_SETTINGS_SECTION, sectionName, settingsSection })
+const setSettingsItem = (sectionName, itemName, itemValue) => ({ type: SET_SETTINGS_ITEM, sectionName, itemName, itemValue })
 
 const setLoading = () => ({ type: SET_SETTINGS_LOADING })
 const setErrors = (err) => ({ type: SET_SETTINGS_ERRORS, err })
 export const clearErrors = () => ({ type: CLEAR_ERRORS })
 export const applyTimeshift = (timeshiftData) => ({ type: SET_TIMESHIFT, timeshift: timeshiftData })
+
+const setSidebar = (value) => ({ type: SET_SIDEBAR, value })
+export const openSidebar = () => setSidebar(true)
+export const closeSidebar = () => setSidebar(false)
 
 export const getSettings = (token) => async (dispatch) => {
   let result;
@@ -163,6 +171,8 @@ export default (
           timeshift: action.timeshift
         }
       }
+    case SET_SIDEBAR:
+      return {...state, ui: {...state.ui, sidebarOpen: action.value }}
     case SET_SETTINGS_ERRORS:
       return {
         ...state,

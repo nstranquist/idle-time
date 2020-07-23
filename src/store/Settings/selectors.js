@@ -10,6 +10,11 @@ export const selectTimetrackingSettings = (state) => state.settings.timetracking
 
 export const selectTimeshiftSettings = (state) => state.settings.timeshift;
 
+// Specific Settings
+export const selectSidebarOpen = state => state.settings.ui ? state.settings.ui.sidebarOpen : undefined
+
+export const selectTimeframe = state => state.settings.general ? state.settings.general.dayOrWeekView : undefined; // "W" or "D"
+
 
 // export const selectSettingsReady = createSelector(
 //   selectWorkSettings,

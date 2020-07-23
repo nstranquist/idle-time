@@ -32,12 +32,11 @@ export const Toolbar = ({
   }
 
   const addNewTask = () => {
-    console.log('user wants to create a new task')
     // auto-create a new event, position it at index: 0 (top of list)
     const newTaskData = {
       title: "New Task",
-      duration: 10, // set to the newTask default settings
-      priority: 3,
+      duration: 25, // set to the newTask default settings
+      priority: 4,
       // need to set order to tasks.length
     }
     // default setting is 'isEditing={true}' with the title text highlighted and the description text 'undefined'

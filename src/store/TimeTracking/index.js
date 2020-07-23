@@ -1,4 +1,4 @@
-import { BASE_URL } from '../../api/api-utils'
+import { BASE_URL, fetchUtil } from '../../api/api-utils'
 
 // types: Add_Log, Remove_Log, Update_Log, (later) Get_Logs,
 const SET_LOGS = 'SET_LOGS'

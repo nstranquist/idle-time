@@ -1,4 +1,4 @@
-import { BASE_URL } from '../../api/api-utils'
+import { BASE_URL, fetchUtil } from '../../api/api-utils'
 
 const SET_PRESETS = 'SET_PRESETS'
 const ADD_PRESET = 'ADD_PRESET'

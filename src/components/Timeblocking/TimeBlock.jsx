@@ -5,7 +5,7 @@ import { MoreVertical } from 'react-feather'
 import { TimeBlockForm } from './TimeBlockForm'
 import TimeBlockDisplay from './TimeBlockDisplay'
 import { OutsideAlerter } from '../../hoc/OutsideAlerter'
-import { ClockInput } from '../../components/Inputs'
+import { ClockInput, ColorPicker } from '../../components/Inputs'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
 
@@ -87,7 +87,7 @@ const TimeBlockUI = ({
     })
   }
 
-  const handleSelectColor = (priority) => {
+  const selectColor = (priority) => {
     // update task with the new priority
     onUpdatePriority(priority, taskData._id)
     setShowColors(false)
@@ -110,9 +110,16 @@ const TimeBlockUI = ({
     >
 
       {taskData.duration && (
-        <DurationText className="duration-text-container" priority={taskData.priority ? taskData.priority : -1}>
-          <span className="duration-text">{taskData.duration}</span>
-        </DurationText>
+        <ClockInput
+          type="duration"
+          timeData={{
+            startTime: taskData.startTime,
+            duration: taskData.duration,
+          }}
+          serverErrors={null}
+          onSave={handleSubmitClock}
+          onCancel={onCancel}
+        />
       )}
 
       {/* Holds the padding, layout, and stuff */}
@@ -165,22 +172,10 @@ const TimeBlockUI = ({
             </div> */}
             
             {/* Color Picker / Priority Picker */}
-            <div style={{position: 'relative'}}>
-              <ColorPickerContainer className="color-picker-container" onClick={() => setShowColors(true)}>
-                <PriorityColor color={colorOptionsObject[taskData.priority]} className="icon circle"></PriorityColor>
-              </ColorPickerContainer>
-              
-              {showColors && (
-                <OutsideAlerter handleOutsideClick={() => setShowColors(false)}>
-                  <ColorPicker className="color-picker">
-                    {colorOptions.map(color => (
-                      <ColorOption kye={color.priority} color={color.code} onClick={() => handleSelectColor(color.priority)} />
-                    ))}
-                  </ColorPicker>
-                </OutsideAlerter>
-              )}
-            </div>
-
+            <ColorPicker
+              priority={taskData.priority}
+              selectColor={selectColor}
+            />
 
             <BlockMenu style={{position:'relative'}}>
               <div style={{position:'relative'}} className="drag-icon-container" onClick={() => setShowOptions(true)}>
@@ -208,33 +203,7 @@ const TimeBlockUI = ({
 
 export const TimeBlock = pure(TimeBlockUI)
 
-const ColorPickerContainer = styled.div`
-  &.color-picker-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 6px;
-    border-radius: 50%;
-    cursor: pointer;
-    background-color: inherit;
-    transition: background-color .2s ease-in-out;
 
-    &:hover {
-      background-color: rgba(0,0,0,.06);
-      transition: background-color .2s ease-in-out;
-    }
-
-    .circle {
-      flex: 1;
-      border-radius: 50%;
-      background-color: ${props => props.color};
-      border-width: 1px;
-      border-style: solid;
-      border-color: rgba(0,0,0,.14);
-    }
-  }
-`
 const BlockMenu = styled.div`
   position: relative;
   z-index: 11000;
@@ -272,39 +241,7 @@ const BlockMenu = styled.div`
   }
   
 `
-const ColorPicker = styled.div`
-&.color-picker {
-  position: absolute;
-  left: 3px;
-  right: 3px;
-  padding-left: 3px;
-  padding-right: 3px;
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 4px;
-  background: #f9f9f9;
-  text-align: center;
-  box-shadow: ${boxShadows.shadow3};
-  z-index: 1000;
-}
-`
-const ColorOption = styled.div`
-  background: ${props => props.color};
-  width: 1.3rem;
-  height: 1.3rem;
-  margin-top: 3px;
-  margin-bottom: 3px;
-  border: 1px solid rgba(0,0,0,.3);
-  border-radius: 50%;
-  cursor: pointer;
-  // z-index: 12001;
 
-  &:hover {
-    border: 1px solid rgba(0,0,0,.7);
-  }
-`
-const PriorityColor = styled.div`
-  background: ${props => props.color};
-`
 const BlockSpacer = styled.div`
   height: initial;
   min-height: 51px;
@@ -412,38 +349,3 @@ const StyledTimeBlock = styled.div`
   }
 `
 
-const DurationText = styled.div`
-  &.duration-text-container {
-    width: 54px;
-    text-align: center;
-    // padding-right: 10px;
-
-    .duration-text {
-      cursor: pointer;
-      font-size: 16px;
-      line-height: 20px;
-      padding: 6px;
-      text-align: center;
-      align-self: center;
-      margin: 0 auto;
-      border-radius: 50%;
-      border: 1px solid rgba(0,0,0,.3);
-      // text-decoration: underline;
-
-      // border-color: ${props => {
-      //   switch(props.priority) {
-      //     case 1:
-      //       return bulmaColors.danger;
-      //     case 2:
-      //       return bulmaColors.warning;
-      //     case 3:
-      //       return bulmaColors.success;
-      //     case 4:
-      //       return bulmaColors.link;
-      //     default:
-      //       return "rgba(0,0,0,.3)";
-      //   }
-      // }}
-    }
-  }
-`

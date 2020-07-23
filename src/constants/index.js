@@ -6,12 +6,9 @@
 export const emptyNewTask = {
   title: "",
   desc: "",
-  duration: 60,
-  startTime: undefined,
-  allDay: false,
-  priority: 3,
+  duration: 25,
+  priority: 4,
 }
-// export const emptyTimeBlock = {}
 
 // Date Form
 export const defaultErrorsState = {
@@ -20,8 +17,6 @@ export const defaultErrorsState = {
   fields: []
 }
 export const emptyDateForm = {
-  duration: 60,
-  startTime: undefined,
-  allDay: false,
+  duration: 25,
   // startTime: moment('YYYY-MM-DD'),
 }

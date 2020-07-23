@@ -1,6 +1,6 @@
 // import { startingTasks, startingTasksOrder } from '../../data/tasks.data'
 
-import { BASE_URL } from '../../api/api-utils'
+import { BASE_URL, fetchUtil } from '../../api/api-utils'
 
 // Action Types
 const SET_TASKS = "SET_TASKS"
@@ -8,8 +8,8 @@ const ADD_TASK = "ADD_TASK"
 const UPDATE_TASK = "UPDATE_TASK"
 const REMOVE_TASK = "REMOVE_TASK"
 
+const UPDATE_TASKS_ORDER = "UPDATE_TASKS_ORDER"
 const SET_TASKS_ORDER = "SET_TASKS_ORDER"
-const SET_SORTING_ERROR = 'SET_SORTING_ERROR'
 
 const SET_TASKS_LOADING = "SET_TASKS_LOADING" // for use after adding / loading a task
 const SET_TASKS_ERRORS = "SET_TASKS_ERRORS"
@@ -17,8 +17,6 @@ const CLEAR_TASK_ERRORS = "CLEAR_TASK_ERRORS"
 
 
 // Action Creators
-const setLoadingTasks = () => ({ type: SET_TASKS_LOADING })
-
 const setTasks = (tasks, order) => ({ type: SET_TASKS, tasks, order })
 const setTasksOrder = (order) => ({ type: SET_TASKS_ORDER, order })
 
@@ -26,18 +24,9 @@ const addTaskAction = (task, order) => ({ type: ADD_TASK, task, order })
 const updateTaskAction = (task) => ({ type: UPDATE_TASK, taskData: task })
 const removeTaskAction = (id, order) => ({ type: REMOVE_TASK, id, order })
 
-const setSortingError = (err) => ({ type: SET_SORTING_ERROR, err })
+const setLoadingTasks = () => ({ type: SET_TASKS_LOADING })
+export const setErrors = (err) => ({ type: SET_TASKS_ERRORS, err: err.toString() })
 export const clearTaskErrors = () => ({ type: CLEAR_TASK_ERRORS })
-
-
-// note: can add better logic for error handling here
-export const setErrors = (err) => {
-  
-  return {
-    type: SET_TASKS_ERRORS,
-    err: err.toString()
-  }
-}
 
 
 // Thunk Actions
@@ -56,31 +45,12 @@ export const getTasks = (token) => (dispatch) => {
       const { data, status } = object;
       console.log('response data:', object)
       if((data.status === "success" || status < 400)) {
-        if(data.data.tasks)
-          dispatch(setTasks(data.data.tasks))
+        if(data.data.tasks || data.data.order) {
+          const { tasks, order } = data.data;
+          dispatch(setTasks(tasks, order))
+        }
         else
           dispatch(setErrors('error: tasks undefined coming from server'))
-        // fetch(BASE_URL + '/tasks/order', {
-        //   method: 'GET',
-        //   headers: {
-        //     'x-access-token': token,
-        //   }
-        // })        
-        //   .then(async res => ({ data: await res.json(), status: res.status }))
-        //   .then(object => {
-        //     const { data, status } = object;
-        //     console.log('response object:', object)
-        //     if((data.staus === 'success' || status < 400) && data.data.tasksOrder) {
-        //       dispatch(setTasksOrder(data.data.tasksOrder))
-        //       dispatch(setTasks(newTasks))
-        //     }
-        //     else
-        //       dispatch(setErrors(`${status} error: ${data.message}` || 'error getting tasks order'))
-        //   })
-        //   .catch(err => {
-        //     console.error('err:', err)
-        //     dispatch(setErrors(err.message || 'error with tasksOrder'))
-        //   })
       }
       else
         dispatch(setErrors(`${status} error: ${data.message}` || 'error getting tasks'))
@@ -91,35 +61,10 @@ export const getTasks = (token) => (dispatch) => {
     })
 }
 
-// export const getTasksOrder = (token) => (dispatch) => {
-//   dispatch(setLoading())
-  
-//   fetch(BASE_URL + '/tasks/order', {
-//     method: 'GET',
-//     headers: {
-//       'x-access-token': token,
-//     }
-//   })
-//     .then(async res => ({data: await res.json(), status: res.status}))
-//     .then(object => {
-//       const { data, status } = object;
-//       console.log('response object:', object)
-//       if((data.status === 'success' || status < 400) && data.data.tasksOrder)
-//         dispatch(setTasksOrder(data.data.tasksOrder))
-//       else
-//         dispatch(setErrors(data.message || 'error getting tasks order from server'))
-//     })
-//     .catch(err => {
-//       console.error('error getting ordered tasks from server:', err)
-//       dispatch(setErrors(err.message || err))
-//     })
-// }
-
 export const addTask = (token, taskData, bottom=true) => (dispatch) => {
   console.log('taskData in thunk:', taskData)
 
-
-  fetch(BASE_URL + '/tasks/add', {
+  fetch(BASE_URL + '/tasks', {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
@@ -132,7 +77,6 @@ export const addTask = (token, taskData, bottom=true) => (dispatch) => {
     .then(object => {
       console.log('response data:', object)
       const { data, status } = object;
-      console.log('taskData:', data.data.task)
       if(data.status === "success" || status < 400) {
         const { task, order } = data.data;
         if(task && order) {
@@ -165,6 +109,7 @@ export const updateTask = (token, taskId, taskData) => (dispatch, getState) => {
   const ogtask = getState().tasks.tasks.find(task => task._id === taskId)
   console.log('updating task with data:', taskData)
   console.log('original task data:', ogtask)
+  if(taskData.order) delete taskData.order
 
   fetch(BASE_URL + '/tasks/' + taskId, {
     method: 'PUT',
@@ -235,72 +180,75 @@ export const removeTask = (token, taskId) => (dispatch) => {
 
 export const updateTasksOrder = (token, taskId, sourceIndex, destinationIndex) => async (dispatch, getState) => {
   // todo: move the sorting code from the reducer, and use here to update the task on the server as well
-  console.log('setting task index. source:', sourceIndex, 'destination:', destinationIndex)
   // const tasks = getState().tasks.tasks;
-  const tasksOrder = getState().tasks.order;
-  console.log('tasksOrder:', tasksOrder)
-  // Steps to resolve:
-  // need to update the index at taskId with action.destinationIndex;
+  const tasksOrder = await getState().tasks.order;
+  if(!tasksOrder) dispatch(setErrors("task order is undefined"))
+  else {
+    // Steps to resolve:
+    // need to update the index at taskId with action.destinationIndex;
 
-  // but, all ids after it must be incremented,
+    // but, all ids after it must be incremented,
 
-  const newTasksOrder = await tasksOrder.map((id, index) => {
-    let order = index;
-    if(index > sourceIndex && index <= destinationIndex) {
-      order--;
-    }
-    else if(index < sourceIndex && index >= destinationIndex) {
-      order++;
-    }
-    if(id === taskId) {
-      order = destinationIndex;
-    }
-
-    return order;
-  })
-
-  // basically, updating task in mongodb.
-  // should definitely update asynchronously, and let ui update without database updating
-  // dispatch({ type: SORTING_TASKS })
-  dispatch(setTasksOrder(newTasksOrder))
-  
-  // update taskOrder in API
-  fetch(BASE_URL + '/tasks/order', {
-    method: 'PUT',
-    headers: {
-      'x-access-token': token,
-    },
-    body: JSON.stringify({ tasksOrder: newTasksOrder })
-  })
-    .then(async res => ({ data: await res.json(), status: res.status }))
-    .then(object => {
-      console.log('response object:', object)
-      const { data, status } = object;
-
-      if(data.status === "success" || status < 400)
-        console.log('successfully updated tasks')
-      else {
-        dispatch(setSortingError(`${data.status} error: ${data.message}` || "error updating tasks sort order" ));
-        dispatch(setTasksOrder(tasksOrder)) // reset the order of tasks
+    const newTasksOrder = await tasksOrder.map((id, index) => {
+      let order = index;
+      if(index > sourceIndex && index <= destinationIndex) {
+        order--;
       }
-      // dispatch({ type: STOP_SORTING_TASKS })
+      else if(index < sourceIndex && index >= destinationIndex) {
+        order++;
+      }
+      if(id === taskId) {
+        order = destinationIndex;
+      }
+      return {order,id};
     })
-    .catch(err => {
-      console.log('error updating tasks order:', err)
-      dispatch(setSortingError(err.message || "error updating tasks sort order"));
-      dispatch(setTasksOrder(tasksOrder)) // reset the order of tasks
-      // dispatch({ type: STOP_SORTING_TASKS })
+    const tasksOrderSorted = await newTasksOrder.sort((a, b) => a.order - b.order)
+    const tasksOrderArray = await tasksOrderSorted.map(obj => obj.id)
+
+    // basically, updating task in mongodb.
+    // should definitely update asynchronously, and let ui update without database updating
+    dispatch(setTasksOrder(tasksOrderArray))
+    console.log('new tasks order in thunk, before db call:', tasksOrderArray)
+
+    // update taskOrder in API
+    fetch(BASE_URL + '/tasks/order', {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'x-access-token': token,
+      },
+      body: JSON.stringify({ order: tasksOrderArray })
     })
+      .then(async res => ({ data: await res.json(), status: res.status }))
+      .then(object => {
+        console.log('response object:', object)
+        const { data, status } = object;
+
+        if(data.status === "success" || status < 400) {
+          const { order } = data.data;
+          dispatch(setTasksOrder(order))
+        }
+        else {
+          dispatch(setErrors(`${data.status} error: ${data.message}` || "error updating tasks sort order" ));
+          dispatch(setTasksOrder(tasksOrder)) // reset the order of tasks
+        }
+      })
+      .catch(err => {
+        console.log('error updating tasks order:', err)
+        dispatch(setErrors(err.message || "error updating tasks sort order"));
+        dispatch(setTasksOrder(tasksOrder)) // reset the order of tasks
+      })
+  }
 }
 
 
 // Reducer
 const initialState = {
   tasks: [], // for one day only, for now(?)
-  order: [], // an object/map of index:id (key:value) to order the tasks by
+  order: [], // an array of ordered task id's
   loading: false,
   errors: null,
-  sortingErrors: null,
 }
 
 export default (
@@ -344,16 +292,11 @@ export default (
         tasks: state.tasks.filter(task => task._id !== action.id),
         order: action.order
       }
-    case SET_TASKS_ORDER:
+    case SET_TASKS_ORDER: case UPDATE_TASKS_ORDER:
       return {
         ...state,
         loading: false,
         order: action.order,
-      }
-    case CLEAR_TASK_ERRORS:
-      return {
-        ...state,
-        errors: null
       }
     case SET_TASKS_ERRORS:
       return {
@@ -361,12 +304,8 @@ export default (
         loading: false,
         errors: action.err
       }
-    case SET_SORTING_ERROR:
-      return {
-        ...state,
-        loading: false,
-        sortingErrors: action.err
-      }
+    case CLEAR_TASK_ERRORS:
+      return { ...state, errors: null }
     default:
       return state;
   }
@@ -391,3 +330,27 @@ export default (
 //   }
 //   return task;
 // })
+
+// export const getTasksOrder = (token) => (dispatch) => {
+//   dispatch(setLoading())
+  
+//   fetch(BASE_URL + '/tasks/order', {
+//     method: 'GET',
+//     headers: {
+//       'x-access-token': token,
+//     }
+//   })
+//     .then(async res => ({data: await res.json(), status: res.status}))
+//     .then(object => {
+//       const { data, status } = object;
+//       console.log('response object:', object)
+//       if((data.status === 'success' || status < 400) && data.data.tasksOrder)
+//         dispatch(setTasksOrder(data.data.tasksOrder))
+//       else
+//         dispatch(setErrors(data.message || 'error getting tasks order from server'))
+//     })
+//     .catch(err => {
+//       console.error('error getting ordered tasks from server:', err)
+//       dispatch(setErrors(err.message || err))
+//     })
+// }

@@ -4,16 +4,19 @@ import styled from 'styled-components'
 import { Menu, Bell, User } from 'react-feather'
 import { UnstyledLink } from '../../styles/components/link.styled'
 import { logout } from '../../store/Auth'
-import { setTimeframe } from '../../store/UI'
+// import { setTimeframe } from '../../store/Sett'
+import { selectTimeframe } from '../../store/Settings/selectors'
 import { bulmaColors } from '../../styles/bulma.colors'
 
 export const TopBar = ({
   sidebarOpen,
   openSidebar,
   closeSidebar,
+  // timeframe
 }) => {
   // "day" or "week"
-  const timeframe = useSelector(state => state.ui.timeframe)
+  // const timeframe = useSelector(selectTimeframe)
+  const timeframe = 'day';
 
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifMenu, setShowNotifMenu] = useState(false)
@@ -30,13 +33,13 @@ export const TopBar = ({
       openSidebar()
   }
 
-  const handleDisplayChange = (e) => {
-    // update redux
-    if(timeframe === 'week')
-      dispatch(setTimeframe('day'))
-    if(timeframe === 'day')
-      dispatch(setTimeframe('week'))
-  }
+  // const handleDisplayChange = (e) => {
+  //   // update redux
+  //   if(timeframe === 'week')
+  //     dispatch(setTimeframe('day'))
+  //   if(timeframe === 'day')
+  //     dispatch(setTimeframe('week'))
+  // }
 
   return (
     <StyledTopbar className="top-bar bar">
@@ -49,9 +52,7 @@ export const TopBar = ({
       </div>
       <div className="topbar-right">
         {/* Week/Day Toggle */}
-        <div className="week-day-toggle" onClick={handleDisplayChange}>
-          {/* NOTE: if active, keep as is, but if not, leave background white, with color coming in on hover */}
-          {/* can add tooltip here too */}
+        <div className="week-day-toggle">
           <button name="week" className={timeframe === "week" ? "button is-primary has-text-white" : "button primary-inactive"}>
             W</button>
           <button name="day" className={timeframe === "day" ? "button is-info has-text-white" : "button info-inactive"}>

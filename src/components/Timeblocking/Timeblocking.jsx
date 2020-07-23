@@ -14,7 +14,7 @@ import { ConnectedTimeline as Timeline } from '../Timeline'
 import { TimeBlock } from './TimeBlock'
 import { ErrorText } from '../ErrorText'
 import { AddButton } from '../Buttons'
-import { NewBlock } from '../Blocks'
+import { NewBlock } from './NewBlock'
 import { DragIconBar } from './DragIconBar'
 
 // import redux actions

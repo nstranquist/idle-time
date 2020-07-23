@@ -3,10 +3,36 @@
 import { createSelector } from 'reselect'
 import { selectTasks, selectTasksOrder } from './Tasks/selectors'
 
-export const selectDots = createSelector(
+export const selectOrderedTasks = createSelector(
   selectTasks,
-  (tasks) => {
-    return tasks.map(task => {
+  selectTasksOrder, // an array of ordered task ids
+  (tasks, order) => {
+    const tasksWithOrder = tasks.map((task, index) => {
+      if(task) {
+        const taskOrder = order.indexOf(task._id)
+        console.log('taskOrder:', taskOrder, 'for task with id:', task._id)
+        if(taskOrder > -1)
+          task.order = taskOrder;
+        else {
+          task.order = 0;
+          console.log('task order was -1')
+        }
+        console.log('task:', task.title, 'with order:', task.order)
+      }
+      else console.log('task at index:', index, 'is undefined')
+      return task;
+    })
+
+    const sortedTasks = tasksWithOrder.sort((a, b) => a.order - b.order);
+
+    return sortedTasks;
+  }
+)
+
+export const selectDots = createSelector(
+  selectOrderedTasks,
+  (orderedTasks) => {
+    return orderedTasks.map(task => {
       return {
         _id: task._id,
         priority: task.priority,
@@ -15,50 +41,26 @@ export const selectDots = createSelector(
   }
 )
 
-export const selectOrderedTasks = createSelector(
-  selectTasks,
-  selectTasksOrder, // an array of ordered task ids
-  (tasks, order) => {
-    console.log('tasks length:', tasks.length)
-    // const tasksWithOrder = tasks.map((task, index) => {
-    //   if(task) {
-    //     const order = order.indexOf(task._id)
-    //     if(order >= 0)
-    //       task.order = order;
-    //     else
-    //       task.order = 0;
-    //   }
-    //   else console.log('task at index:', index, 'is undefined')
-
-    //   return task;
-    // })
-
-    // const sortedTasks = tasksWithOrder.sort((a, b) => a.order - b.order);
-
-    return tasks;
-  }
-)
-
 // sort tasks in ascending order by index
-export const selectOrderedTasksOld = createSelector(
-  selectTasks,
-  selectTasksOrder,
-  (tasks, tasksOrder) => {
-    const fullTasks = tasks.map((task, index) => {
-      const order = tasksOrder.indexOf(task._id)
-      if(order < 0)
-        console.log('error: task with id:', task._id, 'not found, so cannot be ordered')
+// export const selectOrderedTasksOld = createSelector(
+//   selectTasks,
+//   selectTasksOrder,
+//   (tasks, tasksOrder) => {
+//     const fullTasks = tasks.map((task, index) => {
+//       const order = tasksOrder.indexOf(task._id)
+//       if(order < 0)
+//         console.log('error: task with id:', task._id, 'not found, so cannot be ordered')
       
-      task.order = order;
-      return task;
-    })
+//       task.order = order;
+//       return task;
+//     })
 
-    const sortedTasks = fullTasks.sort((a, b) => a.order - b.order);
+//     const sortedTasks = fullTasks.sort((a, b) => a.order - b.order);
 
-    console.log('sorted tasks:', sortedTasks);
-    return sortedTasks;
-  }
-)
+//     console.log('sorted tasks:', sortedTasks);
+//     return sortedTasks;
+//   }
+// )
     // first sort the tasksOrder
     // const myTasksOrder = tasksOrder.sort((a, b) => a - b)
 

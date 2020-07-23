@@ -36,6 +36,23 @@ export const TimeBlockForm = ({
     }
   }, [errors.exists])
 
+  useEffect(() => {
+    if(activeField === "desc")
+      focusDesc()
+  }, [activeField])
+
+  const focusDesc = () => {
+    if(!saveDesc) setSaveDesc(true)
+    const descId = document.getElementById('form-desc')
+    if(descId) descId.focus();
+    else {
+      setTimeout(() => {
+        const descId = document.getElementById('form-desc')
+        if(descId) descId.focus();
+      }, 100)
+    }
+  }
+
   const handleChange = (e) => {
     if(e.target.name === 'title')
       setTitle(e.target.value)
@@ -105,7 +122,8 @@ export const TimeBlockForm = ({
       >
         <FormItemStyled className="form-item">
           <input
-            autoFocus={activeField === "title"}
+            id="form-title"
+            autoFocus
             className={inputClasses + " form-h3"}
             type="text"
             name="title"
@@ -116,9 +134,13 @@ export const TimeBlockForm = ({
         <FormItemStyled className="form-item">
           {saveDesc ? (
             <span className="desc-container">
-              <MinusButton handleClick={() => setSaveDesc(false)} />
+              <MinusButton handleClick={() => {
+                setSaveDesc(false)
+                const titleId = document.getElementById('form-title')
+                if(titleId) titleId.focus();
+              }} />
               <input
-                autoFocus={activeField === "desc"}
+                id="form-desc"
                 className="form-input form-p is-size-6"
                 type="text"
                 name="desc"
@@ -127,7 +149,7 @@ export const TimeBlockForm = ({
               />
             </span>
           ) : (
-            <AddFormItem labelText="Add Description" handleClick={() => setSaveDesc(true)} />
+            <AddFormItem labelText="Add Description" handleClick={focusDesc} />
           )}
         </FormItemStyled>
       </TimeBlockFormStyled>
