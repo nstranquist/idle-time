@@ -1,6 +1,6 @@
 // import { startingTasks, startingTasksOrder } from '../../data/tasks.data'
 
-import { BASE_URL, fetchUtil } from '../../api/api-utils'
+import { BASE_URL, fetchUtil } from '../../utils/api'
 
 // Action Types
 const SET_TASKS = "SET_TASKS"

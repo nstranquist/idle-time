@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import moment from 'moment'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { Menu, Bell, User } from 'react-feather'
@@ -18,10 +19,12 @@ export const TopBar = ({
   // const timeframe = useSelector(selectTimeframe)
   const timeframe = 'day';
 
+  const dispatch = useDispatch();
+
+  const [currentDate, setCurrentDate] = useState(moment().format('dddd D, YYYY'))
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifMenu, setShowNotifMenu] = useState(false)
 
-  const dispatch = useDispatch();
 
   const handleLogout = () => dispatch(logout())
 
@@ -48,7 +51,8 @@ export const TopBar = ({
           onClick={handleToggleSidebar} >
           <Menu size={32} />
         </div>
-        <h3 className="date-text">Today,</h3>
+        {/* Todo: Make Select dropdown */}
+        <h3 className="date-text is-size-5" style={{letterSpacing:"2px",color:"rgba(33,33,33,.8)"}}>{currentDate}</h3>
       </div>
       <div className="topbar-right">
         {/* Week/Day Toggle */}

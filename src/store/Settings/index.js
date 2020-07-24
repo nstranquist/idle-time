@@ -1,5 +1,4 @@
-import { BASE_URL, fetchUtil } from '../../api/api-utils'
-import { getSettingsApiCall, updateSettingsApiCall } from '../../api/settings-api'
+import { BASE_URL, fetchUtil } from '../../utils/api'
 
 const SET_SETTINGS = 'SET_SETTINGS'
 const SET_SETTINGS_SECTION = 'SET_SETTINGS_SECTION'

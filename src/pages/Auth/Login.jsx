@@ -8,7 +8,7 @@ import { onLoginSuccess, onLoginFailure, clearErrors, setLoginLoading } from '..
 // import { getTasks } from '../../store/Tasks'
 import { setSettings } from '../../store/Settings'
 // import { setNewUser, setPaidMember } from '../../store/UI' // good place to have these?
-import { BASE_URL } from '../../api/api-utils'
+import { BASE_URL } from '../../utils/api'
 
 
 const emptyLoginForm = {

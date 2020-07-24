@@ -1,5 +1,5 @@
 /* src/store/Auth/index.js */
-import { BASE_URL, fetchUtil } from '../../api/api-utils'
+import { BASE_URL, fetchUtil } from '../../utils/api'
 
 // Auth Types
 const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS'

@@ -1,4 +1,4 @@
-import { fetchUtil } from '../../api/api-utils'
+import { fetchUtil } from '../../utils/api'
 
 const SET_PROJECTS = 'SET_PROJECTS'
 const ADD_PROJECT = 'ADD_PROJECT'
