@@ -104,3 +104,8 @@ i {
 .section-container.large-padding {
   padding: 4% 10%;
 }
+
+.no-formatting {
+  padding: 0 !important;
+  margin: 0 !important;
+}

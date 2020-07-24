@@ -3,7 +3,7 @@ import { pure } from 'recompose'
 import styled from 'styled-components'
 // components
 import { Trash, Edit2 } from 'react-feather'
-import { TimeBlock } from '../../components/Timeblocking/TimeBlock'
+import { TimeBlock } from '../Timeblocking/Task'
 import { boxShadows } from '../../styles/shadows.style'
 
 export const Item = ({

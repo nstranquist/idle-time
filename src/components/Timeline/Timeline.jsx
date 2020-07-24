@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react'
 import styled from 'styled-components'
+import { pure } from 'recompose'
 import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Dot } from './Dot'
+import { colorOptionsObject as colorOptions } from '../../constants/colors'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
 import { selectActiveItem, selectUpcomingTasks, selectDots } from '../../store/selectors'
@@ -21,14 +23,7 @@ import TimerContext from '../../context/IdleTimer'
 //   // ...
 // }
 
-const colorOptions = {
-  1: "#FF3860", // danger
-  2: "#FFDD57", // warning
-  3: "#48C774", // success
-  4: "#FFF" // white
-}
-
-export const Timeline = ({
+const TimelineUI = ({
   dots,
   timer,
   tasks,
@@ -41,7 +36,6 @@ export const Timeline = ({
   const timerContext = useContext(TimerContext)
 
   // const [viewHeight, setViewHeight] = useState("0px");
-  // const [dots, setDots] = useState(startingDots)
   // const [dotSettings, setDotSettings] = useState(startingDotSettings) // to customize colors?
   const [isHovering, setIsHovering] = useState(undefined)
   const [dotHoverData, setDotHoverData] = useState(undefined)
@@ -62,53 +56,26 @@ export const Timeline = ({
       console.log('timer context is undefined')
   }, [isHovering])
 
-  // const drawDotsOnTimeline = () => {
-  //   // can draw either colored or transparent <span> every 20 minutes (20px)
-  //   // 20px * 3 = 60px/hour 60*24 = 1440px;
-  //   // 60px * 12 = 720px;
-  // }
-
-  // const handleDotHover = async taskId => {
-  //   // set the necessary data for dot hover
-  //   const dotData = tasks.find(task => task._id === taskId)
-  // }
-
-  const handleMouseOver = (e) => {
-    if(e.target.id) {
-      console.log('mouse over event:', e, 'currentTarget:', e.currentTarget, 'target:', e.target)
-      console.log('id of currentTarget:', e.currentTarget.id)
-      console.log('id of target:', e.target.id)
-      setIsHovering(e.target.id)
-    }
-  }
-  const handleMouseOut = (e) => {
-    if(e.target.id) {
-      console.log('mouse out event:', e, 'currentTarget:', e.currentTarget)
-      setIsHovering(undefined)
-      setDotHoverData(undefined)
-    }
-  }
-
   return (
     <StyledTimeline className="timeline-1">
 
-      <span className="timeline-time" style={{display:'flex',alignItems:"center",justifyContent:"center",height:40}}>{timerContext.time}</span>
+      <span className="timeline-time" style={{display:'flex',alignItems:"center",justifyContent:"center",height:40}}>
+        {timerContext.time}
+      </span>
 
       <div className="timeline-line">
 
-        <div className="dots-container" onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
-          {dots && dots.map((dot, index) => {
-            return (
-              <Dot to={`/tasks/${dot.id}`} className="dot-item" key={index} color={colorOptions[dot.priority]} id={dot.id}>
-                {isHovering === dot.id && dotHoverData && (
-                  <DotHoverMenu className="dot-hover-menu">
-                    <h3 style={{wordBreak:'keep-all',wordWrap:'normal',overflowWrap:'normal',}}>{dotHoverData.title}</h3>
-                    {dotHoverData.desc && <p style={{opacity:1,fontSize:"1.1rem"}}>{dotHoverData.desc}</p>}
-                  </DotHoverMenu>
-                )}
-              </Dot>
-            )
-          })}
+        <div className="dots-container"
+          // onMouseOver={handleMouseOver}
+          // onMouseOut={handleMouseOut}
+        >
+          {dots && dots.length > 0 && dots.map(dot => (
+            <Dot
+              key={dot._id}
+              dot={dot}
+              color={colorOptions[dot.priority]}
+            />
+          ))}
         </div>
       </div>
     </StyledTimeline>
@@ -125,38 +92,12 @@ const mapStateToProps = (state) => ({
   activeTask: selectActiveItem(state),
 })
 
-export const ConnectedTimeline = connect(
+const ConnectedTimeline = connect(
   mapStateToProps,
   {  }
-)(Timeline)
+)(TimelineUI)
 
-const DotHoverMenu = styled.div`
-  position: absolute;
-  top: 2px;
-  left: 20px;
-  padding: 14px 16px;
-  text-align: left;
-  background-color: #fff;
-  border: 1px solid rgba(0,0,0,.18);
-  border-radius: 6px;
-  box-shadow: ${boxShadows.shadow3};
-  width: 480px; // 120px * 4;  Note: needs update for responsiveness
-`
-
-const Dot = styled(Link)`
-  background: ${props => props.color};
-
-  // remove default link styles
-  text-decoration: inherit;
-  color: inherit;
-  font-size: inherit;
-
-  &:active, &:focus, &:focused {
-    outline: 0;
-    border: none;
-    -mox-outline-style: none;
-  }
-`
+export const PureTimeline = pure(ConnectedTimeline)
 
 const StyledTimeline = styled.div`
   &.timeline-1 {
@@ -245,3 +186,31 @@ const StyledTimeline = styled.div`
   //   position: absolute;
   // }
 `
+
+// old code
+  // const drawDotsOnTimeline = () => {
+  //   // can draw either colored or transparent <span> every 20 minutes (20px)
+  //   // 20px * 3 = 60px/hour 60*24 = 1440px;
+  //   // 60px * 12 = 720px;
+  // }
+
+  // const handleDotHover = async taskId => {
+  //   // set the necessary data for dot hover
+  //   const dotData = tasks.find(task => task._id === taskId)
+  // }
+
+  // const handleMouseOver = (e) => {
+  //   if(e.target.id) {
+  //     console.log('mouse over event:', e, 'currentTarget:', e.currentTarget, 'target:', e.target)
+  //     console.log('id of currentTarget:', e.currentTarget.id)
+  //     console.log('id of target:', e.target.id)
+  //     setIsHovering(e.target.id)
+  //   }
+  // }
+  // const handleMouseOut = (e) => {
+  //   if(e.target.id) {
+  //     console.log('mouse out event:', e, 'currentTarget:', e.currentTarget)
+  //     setIsHovering(undefined)
+  //     setDotHoverData(undefined)
+  //   }
+  // }

@@ -10,12 +10,12 @@ import TimerContext from '../../context/IdleTimer'
 
 // import components
 import { Toolbar } from './Toolbar'
-import { ConnectedTimeline as Timeline } from '../Timeline'
-import { TimeBlock } from './TimeBlock'
-import { ErrorText } from '../ErrorText'
-import { AddButton } from '../Buttons'
-import { NewBlock } from './NewBlock'
-import { DragIconBar } from './DragIconBar'
+import { Timeline } from '../../components/Timeline'
+import { TimeBlock } from './Task'
+import { ErrorText } from '../../components/ErrorText'
+// import { AddButton } from '../../components/Buttons'
+import { NewBlock } from './old/NewBlock'
+import { DragIconBar } from './old/DragIconBar'
 
 // import redux actions
 import { getTasks, addTask, updateTask, removeTask, updateTasksOrder, clearTaskErrors } from '../../store/Tasks'
@@ -157,118 +157,122 @@ const Timeblocking = ({
       return;
     }
   }
-
+// height: calc(100% - 85px);
+// max-height: calc(100% - 85px);
   return (
-    <StyledTimeblocking className="idle-time-page container container-left">
-      <DragDropContext
-        onDragStart={onDragStart}
-        onDragUpdate={onDragUpdate}
-        onDragEnd={onDragEnd}
-      >
-        {/* After inline-styles, make its own styled-component called TrashStyled */}
-        {isDragging === true && (
-          <DragIconBar
+    // <div className="home-container" style={{position:'relative', height:"100%"}}>
+      <StyledTimeblocking className="idle-time-page container container-left">
+        <DragDropContext
+          onDragStart={onDragStart}
+          onDragUpdate={onDragUpdate}
+          onDragEnd={onDragEnd}
+        >
+          {/* After inline-styles, make its own styled-component called TrashStyled */}
+          {isDragging === true && (
+            <DragIconBar
 
-          />
-        )}
-
-        {/* Content-Left */}
-        <div className="section-left">
-
-          {/* Timeline */}
-          <div className="timeline">
-            <Timeline
-              timer={timer}
             />
-          </div>
-        </div>
+          )}
 
-        {/* Content-Right */}
-        <div className="section-right">
+          {/* Content-Left */}
+          <div className="section-left">
 
-          {/* Toolbar */}
-          <Toolbar
-            height={pageOptions.toolbarHeight}
-            timer={timer}
-            startTimer={() => timer.startTimer()}
-            pauseTimer={() => timer.pauseTimer()}
-            stopTimer={() => timer.stopTimer()}
-            handleAddTask={handleAddAutoTask}
-            areTasksCollapsed={areTasksCollapsed}
-            handleCollapse={() => setAreTasksCollapsed(!areTasksCollapsed)}
-          />
-
-          <div className="section-right-inner">
-
-            {errors && <ErrorText message={errors} clearErrors={clearTaskErrors} />}
-
-            {/* Task Cards */}
-            <div className="task-cards">
-
-              <Droppable
-                droppableId={"monday"} // todo: get the day from "new Date()" using moment
-                direction="vertical"
-                type="day"
-              >
-                {(provided, snapshot) => (
-                  <div
-                    className="task-cards-inner"
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                  >
-                    {loading && <div><p>loading tasks...</p></div>}
-                    {tasks.length > 0 && tasks.map((task, index) => (
-                      <Draggable
-                        key={task._id}
-                        draggableId={task._id}
-                        type="timeblock"
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                            <TimeBlock
-                              // dragging props
-                              isDragging={snapshot.isDragging}
-                              // other props
-                              taskData={task}
-                              activeField={activeTask ? activeTask.activeField : undefined}
-                              isEditing={activeTask && task._id === activeTask._id}
-                              onInputClick={onInputClick}
-                              onSave={onSave}
-                              onCancel={onCancel}
-                              onDelete={handleDelete}
-                              onUpdatePriority={onUpdatePriority}
-                              isCollapsed={areTasksCollapsed}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-
-              {formErrors && <ErrorText message={formErrors} clearErrors={() => setFormErrors(null)} />}
-
-              {isAdding && (
-                <NewBlock
-                  onSubmit={handleAddSubmit}
-                  onCancel={handleAddCancel}
-                />
-              )}
+            {/* Timeline */}
+            <div className="timeline">
+              <Timeline
+                timer={timer}
+              />
             </div>
-
-            {/* Add Task / Submit Task Button */}
-            {!isAdding && (
-              <div className="add-button-container">
-                <AddButton handleClick={handleAddToggle} />
-              </div>
-            )}
           </div>
-        </div>
-      </DragDropContext>
-    </StyledTimeblocking>
+
+          {/* Content-Right */}
+          <div className="section-right">
+
+            {/* Toolbar */}
+            <Toolbar
+              height={pageOptions.toolbarHeight}
+              timer={timer}
+              startTimer={() => timer.startTimer()}
+              pauseTimer={() => timer.pauseTimer()}
+              stopTimer={() => timer.stopTimer()}
+              handleAddTask={handleAddAutoTask}
+              areTasksCollapsed={areTasksCollapsed}
+              handleCollapse={() => setAreTasksCollapsed(!areTasksCollapsed)}
+            />
+
+            <div className="section-right-inner">
+
+              {errors && <ErrorText message={errors} clearErrors={clearTaskErrors} />}
+
+              {/* Task Cards */}
+              <div className="task-cards">
+
+                <Droppable
+                  droppableId={"monday"} // todo: get the day from "new Date()" using moment
+                  direction="vertical"
+                  type="day"
+                >
+                  {(provided, snapshot) => (
+                    <div
+                      className="task-cards-inner"
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                    >
+                      {loading && <div><p>loading tasks...</p></div>}
+                      {/* TODO: Make higher-order, pure component */}
+                      {tasks.length > 0 && tasks.map((task, index) => (
+                        <Draggable
+                          key={task._id}
+                          draggableId={task._id}
+                          type="timeblock"
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                              <TimeBlock
+                                // dragging props
+                                isDragging={snapshot.isDragging}
+                                // other props
+                                taskData={task}
+                                activeField={activeTask ? activeTask.activeField : undefined}
+                                isEditing={activeTask && task._id === activeTask._id}
+                                onInputClick={onInputClick}
+                                onSave={onSave}
+                                onCancel={onCancel}
+                                onDelete={handleDelete}
+                                onUpdatePriority={onUpdatePriority}
+                                isCollapsed={areTasksCollapsed}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+
+                {formErrors && <ErrorText message={formErrors} clearErrors={() => setFormErrors(null)} />}
+
+                {isAdding && (
+                  <NewBlock
+                    onSubmit={handleAddSubmit}
+                    onCancel={handleAddCancel}
+                  />
+                )}
+              </div>
+
+              {/* Add Task / Submit Task Button */}
+              {/* {!isAdding && (
+                <div className="add-button-container">
+                  <AddButton handleClick={handleAddToggle} />
+                </div>
+              )} */}
+            </div>
+          </div>
+        </DragDropContext>
+      </StyledTimeblocking>
+    // </div>
   )
 }
 
@@ -308,6 +312,7 @@ const StyledTimeblocking = styled.div`
     margin-left: ${pageOptions.timelineWidth};
     dislay: flex;
     flex-direction: column;
+    padding-bottom: 50px;
 
     .section-right-inner {
       padding-left: 20px;
@@ -322,11 +327,10 @@ const StyledTimeblocking = styled.div`
       // = 56px + 52px + 52px + 85px + 16px
       // height: calc(100vh - 56px - 104px - 85px - 10px);
       padding-top: 6px;
-      padding-bottom: 6px;
       // border-top: 1px solid rgba(0,0,0,.12);
       // overflow-y: auto;
       padding-right: 8px;
-      // height: 100%;
+      height: 100%;
 
       .task-card {
         padding: 12px 20px; // NOTE: adjust the padding to make responsive
@@ -384,23 +388,23 @@ const StyledTimeblocking = styled.div`
         .task-right {  }
       }
     }
-    .add-button-container,
-    .submit-button-container {
-      padding-top: 6px;
-      margin-bottom: 16px;
-      text-align: center;
+    // .add-button-container,
+    // .submit-button-container {
+    //   padding-top: 6px;
+    //   margin-bottom: 16px;
+    //   text-align: center;
 
-      .add-task-button,
-      .submit-task-button {
-        // border-radius: 0;
-        font-family: montserrat, sans-serif;
-        font-style: normal;
-        box-shadow: ${boxShadows.shadow2};
-      }
-    }
-    .add-button-container {
-      // border-top: 1px solid rgba(0,0,0,.1);
-    }
+    //   .add-task-button,
+    //   .submit-task-button {
+    //     // border-radius: 0;
+    //     font-family: montserrat, sans-serif;
+    //     font-style: normal;
+    //     box-shadow: ${boxShadows.shadow2};
+    //   }
+    // }
+    // .add-button-container {
+    //   // border-top: 1px solid rgba(0,0,0,.1);
+    // }
   }
 
   @media(min-width: 1672px) {

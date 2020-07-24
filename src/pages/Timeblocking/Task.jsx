@@ -2,10 +2,11 @@ import React, { useState } from 'react'
 import { pure } from 'recompose'
 import styled from 'styled-components'
 import { MoreVertical } from 'react-feather'
-import { TimeBlockForm } from './TimeBlockForm'
-import TimeBlockDisplay from './TimeBlockDisplay'
+import { TimeBlockForm } from './TaskForm'
+import TimeBlockDisplay from './TaskDisplay'
 import { OutsideAlerter } from '../../hoc/OutsideAlerter'
 import { ClockInput, ColorPicker } from '../../components/Inputs'
+// import { colorOptions, colorOptionsObject } from '../../constants/colors'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
 
@@ -18,31 +19,6 @@ import { boxShadows } from '../../styles/shadows.style'
 // [x] TimeBlock should hold editing state and switch between Display and Form blocks
 
 // [x] I like... "Fit to Screen" and "Show to scale" checkbox feature to toggle display settings
-
-const colorOptions = [
-  {
-    code : "#fff", // white (or blue)
-    priority: 4,
-  },
-  {
-    code: "#48C774", // green
-    priority: 3,
-  },
-  {
-    code: "#FFDD57", // yellow
-    priority: 2,
-  },
-  {
-    code: "#FF3860", // danger
-    priority: 1,
-  },
-]
-const colorOptionsObject = {
-  1: "#FF3860",
-  2: "#FFDD57",
-  3: "#48C774",
-  4: "#FFF"
-}
 
 // how to optimize?
 

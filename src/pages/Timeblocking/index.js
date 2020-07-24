@@ -1,9 +1,9 @@
 import { ConnectedTimeblocking as Timeblocking} from './Timeblocking'
-import { TimeBlock } from './TimeBlock'
+import { TimeBlock } from './Task'
 import { Toolbar } from './Toolbar'
 
 export {
-  Timeblocking,
+  Timeblocking as default,
   TimeBlock,
   Toolbar,
 }

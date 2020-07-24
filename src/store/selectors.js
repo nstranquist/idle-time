@@ -10,14 +10,14 @@ export const selectOrderedTasks = createSelector(
     const tasksWithOrder = tasks.map((task, index) => {
       if(task) {
         const taskOrder = order.indexOf(task._id)
-        console.log('taskOrder:', taskOrder, 'for task with id:', task._id)
+        // console.log('taskOrder:', taskOrder, 'for task with id:', task._id)
         if(taskOrder > -1)
           task.order = taskOrder;
         else {
           task.order = 0;
           console.log('task order was -1')
         }
-        console.log('task:', task.title, 'with order:', task.order)
+        // console.log('task:', task.title, 'with order:', task.order)
       }
       else console.log('task at index:', index, 'is undefined')
       return task;

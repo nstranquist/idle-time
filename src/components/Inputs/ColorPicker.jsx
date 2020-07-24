@@ -3,31 +3,7 @@ import styled from 'styled-components'
 import { OutsideAlerter } from '../../hoc/OutsideAlerter'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
-
-const colorOptions = [
-  {
-    code : "#fff", // white (or blue)
-    priority: 4,
-  },
-  {
-    code: "#48C774", // green
-    priority: 3,
-  },
-  {
-    code: "#FFDD57", // yellow
-    priority: 2,
-  },
-  {
-    code: "#FF3860", // danger
-    priority: 1,
-  },
-]
-const colorOptionsObject = {
-  1: "#FF3860",
-  2: "#FFDD57",
-  3: "#48C774",
-  4: "#FFF"
-}
+import { colorOptions, colorOptionsObject } from '../../constants/colors'
 
 export const ColorPicker = ({
   priority,

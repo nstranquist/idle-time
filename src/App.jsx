@@ -81,12 +81,12 @@ const App = ({
                 <Route
                   exact
                   path="/"
-                  component={lazy(() => import("./pages/Home"))}
+                  component={lazy(() => import("./pages/Timeblocking"))}
                 />
                 <Route
                   exact
                   path="/home"
-                  component={lazy(() => import("./pages/Home"))}
+                  component={lazy(() => import("./pages/Timeblocking"))}
                 />
                 <Route
                   exact

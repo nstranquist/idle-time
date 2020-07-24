@@ -1,4 +1,4 @@
-import { NewBlockForm } from '.../Timeblocking/TimeBlockForm
+import { NewBlockForm } from './NewBlockForm'
 import { DateForm } from './DateForm'
 import { AddFormItem } from './AddFormItem'
 

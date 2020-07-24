@@ -1,6 +1,5 @@
-import { Timeline, ConnectedTimeline } from './Timeline'
+import { PureTimeline as Timeline } from './Timeline'
 
 export {
-  ConnectedTimeline,
-  Timeline, 
+  Timeline,
 }

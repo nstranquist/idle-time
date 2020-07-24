@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Trash2, Save } from 'react-feather'
-import { bulmaColors } from '../../styles/bulma.colors'
+import { bulmaColors } from '../../../styles/bulma.colors'
 
 export const DragIconBar = ({
   onDragEnter=()=>null,
