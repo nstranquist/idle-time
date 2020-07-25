@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
+import { pure } from 'recompose'
 import styled from 'styled-components'
 import { ErrorNotification } from '../../components/ErrorText'
 import { LoadingContainer } from '../../components/LoadingContainer'
@@ -60,10 +61,11 @@ const Presets = ({
   const handleCancel = () => setShowAddForm(false)
 
   const togglePresetEditing = (id) => {
-    if(editingId)
+    if(editingId === id) {
       setEditingId(null)
-
-    setEditingId(id)
+    }
+    else
+      setEditingId(id)
   }
 
   const handleUsePreset = (presetData) => {
@@ -118,12 +120,39 @@ const Presets = ({
     removePreset(token, presetId)
   }
 
+  const handleCheckChange = e => {
+    console.log('check change, value:', e.target.checked)
+
+  }
+
   return (
     <StyledPresets className="section-container">
       <header className="section-header">
         <h3 className="header-text is-size-3">Presets</h3>
         {errors && <div style={{marginBottom:"1rem"}}><ErrorNotification message={errors} clearErrors={clearErrors} /></div> }
       </header>
+
+      {/* <section style={{padding: "2rem"}}>
+        <div className="control">
+          <label className="radio">
+            <input type="radio" name="all" defaultChecked value={filterCategory==="all"} onChange={handleCheckChange} />
+            All
+          </label>
+          <label className="radio">
+            <input type="radio" name="tasks" value={filterCategory==="tasks"} onChange={handleCheckChange} />
+            Tasks
+          </label>
+          <label className="radio">
+            <input type="radio" name="timeshift" value={filterCategory==="timeshift"} onChange={handleCheckChange} />
+            Timeshift
+          </label>
+          <label className="radio">
+            <input type="radio" name="schedule" value={filterCategory==="schedule"} onChange={handleCheckChange} />
+            Schedule
+          </label>
+        </div>
+      </section> */}
+
       <div className="presets-inner">
         <div className="custom-blocks container">
           <h5 className="is-size-5" style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'1.4rem'}}>
@@ -177,7 +206,7 @@ export const ConnectedPresets = connect(
   { getPresets, addPreset, updatePreset, removePreset, clearErrors, applyTimeshift, updateSettingsSection }
 )(Presets)
 
-
+export const PurePresets = pure(ConnectedPresets)
 
 const StyledPresets = styled.div`
     

@@ -1,5 +1,5 @@
-import { ConnectedPresets as Presets } from './Presets'
+import { ConnectedPresets, PurePresets, } from './Presets'
 
 export {
-  Presets as default, 
+  PurePresets as default,
 }

@@ -4,9 +4,9 @@ import styled from 'styled-components'
 import { MoreVertical } from 'react-feather'
 import { TimeBlockForm } from './TaskForm'
 import TimeBlockDisplay from './TaskDisplay'
-import { OutsideAlerter } from '../../hoc/OutsideAlerter'
 import { ClockInput, ColorPicker } from '../../components/Inputs'
 import { SelectProject } from './components/SelectProject'
+import { TaskOptions } from './components/TaskOptions'
 // import { colorOptions, colorOptionsObject } from '../../constants/colors'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
@@ -32,6 +32,8 @@ const TimeBlockUI = ({
   onCancel,
   onDelete,
   onUpdatePriority,
+  savePreset,
+  removePreset,
   // dragHandleProps,
   isCollapsed,
   // onClockClick,
@@ -76,8 +78,13 @@ const TimeBlockUI = ({
     setShowOptions(false);
   }
 
-  const handleSaveAsPreset = () => {
-
+  const handleSavePreset = () => {
+    savePreset(taskData)
+    setShowOptions(false)
+  }
+  const handleRemovePreset = () => {
+    removePreset(taskData._id)
+    setShowOptions(false)
   }
 
   const onProjectSelect = () => setShowProjects(true)
@@ -88,6 +95,8 @@ const TimeBlockUI = ({
     setShowProjects(false)
     onSave({_id: taskData._id, project: {_id: id, title}})
   }
+
+  const hideOptions = () => setShowOptions(false)
 
   return (
     <StyledTimeBlock
@@ -182,15 +191,16 @@ const TimeBlockUI = ({
                 <span className="icon drag-icon">
                   <MoreVertical size={20} color={bulmaColors.black}  />
                 </span>
-                {showOptions && (
-                  <OutsideAlerter handleOutsideClick={() => setShowOptions(false)}>
-                    <div className="options-menu">
-                      <p className="option" onClick={handleSaveAsPreset}>Save as Preset</p>
-                      <p className="option" onClick={handleDelete}>Delete</p>
-                    </div>
-                  </OutsideAlerter>
-                )}
               </div>
+                {showOptions && (
+                  <TaskOptions
+                    taskId={taskData._id}
+                    handleSavePreset={handleSavePreset}
+                    // handleRemovePreset={handleRemovePreset}
+                    handleOutsideClick={hideOptions}
+                    onDelete={handleDelete}
+                  />
+                )}
             </BlockMenu>
           </div>
         </div>

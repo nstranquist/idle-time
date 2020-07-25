@@ -20,6 +20,7 @@ import { NewBlock } from './old/NewBlock'
 // import redux actions
 import { getTasks, addTask, updateTask, removeTask, updateTasksOrder, clearTaskErrors } from '../../store/Tasks'
 import { getProjects } from '../../store/Projects'
+import { getPresets, addPreset, removePreset } from '../../store/Presets'
 import { selectOrderedTasks } from '../../store/selectors'
 import { Timer } from './Timer'
 
@@ -48,6 +49,9 @@ const Timeblocking = ({
   updateTasksOrder,
   clearTaskErrors,
   getProjects,
+  getPresets,
+  addPreset,
+  removePreset,
 }) => {
   const timerContext = useContext(TimerContext);
   const { time } = timerContext;
@@ -63,6 +67,7 @@ const Timeblocking = ({
 
   useEffect(() => {
     if(token) {
+      getPresets(token)
       getProjects(token)
       getTasks(token)
     }
@@ -148,20 +153,28 @@ const Timeblocking = ({
 
     if (!destination)
       return;
-
-    if (destination.droppableId === source.droppableId && destination.index === source.index)
+    else if (destination.droppableId === source.droppableId && destination.index === source.index)
       return;
-
-    if (type === 'day') {
-      // const newTasksOrder = Array.from(tasks);
-      // newTasksOrder.splice(source.index, 1)
-      // const foundTask = tasks.find(task => task._id === draggableId)
-      // newTasksOrder.splice(destination.index, 0, foundTask)
-
+    else if (type === 'day') {
       updateTasksOrder(token, draggableId, source.index, destination.index)
-      return;
     }
   }
+
+  const savePreset = (taskData) => {
+    console.log('task data to save as preset:', taskData)
+
+    const presetData = {
+      title: taskData.title,
+      category: 'task',
+      taskData,
+    }
+    console.log('saving preset with data:', presetData)
+    addPreset(token, presetData);
+  }
+
+  // Can remove by preset id or by taskid
+  // const handleRemovePreset = (taskId) => removePresetByTaskId(token, taskId)
+
 // height: calc(100% - 85px);
 // max-height: calc(100% - 85px);
   return (
@@ -245,6 +258,8 @@ const Timeblocking = ({
                                 onSave={onSave}
                                 onCancel={onCancel}
                                 onDelete={handleDelete}
+                                savePreset={savePreset}
+                                // removePreset={handleRemovePreset}
                                 onUpdatePriority={onUpdatePriority}
                                 isCollapsed={areTasksCollapsed}
                               />
@@ -296,6 +311,8 @@ export const ConnectedTimeblocking = connect(
     getTasks, addTask, updateTask, removeTask, updateTasksOrder, clearTaskErrors,
     // Projects
     getProjects,
+    // Presets
+    getPresets, addPreset, removePreset,
   }
 )(Timeblocking)
 

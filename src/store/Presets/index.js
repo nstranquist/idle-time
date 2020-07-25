@@ -23,7 +23,6 @@ export const getPresets = (token) => async (dispatch) => {
   dispatch(setLoading())
   let result;
   try {
-    console.log('we are trying to hit that sweet spot baby')
     result = await fetch(BASE_URL + "/presets", {
       method: "GET",
       headers: {
@@ -111,6 +110,26 @@ export const removePreset = (token, id) => async (dispatch) => {
     dispatch(setError(err.toString()))
   }
 }
+
+// export const removePresetByTaskId = (token, taskId) => async (dispatch) => {
+//   let result;
+//   try {
+//     result = await fetch(BASE_URL + '/presets/task/' + taskId, {
+//       method: 'DELETE',
+//       headers: { 'x-access-token': token }
+//     })
+//     console.log('result:', result, 'status:', result.status)
+//     const jsonresult = await result.json();
+//     if(result.status < 400 || jsonresult.status === "success") {
+//       const id = jsonresult.data.id;
+//       dispatch(removePresetAction(id))
+//     }
+//     else dispatch(setError(jsonresult.message || "error removing preset"))
+//   } catch (err) {
+//     console.log('error:', err)
+//     dispatch(setError(err.toString()))
+//   }
+// }
 
 
 const initialState = {
