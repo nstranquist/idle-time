@@ -79,7 +79,10 @@ export const TimeTracking = ({
       </TimelogItemStyled>
 
       <div className="timelogs-container">
-        {timelogs && timelogs.length > 0 && timelogs.map(log => <TimelogItem key={log._id} timelog={log} handleRemoveLog={handleRemoveLog} />)}
+        {!loading && timelogs && timelogs.length > 0 
+          ? timelogs.map(log => <TimelogItem key={log._id} timelog={log} handleRemoveLog={handleRemoveLog} />)
+          : <p>No timelogs yet!</p>
+        }
       </div>
     </StyledTimetracking>
   )

@@ -6,6 +6,7 @@ import { TimeBlockForm } from './TaskForm'
 import TimeBlockDisplay from './TaskDisplay'
 import { OutsideAlerter } from '../../hoc/OutsideAlerter'
 import { ClockInput, ColorPicker } from '../../components/Inputs'
+import { SelectProject } from './components/SelectProject'
 // import { colorOptions, colorOptionsObject } from '../../constants/colors'
 import { bulmaColors } from '../../styles/bulma.colors'
 import { boxShadows } from '../../styles/shadows.style'
@@ -37,6 +38,7 @@ const TimeBlockUI = ({
 }) => {
   const [showColors, setShowColors] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
+  const [showProjects, setShowProjects] = useState(false)
 
   const handleInputClick = (fieldName) => {
     onInputClick(taskData, fieldName)
@@ -75,7 +77,16 @@ const TimeBlockUI = ({
   }
 
   const handleSaveAsPreset = () => {
-    
+
+  }
+
+  const onProjectSelect = () => setShowProjects(true)
+  const onProjectCancel = () => setShowProjects(false)
+
+  const assignProject = (id, title) => { // project id, project title
+    // add project id to task, add task id to project
+    setShowProjects(false)
+    onSave({_id: taskData._id, project: {_id: id, title}})
   }
 
   return (
@@ -146,6 +157,19 @@ const TimeBlockUI = ({
                 onCancel={onCancel}
               />
             </div> */}
+            <BlockMenu style={{position:'relative'}}>
+              <div style={{position:'relative'}}>
+                <p className="no-formatting text-center text-item" style={{cursor:'pointer',opacity:'.85'}} onClick={onProjectSelect}>
+                  {taskData.project ? taskData.project.title : "assign"}
+                </p>
+                {showProjects && (
+                  <SelectProject
+                    assignProject={assignProject}
+                    onCancel={onProjectCancel}
+                  />
+                )}
+              </div>
+            </BlockMenu>
             
             {/* Color Picker / Priority Picker */}
             <ColorPicker
@@ -158,17 +182,15 @@ const TimeBlockUI = ({
                 <span className="icon drag-icon">
                   <MoreVertical size={20} color={bulmaColors.black}  />
                 </span>
-              {showOptions && (
-                <OutsideAlerter handleOutsideClick={() => setShowOptions(false)}>
-                  <div className="options-menu">
-                    <p className="option" onClick={handleDelete}>Delete</p>
-                    <p className="option" onClick={handleSaveAsPreset}>Save as Preset</p>
-                    <p className="option">Add Below</p>
-                  </div>
-                </OutsideAlerter>
-              )}
+                {showOptions && (
+                  <OutsideAlerter handleOutsideClick={() => setShowOptions(false)}>
+                    <div className="options-menu">
+                      <p className="option" onClick={handleSaveAsPreset}>Save as Preset</p>
+                      <p className="option" onClick={handleDelete}>Delete</p>
+                    </div>
+                  </OutsideAlerter>
+                )}
               </div>
-
             </BlockMenu>
           </div>
         </div>
@@ -182,22 +204,40 @@ export const TimeBlock = pure(TimeBlockUI)
 
 const BlockMenu = styled.div`
   position: relative;
-  z-index: 11000;
+  // z-index: 10000;
+
+  .text-item {
+    cursor: pointer;
+    padding: 2px 3px;
+    margin-right: 3px !important;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 
   .options-menu {
     text-align: center;
     position: absolute;
-    left: calc(-100% - 3rem - 17px);
     // left: -300%;
+    right: 38px;
+    width: 200px;
     top: 0;
     min-width: 100px;
     background: #fff;
     color: #000;
-    z-index: 1010;
+    z-index: 10010;
     // border: 1px solid rgba(0,0,0,.04);
     border-radius: 2px;
     box-shadow: ${boxShadows.shadow2};
     color: ${bulmaColors.dark};
+
+    &.text-options-menu {
+      top: calc(1.2rem + 6px);
+      right: 0;
+      left: initial;
+      width: 200px;
+    }
 
     .option {
       padding-left: 10px;

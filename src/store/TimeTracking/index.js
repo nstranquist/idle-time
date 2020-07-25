@@ -19,7 +19,7 @@ const setLogDetails = (timelogData) => ({ type: SET_LOG_DETAILS, timelogData })
 export const clearLogDetails = () => ({ type: CLEAR_LOG_DETAILS })
 const addLogAction = (timelog) => ({ type: ADD_LOG, timelog })
 const updateLogAction = (timelogData) => ({ type: UPDATE_LOG, timelogData })
-const removeLogAction = (timelogId) => ({ type: REMOVE_LOG, timelogId })
+const removeLogAction = (id) => ({ type: REMOVE_LOG, id })
 
 const setLoading = () => ({ type: SET_TIMELOGS_LOADING })
 const setErrors = (err) => ({ type: SET_TIMELOGS_ERRORS, err })
@@ -78,7 +78,7 @@ export const getOneTimeLog = (token, timelogId) => async (dispatch) => {
     })
 }
 
-export const addTimeLog = (token, timelogData) => async (dispatch) => {
+export const addTimeLog = (token, timelog) => async (dispatch) => {
   let result;
   try {
     result = await fetch(BASE_URL + '/timetracking', {
@@ -88,11 +88,13 @@ export const addTimeLog = (token, timelogData) => async (dispatch) => {
         'Content-Type': 'application/json',
         'x-access-token': token
       },
-      body: JSON.stringify({timelog: timelogData})
+      body: JSON.stringify({timelog})
     })
     const jsonresult = await result.json();
     if(jsonresult.status === "success" || result.status < 400) {
       const timelog = jsonresult.data.timelog;
+      console.log('jsonresult:', jsonresult)
+      console.log('timelog:', timelog)
       dispatch(addLogAction(timelog))
     }
     else dispatch(setErrors(`${result.status} error: ${jsonresult.message}` || "error adding your timelog"))
@@ -125,13 +127,13 @@ export const updateTimeLog = (token, timelogId, timelogData) => async (dispatch)
   }
 }
 
-export const removeTimeLog = (token, timelogId) => async (dispatch) => {
+export const removeTimeLog = (token, id) => async (dispatch) => {
   // update ui first, only undo the update if the log does not actually get deleted
-  // dispatch(removeLogAction(data.data.timelogId)) // would need to store the log data somewhere first (find log data by id before delete)
+  // dispatch(removeLogAction(data.data.id)) // would need to store the log data somewhere first (find log data by id before delete)
 
   let result;
   try {
-    result = await fetch(BASE_URL + "/timetracking/" + timelogId, {
+    result = await fetch(BASE_URL + "/timetracking/" + id, {
       method: 'DELETE',
       headers: {
         'x-access-token': token,
@@ -140,7 +142,8 @@ export const removeTimeLog = (token, timelogId) => async (dispatch) => {
     console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json();
     if(jsonresult.status === "success" || result.status < 400) {
-      dispatch(removeLogAction(timelogId))
+      console.log('id:', id)
+      dispatch(removeLogAction(id))
     }
     else dispatch(setErrors(`${result.status} error: ${jsonresult.message}` || "error removing your timelog"))
   } catch (error) {
@@ -198,7 +201,7 @@ export default (
     case REMOVE_LOG:
       return {
         ...state,
-        logs: state.logs.filter(log => log.id !== action.timelogId)
+        logs: state.logs.filter(log => log._id !== action.id)
       }
     case SET_TIMELOGS_ERRORS:
       return {

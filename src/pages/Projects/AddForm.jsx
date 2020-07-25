@@ -1,16 +1,15 @@
 import React, { useState } from 'react'
 // import styled from 'styled-components'
-import { pure } from 'recompose'
 import { ErrorText } from '../../components/ErrorText'
 
 const emptyForm = {
   title: "",
-  duration: 10, // hh:mm, no seconds
+  desc: "",
+  billable: false,
+  tasks: [], // addable select component
   // optionals:
-  startTime: null,
-  project: null,
-  desc: null,
   priority: null,
+  themeColor: null,
 }
 
 export const AddForm = ({
@@ -53,10 +52,6 @@ export const AddForm = ({
         <div className="field">
           <label htmlFor="title" className="label">Title</label>
           <input autoFocus type="text" className="input" placeholder="Title" name="title" value={formData.title} onChange={handleChange} />
-        </div>
-        <div className="field">
-          <label htmlFor="duration">Duration</label>
-          <input type="number" id="timelog-duration" onFocus={handleFocus} min={0} max={1440} className="input" placeholder="Duration" name="duration" value={formData.duration} onChange={handleChange} />
         </div>
         <div className="field">
           <label htmlFor="desc" className="label">Description</label>

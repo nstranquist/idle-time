@@ -15,10 +15,11 @@ import { TimeBlock } from './Task'
 import { ErrorText } from '../../components/ErrorText'
 // import { AddButton } from '../../components/Buttons'
 import { NewBlock } from './old/NewBlock'
-import { DragIconBar } from './old/DragIconBar'
+// import { DragIconBar } from './old/DragIconBar'
 
 // import redux actions
 import { getTasks, addTask, updateTask, removeTask, updateTasksOrder, clearTaskErrors } from '../../store/Tasks'
+import { getProjects } from '../../store/Projects'
 import { selectOrderedTasks } from '../../store/selectors'
 import { Timer } from './Timer'
 
@@ -46,6 +47,7 @@ const Timeblocking = ({
   removeTask,
   updateTasksOrder,
   clearTaskErrors,
+  getProjects,
 }) => {
   const timerContext = useContext(TimerContext);
   const { time } = timerContext;
@@ -60,7 +62,10 @@ const Timeblocking = ({
   const [isDragging, setIsDragging] = useState(false)
 
   useEffect(() => {
-    if(token) getTasks(token)
+    if(token) {
+      getProjects(token)
+      getTasks(token)
+    }
   }, [token])
 
   const handleAddToggle = () => {
@@ -168,11 +173,11 @@ const Timeblocking = ({
           onDragEnd={onDragEnd}
         >
           {/* After inline-styles, make its own styled-component called TrashStyled */}
-          {isDragging === true && (
+          {/* {isDragging === true && (
             <DragIconBar
 
             />
-          )}
+          )} */}
 
           {/* Content-Left */}
           <div className="section-left">
@@ -286,7 +291,12 @@ const mapStateToProps = (state) => ({
 
 export const ConnectedTimeblocking = connect(
   mapStateToProps,
-  { getTasks, addTask, updateTask, removeTask, updateTasksOrder, clearTaskErrors }
+  {
+    // Tasks
+    getTasks, addTask, updateTask, removeTask, updateTasksOrder, clearTaskErrors,
+    // Projects
+    getProjects,
+  }
 )(Timeblocking)
 
 const StyledTaskCard = styled.div`

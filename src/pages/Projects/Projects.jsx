@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { ErrorNotification } from '../../components/ErrorText'
+import { AddForm } from './AddForm'
 import { getProjects, addProject, updateProject, deleteProject, clearErrors } from '../../store/Projects'
 import { selectProjects } from '../../store/Projects/selectors'
 import { selectAuthToken } from '../../store/Auth/selectors'
@@ -18,17 +19,16 @@ const Projects = ({
   clearErrors
 }) => {
   // const [updating, setUpdating] = useState(null) // null or string
+  const [adding, setAdding] = useState(false)
   
   useEffect(() => {
     getProjects(token);
   }, [])
 
-  const handleAddProject = () => {
-    const newProject = {
-      title: "New Project",
-      desc: "example description"
-    }
-    addProject(token, newProject);
+  const handleAddProject = (projectData) => {
+    console.log('project data:', projectData)
+    addProject(token, projectData);
+    toggleAddProject()
   }
 
   const handleStartUpdate = (id) => {
@@ -51,12 +51,24 @@ const Projects = ({
   const handleAssignTask = (id) => {
 
   }
+
+  const toggleAddProject = () => setAdding(adding => !adding)
   
   return (
-    <div className="container">
-      <h3 className="is-size-3">Projects</h3>
-      {errors && <ErrorNotification message={errors.toString()} clearErrors={clearErrors} />  }
-      <button onClick={handleAddProject} className="button is-link">Add Project</button>
+    <div className="container section-container">
+      <header className="section-header">
+        <h3 className="is-size-3">Projects</h3>
+        {errors && <ErrorNotification message={errors.toString()} clearErrors={clearErrors} />  }
+
+        {!adding
+          ? <button onClick={toggleAddProject} className="button is-link">Add Project</button>
+          : <AddForm
+          submitForm={handleAddProject}
+          cancelForm={toggleAddProject}
+          />
+        }
+      </header>
+
       <ul className="list">
         {projects.length === 0 ? (
           <li className="list-item project-item">You don't have any projects yet!</li>
