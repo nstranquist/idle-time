@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
 import { connect } from "react-redux";
 import { TimerProvider } from './context/IdleTimer'
 import styled from "styled-components";
@@ -11,18 +11,26 @@ import { bulmaColors } from './styles/bulma.colors'
 import { pageOptions } from './styles/pageOptions'
 import { openSidebar, closeSidebar } from "./store/Settings";
 import { selectSidebarOpen } from "./store/Settings/selectors";
-import { selectIsSignedIn } from "./store/Auth/selectors";
+import { logout } from './store/Auth'
+import { selectIsSignedIn, selectAuthToken } from "./store/Auth/selectors";
 
 import { Login, SignUp, ResetPassword } from './pages/Auth'
 
 // Perhaps: put sidebar and layout container code here
 
 const App = ({ 
+  token,
   isSignedIn,
   sidebarOpen,
   openSidebar,
   closeSidebar,
+  logout,
 }) => {
+
+  useEffect(() => {
+    if(!token && isSignedIn)
+      logout();
+  }, [token])
 
   if(isSignedIn === false) {
     return (
@@ -144,7 +152,7 @@ const mapStateToProps = (state) => ({
 
 export const ConnectedApp = connect(
   mapStateToProps,
-  { openSidebar, closeSidebar },
+  { openSidebar, closeSidebar, logout },
 )(App);
 
 export default ConnectedApp;

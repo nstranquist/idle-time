@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { pure } from 'recompose'
 import styled from 'styled-components'
-import { MoreVertical } from 'react-feather'
+import { MoreVertical, Folder, FolderPlus } from 'react-feather'
 import { TimeBlockForm } from './TaskForm'
 import TimeBlockDisplay from './TaskDisplay'
 import { ClockInput, ColorPicker } from '../../components/Inputs'
@@ -168,9 +168,18 @@ const TimeBlockUI = ({
             </div> */}
             <BlockMenu style={{position:'relative'}}>
               <div style={{position:'relative'}}>
-                <p className="no-formatting text-center text-item" style={{cursor:'pointer',opacity:'.85'}} onClick={onProjectSelect}>
-                  {taskData.project ? taskData.project.title : "assign"}
-                </p>
+                {taskData.project
+                  ? (
+                    <p className="no-formatting text-center text-item" style={{cursor:'pointer',opacity:'.85'}} onClick={onProjectSelect}>
+                      <Folder size={17} fillOpacity={.9} style={{marginRight:3}} /> {taskData.project.title}
+                    </p>
+                  ) : (
+                  <p className="no-formatting text-center text-item text-item-icon" style={{cursor:'pointer',opacity:'.7',display:'flex',alignItems:'center'}} onClick={onProjectSelect}>
+                    <FolderPlus />
+                  </p>
+                  )
+                }
+                
                 {showProjects && (
                   <SelectProject
                     assignProject={assignProject}
@@ -218,11 +227,25 @@ const BlockMenu = styled.div`
 
   .text-item {
     cursor: pointer;
-    padding: 2px 3px;
+    padding: 2px 4px;
     margin-right: 3px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
       text-decoration: underline;
+    }
+
+    &.text-item-icon {
+      border-radius: 50%;
+      padding: .4rem;
+      transition: background-color .08s ease;
+
+      &:hover {
+        background-color: rgba(0,0,0,.08);
+        transition: background-color .08s ease;
+      }
     }
   }
 
