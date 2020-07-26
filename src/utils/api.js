@@ -1,6 +1,6 @@
 
 // export const BASE_URL = process.env.API_CONN;
-const BASE_URL = "http://localhost:8080"
+const BASE_URL = "http://144.202.28.229"
 
 const fetchUtil = async (token, extension, method, body=undefined, bodyName=undefined) => {
   let result;
