@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
@@ -197,6 +198,15 @@ const SignUp = ({
       </div>
     </StyledSignup>
   )
+}
+
+SignUp.propTypes = {
+  signupSuccess: PropTypes.bool,
+  loading: PropTypes.bool,
+  errors: PropTypes.string || null,
+  signup: PropTypes.func,
+  clearErrors: PropTypes.func,
+  resetSignupSuccess: PropTypes.func,
 }
 
 const mapStateToProps = (state) => ({

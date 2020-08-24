@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { pure } from 'recompose'
 import styled from 'styled-components'
 import { MoreVertical, Folder, FolderPlus } from 'react-feather'
@@ -27,6 +28,7 @@ const TimeBlockUI = ({
   taskData, // Title, Desc, startTime, duration, priority
   isEditing,
   activeField = "title",
+  isCollapsed,
   onInputClick,
   onSave,
   onCancel,
@@ -35,7 +37,6 @@ const TimeBlockUI = ({
   savePreset,
   removePreset,
   // dragHandleProps,
-  isCollapsed,
   // onClockClick,
 }) => {
   const [showColors, setShowColors] = useState(false)
@@ -207,7 +208,7 @@ const TimeBlockUI = ({
                     handleSavePreset={handleSavePreset}
                     // handleRemovePreset={handleRemovePreset}
                     handleOutsideClick={hideOptions}
-                    onDelete={handleDelete}
+                    handleDelete={handleDelete}
                   />
                 )}
             </BlockMenu>
@@ -216,6 +217,26 @@ const TimeBlockUI = ({
       </BlockSpacer>
     </StyledTimeBlock>
   )
+}
+
+TimeBlockUI.propTypes = {
+  taskData: PropTypes.object, // Title, Desc, startTime, duration, priority
+  isEditing: PropTypes.bool,
+  isCollapsed: PropTypes.bool,
+  activeField: PropTypes.string,
+  onInputClick: PropTypes.func,
+  onSave: PropTypes.func,
+  onCancel: PropTypes.func,
+  onDelete: PropTypes.func,
+  onUpdatePriority: PropTypes.func,
+  savePreset: PropTypes.func,
+  removePreset: PropTypes.func,
+  // dragHandleProps,
+  // onClockClick,
+}
+
+TimeBlockUI.defaultProps = {
+  activeField: "title"
 }
 
 export const TimeBlock = pure(TimeBlockUI)

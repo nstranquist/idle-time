@@ -18,6 +18,9 @@ import { Login, SignUp, ResetPassword } from './pages/Auth'
 
 // Perhaps: put sidebar and layout container code here
 
+// TODO: refactor auth app into its own component
+// TODO: refactor redux store to only load with auth app
+
 const App = ({ 
   token,
   isSignedIn,
@@ -26,11 +29,6 @@ const App = ({
   closeSidebar,
   logout,
 }) => {
-
-  useEffect(() => {
-    if(!token && isSignedIn)
-      logout();
-  }, [token])
 
   if(isSignedIn === false) {
     return (
@@ -56,7 +54,9 @@ const App = ({
             path="/reset-password"
             component={ResetPassword}
           />
-          <Route path="/" component={GuestPageNotFound} />
+          <Route path="/">
+            <Redirect to="/" />
+          </Route>
         </Switch>
       </GuestApp>
     )

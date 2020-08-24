@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import { OutsideAlerter } from '../../../hoc/OutsideAlerter'
 import { selectPresetTaskIds } from '../../../store/Presets/selectors'
@@ -40,4 +41,12 @@ export const TaskOptions = ({
       </div>
     </OutsideAlerter>
   )
+}
+
+TaskOptions.propTypes = {
+  taskId: PropTypes.string,
+  handleSavePreset: PropTypes.func,
+  handleRemovePreset: PropTypes.func,
+  handleOutsideClick: PropTypes.func,
+  handleDelete: PropTypes.func,
 }

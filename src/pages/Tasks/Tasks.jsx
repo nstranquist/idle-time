@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { selectTasks, selectTasksLoading, selectTasksErrors } from '../../store/Tasks/selectors'
@@ -64,6 +65,18 @@ export const Tasks = ({
       </div>
     </StyledTasks>
   )
+}
+
+Tasks.propTypes = {
+  token: PropTypes.string,
+  tasks: PropTypes.array,
+  loading: PropTypes.bool,
+  errors: PropTypes.string || null,
+  getTasks: PropTypes.func,
+  addTask: PropTypes.func,
+  updateTask: PropTypes.func,
+  removeTask: PropTypes.func,
+  clearTaskErrors: PropTypes.func,
 }
 
 const mapStateToProps = (state) => ({

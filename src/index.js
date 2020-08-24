@@ -8,6 +8,8 @@ import 'bulma-switch/dist/css/bulma-switch.min.css'
 import './styles/index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import dotenv from 'dotenv'
+dotenv.config()
 
 ReactDOM.render(
   <React.StrictMode>

@@ -29,8 +29,8 @@ export const getPresets = (token) => async (dispatch) => {
         'x-access-token': token
       }
     })
-    console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json();
+    console.log('result:', jsonresult)
     if(result.status < 400 || jsonresult.status === "success") {
       const presets = jsonresult.data.presets;
       dispatch(setPresets(presets))
@@ -55,9 +55,8 @@ export const addPreset = (token, presetData) => async (dispatch) => {
       },
       body: JSON.stringify({ preset: presetData })
     })
-    console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json();
-    console.log('json result:', jsonresult)
+    console.log('result:', jsonresult)
     if(result.status < 400 || jsonresult.status === "success") {
       const preset = jsonresult.data.preset;
       console.log('new preset added:', preset)
@@ -78,10 +77,10 @@ export const updatePreset = (token, presetData) => async (dispatch) => {
       headers: { 'x-access-token': token },
       body: JSON.stringify({ preset: presetData })
     })
-    console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json()
+    console.log('result:', jsonresult)
     if(result.status < 400 || jsonresult.status === "success") {
-      console.log('received result:', jsonresult.data.preset)
+      console.log('received preset data:', jsonresult.data.preset)
       dispatch(updatePresetAction(result.data.preset))
     }
     else dispatch(setError(jsonresult.message || "error updating preset"))

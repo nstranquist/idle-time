@@ -71,7 +71,7 @@ const Timeblocking = ({
       getProjects(token)
       getTasks(token)
     }
-  }, [token])
+  }, [getPresets, getProjects, getTasks, token])
 
   const handleAddToggle = () => {
     // clean up previous editing state
@@ -146,7 +146,6 @@ const Timeblocking = ({
   const onDragUpdate = (update) => console.log('on drag update:', update)
 
   const onDragEnd = (result) => {
-    console.log('on drag end. result:', result)
     // new index: result.destination.index / droppableId
     // old index: result.source.index / droppableId
     const { destination, source, draggableId, type } = result;

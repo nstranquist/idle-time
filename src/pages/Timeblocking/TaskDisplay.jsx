@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { pure } from 'recompose'
 
@@ -17,6 +18,16 @@ const TimeBlockDisplay = ({
     )}
   </StyledTimeBlockDisplay>
 )
+
+TimeBlockDisplay.propTypes = {
+  title: PropTypes.string,
+  desc: PropTypes.string,
+  handleInputClick: PropTypes.func
+}
+
+TimeBlockDisplay.defaultProps = {
+  desc: null
+}
 
 const StyledTimeBlockDisplay = styled.div`
   &.block-right-display {

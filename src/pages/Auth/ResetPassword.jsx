@@ -50,11 +50,11 @@ export const ResetPassword = () => {
       <form onSubmit={handleSubmit} style={{marginTop:30}}>
         {/* {errors && <ErrorText message={errors} /> } */}
         {formErrors && <ErrorText message={formErrors} clearErrors={() => setFormErrors(null)} />}
+        {serverErrors && <ErrorText message={serverErrors} clearErrors={() => dispatch(clearErrors())} />}
 
         <div className="field">
           <div className="control has-icons-left has-icons-right">
             <input
-              autoFocus
               className="input" // is-danger for incorrect input elements
               type="email"
               required

@@ -35,8 +35,8 @@ export const getSettings = (token) => async (dispatch) => {
       method: 'GET',
       headers: { 'x-access-token': token },
     })
-    console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json()
+    console.log('result:', jsonresult)
     if(jsonresult.status === "success" || result.status < 400) {
       console.log('jsonresult:', jsonresult)
       const settings = jsonresult.data.settings;
@@ -59,8 +59,8 @@ export const getSettingsSection = (token, sectionName) => async (dispatch) => {
       method: 'GET',
       headers: { 'x-access-token': token }
     })
-    console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json()
+    console.log('result:', jsonresult)
     if(result.status < 400 || jsonresult.status === "success") {
       const settingsSection = jsonresult.data.settingsSection;
       dispatch(setSettingsSection(sectionName, settingsSection))
@@ -102,8 +102,8 @@ export const updateAllSettings = (token, settingsData) => async (dispatch) => {
       headers: { 'x-access-token': token, "Accepts": "application/json" },
       body: JSON.stringify({ settings: settingsData })
     })
-    console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json()
+    console.log('result:', jsonresult)
     if(jsonresult.status === "success" || result.status < 400) {
       const settings = jsonresult.data.settings;
       dispatch(setSettings(settings))
