@@ -7,9 +7,9 @@ import { selectPresetTaskIds } from '../../../store/Presets/selectors'
 export const TaskOptions = ({
   taskId,
   handleSavePreset,
-  handleRemovePreset,
   handleOutsideClick,
   handleDelete,
+  handleCompleteTask,
 }) => {
   const [isPreset, setIsPreset] = useState(undefined)
   const taskIds = useSelector(selectPresetTaskIds)
@@ -31,9 +31,10 @@ export const TaskOptions = ({
   return (
     <OutsideAlerter handleOutsideClick={handleOutsideClick}>
       <div className="options-menu">
+        <p className="option" onClick={handleCompleteTask}>Complete</p>
         {isPreset !== undefined
           ? isPreset
-            ? <p className="option" onClick={handleRemovePreset} style={{opacity: .7}}>Saved!</p>
+            ? <p className="option" style={{opacity: .7}}>Saved!</p>
             : <p className="option" onClick={handleSavePreset}>Save as Preset</p>
           : <p className="option" style={{opacity: .7}}>loading...</p>
         }
@@ -49,4 +50,5 @@ TaskOptions.propTypes = {
   handleRemovePreset: PropTypes.func,
   handleOutsideClick: PropTypes.func,
   handleDelete: PropTypes.func,
+  handleCompleteTask: PropTypes.func,
 }

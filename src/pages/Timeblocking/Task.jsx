@@ -22,8 +22,6 @@ import { boxShadows } from '../../styles/shadows.style'
 
 // [x] I like... "Fit to Screen" and "Show to scale" checkbox feature to toggle display settings
 
-// how to optimize?
-
 const TimeBlockUI = ({
   taskData, // Title, Desc, startTime, duration, priority
   isEditing,
@@ -83,10 +81,6 @@ const TimeBlockUI = ({
     savePreset(taskData)
     setShowOptions(false)
   }
-  const handleRemovePreset = () => {
-    removePreset(taskData._id)
-    setShowOptions(false)
-  }
 
   const onProjectSelect = () => setShowProjects(true)
   const onProjectCancel = () => setShowProjects(false)
@@ -95,6 +89,10 @@ const TimeBlockUI = ({
     // add project id to task, add task id to project
     setShowProjects(false)
     onSave({_id: taskData._id, project: {_id: id, title}})
+  }
+
+  const handleCompleteTask = () => {
+    console.log('user wishes to complete task with id:', taskData._id)
   }
 
   const hideOptions = () => setShowOptions(false)
@@ -206,9 +204,9 @@ const TimeBlockUI = ({
                   <TaskOptions
                     taskId={taskData._id}
                     handleSavePreset={handleSavePreset}
-                    // handleRemovePreset={handleRemovePreset}
                     handleOutsideClick={hideOptions}
                     handleDelete={handleDelete}
+                    handleCompleteTask={handleCompleteTask}
                   />
                 )}
             </BlockMenu>
