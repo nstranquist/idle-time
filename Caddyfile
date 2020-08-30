@@ -3,5 +3,5 @@
 }
 
 idletime.app {
-    reverse_proxy idletime-client:3000
+    reverse_proxy idletime-client:80
 }
