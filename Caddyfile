@@ -1,0 +1,7 @@
+{
+    email nicostran@gmail.com
+}
+
+idletime.app {
+    reverse_proxy idletime-client:3000
+}

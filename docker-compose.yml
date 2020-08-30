@@ -1,0 +1,28 @@
+version: "3.3"
+services:
+    caddy:
+        container_name: caddy-server
+        image: caddy:2.0.0-alpine
+        restart: always
+        ports:
+            - 80:80
+            - 443:443
+        volumes: 
+            - ./Caddyfile:/etc/caddy/Caddyfile
+            - ./caddy_data:/data
+    watchtower:
+        container_name: watchtower
+        image: v2tec/watchtower
+        restart: always
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /home/ubuntu/.docker/config.json:/config.json
+        command: watchtower idletime-client --interval 120
+    idletime-client:
+        container_name: idletime-client
+        image: docker.pkg.github.com/nstranquist/idle-time-server/frontend:production
+        restart: always
+        depends_on: 
+            - caddy
+        ports: 
+            - 3000:80
