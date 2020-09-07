@@ -48,7 +48,7 @@ export const resetSignupSuccess = () => ({ type: RESET_SIGNUP_SUCCESS });
 //     .then((object) => {
 //       const { data, status } = object;
 //       console.log('response data:', object)
-//       if(data.status === "success" || status < 400)
+//       if(data.ok || status < 400)
 //         dispatch({ type: LOGIN_SUCCESS, userData: data.data.user, token: data.data.token })
 //       else
 //         dispatch({ type: LOGIN_FAILURE, err: `${status} error: ${data.message}` })
@@ -79,7 +79,7 @@ export const signup = (name, email, password) => (dispatch) => {
       const { data, status } = object;
       console.log('response data:', object)
       // const data = JSON.stringify(resData)
-      if(data.status && data.status==="success")
+      if(data.ok)
         dispatch({ type: SIGNUP_SUCCESS })
       else
         dispatch({ type: SIGNUP_FAILURE, err: `${status} error: ${data.message}` })
@@ -115,12 +115,12 @@ export const updateName = (newName) => (dispatch) => {
       console.log('response data:', object)
 
       // TODO: add in error status codes
-      if(data.status && data.status==='success') {
+      if(data.ok) {
         dispatch({ type: USER_SUCCESS, data: data.data })
       }
       else {
-        if(data.status && data.message)
-          dispatch({ type: USER_ERROR, err: `${data.status} error: ${data.message}`})
+        if(status && data.message)
+          dispatch({ type: USER_ERROR, err: `${status} error: ${data.message}`})
         else
           dispatch({ type: USER_ERROR, err: 'error updating user'})
       }

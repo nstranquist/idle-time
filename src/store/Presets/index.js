@@ -31,7 +31,7 @@ export const getPresets = (token) => async (dispatch) => {
     })
     const jsonresult = await result.json();
     console.log('result:', jsonresult)
-    if(result.status < 400 || jsonresult.status === "success") {
+    if(result.status < 400 || jsonresult.ok) {
       const presets = jsonresult.data.presets;
       dispatch(setPresets(presets))
     }
@@ -57,7 +57,7 @@ export const addPreset = (token, presetData) => async (dispatch) => {
     })
     const jsonresult = await result.json();
     console.log('result:', jsonresult)
-    if(result.status < 400 || jsonresult.status === "success") {
+    if(result.status < 400 || jsonresult.ok) {
       const preset = jsonresult.data.preset;
       console.log('new preset added:', preset)
       dispatch(addPresetAction(preset))
@@ -79,7 +79,7 @@ export const updatePreset = (token, presetData) => async (dispatch) => {
     })
     const jsonresult = await result.json()
     console.log('result:', jsonresult)
-    if(result.status < 400 || jsonresult.status === "success") {
+    if(result.status < 400 || jsonresult.ok) {
       console.log('received preset data:', jsonresult.data.preset)
       dispatch(updatePresetAction(result.data.preset))
     }
@@ -99,7 +99,7 @@ export const removePreset = (token, id) => async (dispatch) => {
     })
     console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json();
-    if(result.status < 400 || jsonresult.status === "success") {
+    if(result.status < 400 || jsonresult.ok) {
       const id = jsonresult.data.id;
       dispatch(removePresetAction(id))
     }
@@ -119,7 +119,7 @@ export const removePreset = (token, id) => async (dispatch) => {
 //     })
 //     console.log('result:', result, 'status:', result.status)
 //     const jsonresult = await result.json();
-//     if(result.status < 400 || jsonresult.status === "success") {
+//     if(result.status < 400 || jsonresult.ok) {
 //       const id = jsonresult.data.id;
 //       dispatch(removePresetAction(id))
 //     }

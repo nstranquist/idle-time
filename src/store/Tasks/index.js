@@ -42,7 +42,7 @@ export const getTasks = (token) => (dispatch) => {
     .then((object) => {
       const { data, status } = object;
       console.log('response data:', object);
-      if ((data.status === 'success' || status < 400)) {
+      if ((data.ok || status < 400)) {
         if (data.data.tasks || data.data.order) {
           const { tasks, order } = data.data;
           dispatch(setTasks(tasks, order));
@@ -71,7 +71,7 @@ export const addTask = (token, taskData, bottom = true) => (dispatch) => {
     .then((object) => {
       console.log('response data:', object);
       const { data, status } = object;
-      if (data.status === 'success' || status < 400) {
+      if (data.ok || status < 400) {
         const { task, order } = data.data;
         if (task && order) {
           console.log('task added successfully with response:', task);
@@ -116,7 +116,7 @@ export const updateTask = (token, taskId, taskData) => (dispatch, getState) => {
       console.log('response object in updateTask:', object);
       const { data, status } = object;
 
-      if (data.status === 'success' || status < 400) {
+      if (data.ok || status < 400) {
         console.log('data:', data.data.taskData, 'data:', data);
         dispatch(updateTaskAction(data.data.taskData));
       } else { dispatch(setErrors(`${status} error: ${data.message}` || 'error updating task')); }
@@ -142,7 +142,7 @@ export const removeTask = (token, taskId) => (dispatch) => {
       const { data, status } = object;
       console.log('response object:', object);
 
-      if (data.status === 'success' || status < 400) {
+      if (data.ok || status < 400) {
         const { order } = data.data;
         dispatch(removeTaskAction(taskId, order));
         // if(!data.data.taskId)
@@ -212,11 +212,11 @@ export const updateTasksOrder = (token, taskId, sourceIndex, destinationIndex) =
         console.log('response object:', object);
         const { data, status } = object;
 
-        if (data.status === 'success' || status < 400) {
+        if (data.ok || status < 400) {
           const { order } = data.data;
           dispatch(setTasksOrder(order));
         } else {
-          dispatch(setErrors(`${data.status} error: ${data.message}` || 'error updating tasks sort order'));
+          dispatch(setErrors(`${status} error: ${data.message}` || 'error updating tasks sort order'));
           dispatch(setTasksOrder(tasksOrder)); // reset the order of tasks
         }
       })
@@ -328,7 +328,7 @@ export default (
 //     .then(object => {
 //       const { data, status } = object;
 //       console.log('response object:', object)
-//       if((data.status === 'success' || status < 400) && data.data.tasksOrder)
+//       if((data.ok || status < 400) && data.data.tasksOrder)
 //         dispatch(setTasksOrder(data.data.tasksOrder))
 //       else
 //         dispatch(setErrors(data.message || 'error getting tasks order from server'))

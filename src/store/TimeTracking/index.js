@@ -38,7 +38,7 @@ export const getTimeLogs = (token) => async (dispatch) => {
     });
     const result = await response.json();
     console.log('result:', result);
-    if (result.status === 'success' || result.status < 400) {
+    if (result.ok || result.status < 400) {
       const { timelogs } = result.data;
       dispatch(setLogs(timelogs));
     } else dispatch(setErrors(`${result.status} error: ${result.message}` || 'error getting your timelogs'));
@@ -61,7 +61,7 @@ export const getOneTimeLog = (token, timelogId) => async (dispatch) => {
     .then((object) => {
       const { data, status } = object;
       console.log('response object:', object);
-      if (status >= 400 || data.status === 'error') {
+      if (status >= 400 || !data.ok ) {
         dispatch(setErrors(`${status} error: ${data.message}`));
       } else if (data.data.logs) dispatch(setLogDetails(data.data.log));
       else dispatch(setErrors('error: your time log was not found'));
@@ -86,7 +86,7 @@ export const addTimeLog = (token, timelog) => async (dispatch) => {
     });
     const jsonresult = await result.json();
     console.log('result:', jsonresult);
-    if (jsonresult.status === 'success' || result.status < 400) {
+    if (jsonresult.ok || result.status < 400) {
       const { timelog } = jsonresult.data;
       console.log('timelog:', timelog);
       dispatch(addLogAction(timelog));
@@ -109,7 +109,7 @@ export const updateTimeLog = (token, timelogId, timelogData) => async (dispatch)
     });
     console.log('result:', result, 'status:', result.status);
     const jsonresult = await result.json();
-    if (jsonresult.status === 'success' || result.status < 400) {
+    if (jsonresult.ok || result.status < 400) {
       const { timelog } = jsonresult.data;
       dispatch(updateLogAction(timelog));
     } else dispatch(setErrors(`${result.status} error: ${jsonresult.message}` || 'error updating your time log'));
@@ -133,7 +133,7 @@ export const removeTimeLog = (token, id) => async (dispatch) => {
     });
     console.log('result:', result, 'status:', result.status);
     const jsonresult = await result.json();
-    if (jsonresult.status === 'success' || result.status < 400) {
+    if (jsonresult.ok || result.status < 400) {
       console.log('id:', id);
       dispatch(removeLogAction(id));
     } else dispatch(setErrors(`${result.status} error: ${jsonresult.message}` || 'error removing your timelog'));
@@ -222,7 +222,7 @@ export default (
 //   const { data, status } = object;
 //   console.log('response object:', object)
 
-//   if(status >= 400 || data.status==='error')
+//   if(status >= 400 || !data.ok)
 //     dispatch(setErrors(`${status} error: ${data.message}`))
 //   else {
 //     if(data.data.timelog)
