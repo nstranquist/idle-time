@@ -1,6 +1,5 @@
-
 // export const BASE_URL = process.env.API_CONN;
-const BASE_URL = "https://api.idletime.app"
+const BASE_URL = "https://api.idletime.app/v1"
 // const BASE_URL = "http://144.202.28.229/api"
 // const port = process.env.SERVER_PORT || 8080
 // const BASE_URL = `http://localhost:${port}/api`
