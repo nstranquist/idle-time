@@ -2,7 +2,6 @@
   "name": "idle-time",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "react-scripts start",
     "build": "CI= react-scripts build",

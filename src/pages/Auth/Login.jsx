@@ -15,8 +15,8 @@ import { setSettings } from '../../store/Settings';
 import { BASE_URL } from '../../utils/api';
 
 const emptyLoginForm = {
-  email: 'nicostran@gmail.com',
-  password: 'password',
+  email: '',
+  password: '',
 };
 
 // Note: Would be cool to have a top bar with "IdleTime" written on it

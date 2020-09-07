@@ -10,10 +10,10 @@ import { selectAuthErrors, selectAuthLoading } from '../../store/Auth/selectors'
 import { signup, resetSignupSuccess, clearErrors } from '../../store/Auth'
 
 const emptySignupForm = {
-  name: "Nico",
-  email: "nicostran@gmail.com",
-  password: "password",
-  confirmPassword: "password"
+  name: "",
+  email: "",
+  password: "",
+  confirmPassword: ""
 }
 
 const SignUp = ({
