@@ -29,7 +29,7 @@ const Login = () => {
   const errors = useSelector((state) => state.auth.errors);
 
   const [formData, setFormData] = useState(emptyLoginForm);
-  const [showPassword, setShowPassword] = useState(true); // change to false when out of dev mode
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [formErrors, setFormErrors] = useState(null);
 
