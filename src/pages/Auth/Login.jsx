@@ -103,7 +103,7 @@ const Login = () => {
       .then((object) => {
         const { data, status } = object;
         console.log('response data:', object);
-        if ((status >= 200 && status < 300) || data.status === 'success') {
+        if ((status >= 200 && status < 300) || data.ok ) {
           console.log('success! data:', data)
           const { userData } = data.data;
           const { userSettings } = data.data;

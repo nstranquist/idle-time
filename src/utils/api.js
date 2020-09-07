@@ -22,7 +22,7 @@ const fetchUtil = async (token, extension, method, body=undefined, bodyName=unde
     result = await fetch(BASE_URL + extension, options)
     console.log('result:', result, 'status:', result.status)
     const jsonresult = await result.json();
-    if(jsonresult.status ==="success" || result.status < 400) {
+    if(jsonresult.ok || result.status < 400) {
       return { ok: true, jsonresult }
     }
     else {

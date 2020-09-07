@@ -37,7 +37,7 @@ export const getSettings = (token) => async (dispatch) => {
     })
     const jsonresult = await result.json()
     console.log('result:', jsonresult)
-    if(jsonresult.status === "success" || result.status < 400) {
+    if(jsonresult.ok || result.status < 400) {
       console.log('jsonresult:', jsonresult)
       const settings = jsonresult.data.settings;
       dispatch(setSettings(settings))
@@ -61,7 +61,7 @@ export const getSettingsSection = (token, sectionName) => async (dispatch) => {
     })
     const jsonresult = await result.json()
     console.log('result:', jsonresult)
-    if(result.status < 400 || jsonresult.status === "success") {
+    if(result.status < 400 || jsonresult.ok) {
       const settingsSection = jsonresult.data.settingsSection;
       dispatch(setSettingsSection(sectionName, settingsSection))
     }
@@ -84,7 +84,7 @@ export const updateSettingsSection = (token, settingsData, sectionName=undefined
       body: JSON.stringify({ settings: settingsData })
     })
     const jsonresult = await result.json()
-    if(result.status < 400 || jsonresult.status === "success")
+    if(result.status < 400 || jsonresult.ok)
       dispatch(setSettingsSection(sectionName, jsonresult.data.settingsSection))
     else dispatch(setErrors(jsonresult.message || "could not update your settings"))
   } catch (error) {
@@ -104,7 +104,7 @@ export const updateAllSettings = (token, settingsData) => async (dispatch) => {
     })
     const jsonresult = await result.json()
     console.log('result:', jsonresult)
-    if(jsonresult.status === "success" || result.status < 400) {
+    if(jsonresult.ok || result.status < 400) {
       const settings = jsonresult.data.settings;
       dispatch(setSettings(settings))
     }
