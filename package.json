@@ -23,7 +23,7 @@
     "bulma-timeline": "^3.0.4",
     "dotenv": "^8.2.0",
     "feather": "^0.0.6",
-    "moment": "^2.26.0",
+    "moment": "^2.29.2",
     "react": "^16.13.1",
     "react-beautiful-dnd": "^13.0.0",
     "react-dom": "^16.13.1",
