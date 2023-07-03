@@ -1,27 +1,27 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { connect } from "react-redux";
-import { TimerProvider } from './context/IdleTimer'
+import { TimerProvider } from "./context/IdleTimer";
 import styled from "styled-components";
 import { Route, Switch, Redirect } from "react-router-dom";
 import { GuestPageNotFound, AuthPageNotFound } from "./pages/PageNotFound";
 // component imports
 import { TopBar } from "./components/TopBar";
 import { Sidebar } from "./components/Sidebar";
-import { bulmaColors } from './styles/bulma.colors'
-import { pageOptions } from './styles/pageOptions'
+import { bulmaColors } from "./styles/bulma.colors";
+import { pageOptions } from "./styles/pageOptions";
 import { openSidebar, closeSidebar } from "./store/Settings";
 import { selectSidebarOpen } from "./store/Settings/selectors";
-import { logout } from './store/Auth'
+import { logout } from "./store/Auth";
 import { selectIsSignedIn, selectAuthToken } from "./store/Auth/selectors";
 
-import { Login, SignUp, ResetPassword } from './pages/Auth'
+import { Login, SignUp, ResetPassword } from "./pages/Auth";
 
 // Perhaps: put sidebar and layout container code here
 
 // TODO: refactor auth app into its own component
 // TODO: refactor redux store to only load with auth app
 
-const App = ({ 
+const App = ({
   token,
   isSignedIn,
   sidebarOpen,
@@ -29,37 +29,20 @@ const App = ({
   closeSidebar,
   logout,
 }) => {
-
-  if(isSignedIn === false) {
+  if (isSignedIn === false) {
     return (
       <GuestApp>
         <Switch>
-          <Route
-            exact
-            path="/"
-            component={Login}
-          />
-          <Route
-            exact
-            path="/login"
-            component={Login}
-          />
-          <Route
-            exact
-            path="/signup"
-            component={SignUp}
-          />
-          <Route
-            exact
-            path="/reset-password"
-            component={ResetPassword}
-          />
+          <Route exact path="/" component={Login} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/signup" component={SignUp} />
+          <Route exact path="/reset-password" component={ResetPassword} />
           <Route path="/">
             <Redirect to="/" />
           </Route>
         </Switch>
       </GuestApp>
-    )
+    );
   }
   return (
     <StyledApp>
@@ -74,7 +57,14 @@ const App = ({
 
       {/* Main Section */}
       <TimerProvider>
-        <div className="content" style={{marginLeft: sidebarOpen ? pageOptions.sidebarWidth : pageOptions.sidebarWidthClosed}}>
+        <div
+          className="content"
+          style={{
+            marginLeft: sidebarOpen
+              ? pageOptions.sidebarWidth
+              : pageOptions.sidebarWidthClosed,
+          }}
+        >
           <TopBar
             sidebarOpen={sidebarOpen}
             openSidebar={openSidebar}
@@ -150,10 +140,11 @@ const mapStateToProps = (state) => ({
   sidebarOpen: selectSidebarOpen(state),
 });
 
-export const ConnectedApp = connect(
-  mapStateToProps,
-  { openSidebar, closeSidebar, logout },
-)(App);
+export const ConnectedApp = connect(mapStateToProps, {
+  openSidebar,
+  closeSidebar,
+  logout,
+})(App);
 
 export default ConnectedApp;
 
@@ -163,7 +154,7 @@ const GuestApp = styled.div`
   width: 100vw;
   overflow: hidden;
   background-color: ${bulmaColors.light};
-`
+`;
 
 const StyledApp = styled.div`
   // min-height: 100vh;
