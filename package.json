@@ -22,7 +22,7 @@
     "bulma-tagsinput": "^2.0.0",
     "bulma-timeline": "^3.0.4",
     "feather": "^0.0.6",
-    "moment": "^2.26.0",
+    "moment": "^2.29.4",
     "path-browserify": "^1.0.1",
     "react": "^16.13.1",
     "react-beautiful-dnd": "^13.0.0",
